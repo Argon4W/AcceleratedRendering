@@ -23,18 +23,17 @@ public abstract class LevelRendererMixin {
 
     @Shadow public abstract boolean shouldShowEntityOutlines();
 
-    @WrapOperation(method = "renderLevel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/LevelRenderer;renderEntity(Lnet/minecraft/world/entity/Entity;DDDFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;)V"))
+    @WrapOperation(method = "renderEntities", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/LevelRenderer;renderEntity(Lnet/minecraft/world/entity/Entity;DDDFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;)V"))
     public void wrapRenderEntity(
-            LevelRenderer instance,
-            Entity pEntity,
-            double pCamX,
-            double pCamY,
-            double pCamZ,
-            float pPartialTick,
-            PoseStack pPoseStack,
-            MultiBufferSource pBufferSource,
-            Operation<Void> original,
-            @Local(name = "flag2") LocalBooleanRef flag2
+        LevelRenderer instance,
+        Entity pEntity,
+        double pCamX,
+        double pCamY,
+        double pCamZ,
+        float pPartialTick,
+        PoseStack pPoseStack,
+        MultiBufferSource pBufferSource,
+        Operation<Void> original
     ) {
         if (!AcceleratedEntityRenderingFeature.isEnabled()) {
             original.call(
@@ -75,12 +74,10 @@ public abstract class LevelRendererMixin {
                     pPoseStack,
                     CoreFeature.CORE_OUTLINE.setColor(pEntity.getTeamColor())
             );
-            flag2.set(true);
             return;
         }
 
         if (pEntity.hasCustomOutlineRendering(minecraft.player)) {
-            flag2.set(true);
         }
 
         original.call(

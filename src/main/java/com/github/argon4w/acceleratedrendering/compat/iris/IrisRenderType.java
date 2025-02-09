@@ -17,14 +17,14 @@ public class IrisRenderType extends RenderType {
             VertexFormat vertexFormat
     ) {
         super(
-                renderType.name,
+                renderType.toString(),
                 vertexFormat,
                 renderType.mode,
                 renderType.bufferSize,
                 renderType.affectsCrumbling,
                 renderType.sortOnUpload,
-                renderType.setupState,
-                renderType.clearState
+            renderType::setupRenderState,
+            renderType::clearRenderState
         );
 
         this.renderType = renderType;
