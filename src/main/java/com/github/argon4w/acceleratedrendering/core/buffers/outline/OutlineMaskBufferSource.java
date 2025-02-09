@@ -6,7 +6,7 @@ import com.github.argon4w.acceleratedrendering.core.buffers.builders.OutlineMask
 import com.github.argon4w.acceleratedrendering.core.buffers.environments.IBufferEnvironment;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.util.FastColor;
+import net.minecraft.util.ARGB;
 
 public class OutlineMaskBufferSource implements IAcceleratedOutlineBufferSource {
 
@@ -26,7 +26,7 @@ public class OutlineMaskBufferSource implements IAcceleratedOutlineBufferSource 
 
     @Override
     public void setColor(int color) {
-        this.color = FastColor.ARGB32.color(255, color);
+        this.color = ARGB.color(255, color);
     }
 
     @Override

@@ -76,20 +76,20 @@ public class ModelPartMixin {
 
             for (ModelPart.Cube cube : cubes) {
                 for (ModelPart.Polygon polygon : cube.polygons) {
-                    Vector3f normal = polygon.normal;
+                    Vector3f normal = polygon.normal();
 
-                    if (CullerUtils.shouldCull(polygon.vertices, image)) {
+                    if (CullerUtils.shouldCull(polygon.vertices(), image)) {
                         continue;
                     }
 
-                    for (ModelPart.Vertex vertex : polygon.vertices) {
+                    for (ModelPart.Vertex vertex : polygon.vertices()) {
                         meshCollector.addVertex(
-                                vertex.pos.x / 16.0f,
-                                vertex.pos.y / 16.0f,
-                                vertex.pos.z / 16.0f,
+                                vertex.pos().x / 16.0f,
+                                vertex.pos().y / 16.0f,
+                                vertex.pos().z / 16.0f,
                                 pColor,
-                                vertex.u,
-                                vertex.v,
+                                vertex.u(),
+                                vertex.v(),
                                 pPackedOverlay,
                                 pPackedLight,
                                 normal.x,

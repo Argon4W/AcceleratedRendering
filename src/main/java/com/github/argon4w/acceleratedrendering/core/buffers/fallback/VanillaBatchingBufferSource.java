@@ -65,7 +65,7 @@ public class VanillaBatchingBufferSource extends MultiBufferSource.BufferSource 
             }
 
             if (renderType.sortOnUpload) {
-                meshData.sortQuads(((BufferBuilderAccessor) builder).getBuffer(), RenderSystem.getVertexSorting());
+                meshData.sortQuads(((BufferBuilderAccessor) builder).getBuffer(), RenderSystem.getProjectionType().vertexSorting());
             }
 
             renderType.draw(meshData);

@@ -9,7 +9,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.util.FastColor;
+import net.minecraft.util.ARGB;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
@@ -39,9 +39,9 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IVertexConsumer
     private int sharing;
 
     public AcceleratedBufferBuilder(
-            MappedBuffer elementBuffer,
-            AcceleratedBufferSetPool.BufferSet bufferSet,
-            RenderType renderType
+        MappedBuffer elementBuffer,
+        AcceleratedBufferSetPool.BufferSet bufferSet,
+        RenderType renderType
 
     ) {
         this.elementBuffer = elementBuffer;
@@ -68,36 +68,36 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IVertexConsumer
 
     private void putElements(int size) {
         IntElementUtils.putElements(
-                mode,
-                elementBuffer,
-                bufferSet.getElement(size),
-                size
+            mode,
+            elementBuffer,
+            bufferSet.getElement(size),
+            size
         );
     }
 
     @Override
     public VertexConsumer addVertex(
-            PoseStack.Pose pPose,
-            float pX,
-            float pY,
-            float pZ
+        PoseStack.Pose pPose,
+        float pX,
+        float pY,
+        float pZ
     ) {
         beginTransform(pPose);
         return addVertex(
-                pX,
-                pY,
-                pZ
+            pX,
+            pY,
+            pZ
         );
     }
 
     @Override
     public VertexConsumer addVertex(
-            float pX,
-            float pY,
-            float pZ
+        float pX,
+        float pY,
+        float pZ
     ) {
-        vertexCount ++;
-        elementCount ++;
+        vertexCount++;
+        elementCount++;
 
         if (elementCount >= polygonSize) {
             putElements(polygonSize);
@@ -120,10 +120,10 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IVertexConsumer
 
     @Override
     public VertexConsumer setColor(
-            int pRed,
-            int pGreen,
-            int pBlue,
-            int pAlpha
+        int pRed,
+        int pGreen,
+        int pBlue,
+        int pAlpha
     ) {
         if (colorOffset == -1) {
             return this;
@@ -191,17 +191,17 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IVertexConsumer
 
     @Override
     public VertexConsumer setNormal(
-            PoseStack.Pose pPose,
-            float pNormalX,
-            float pNormalY,
-            float pNormalZ
+        PoseStack.Pose pPose,
+        float pNormalX,
+        float pNormalY,
+        float pNormalZ
     ) {
         if (transform == -1) {
             return VertexConsumer.super.setNormal(
-                    pPose,
-                    pNormalX,
-                    pNormalY,
-                    pNormalZ
+                pPose,
+                pNormalX,
+                pNormalY,
+                pNormalZ
             );
         }
 
@@ -210,17 +210,17 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IVertexConsumer
         }
 
         return setNormal(
-                pNormalX,
-                pNormalY,
-                pNormalZ
+            pNormalX,
+            pNormalY,
+            pNormalZ
         );
     }
 
     @Override
     public VertexConsumer setNormal(
-            float pNormalX,
-            float pNormalY,
-            float pNormalZ
+        float pNormalX,
+        float pNormalY,
+        float pNormalZ
     ) {
         if (normalOffset == -1) {
             return this;
@@ -239,20 +239,20 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IVertexConsumer
 
     @Override
     public void addVertex(
-            float pX,
-            float pY,
-            float pZ,
-            int pColor,
-            float pU,
-            float pV,
-            int pPackedOverlay,
-            int pPackedLight,
-            float pNormalX,
-            float pNormalY,
-            float pNormalZ
+        float pX,
+        float pY,
+        float pZ,
+        int pColor,
+        float pU,
+        float pV,
+        int pPackedOverlay,
+        int pPackedLight,
+        float pNormalX,
+        float pNormalY,
+        float pNormalZ
     ) {
         vertexCount++;
-        elementCount ++;
+        elementCount++;
 
         if (elementCount >= polygonSize) {
             putElements(polygonSize);
@@ -281,7 +281,7 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IVertexConsumer
 
         MemoryUtil.memPutInt(varying + 0L * 4L, 0);
         MemoryUtil.memPutInt(varying + 1L * 4L, -1);
-        MemoryUtil.memPutInt(varying + 2L * 4L, FastColor.ABGR32.fromArgb32(pColor));
+        MemoryUtil.memPutInt(varying + 2L * 4L, ARGB.toABGR(pColor));
         MemoryUtil.memPutInt(varying + 3L * 4L, pPackedLight);
         MemoryUtil.memPutInt(varying + 4L * 4L, pPackedOverlay);
     }
@@ -318,12 +318,12 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IVertexConsumer
 
     @Override
     public void addClientMesh(
-            RenderType renderType,
-            ByteBuffer vertexBuffer,
-            int size,
-            int color,
-            int light,
-            int overlay
+        RenderType renderType,
+        ByteBuffer vertexBuffer,
+        int size,
+        int color,
+        int light,
+        int overlay
     ) {
         putElements(size);
         vertexCount += size;
@@ -333,13 +333,13 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IVertexConsumer
         long length = (long) size * bufferSet.getVertexSize();
 
         ByteBufferUtils.putByteBuffer(
-                vertexBuffer,
-                vertex,
-                length
+            vertexBuffer,
+            vertex,
+            length
         );
 
         MemoryUtil.memPutInt(varying + 1L * 4L, sharing);
-        MemoryUtil.memPutInt(varying + 2L * 4L, FastColor.ABGR32.fromArgb32(color));
+        MemoryUtil.memPutInt(varying + 2L * 4L, ARGB.toABGR(color));
         MemoryUtil.memPutInt(varying + 3L * 4L, light);
         MemoryUtil.memPutInt(varying + 4L * 4L, overlay);
 
@@ -350,12 +350,12 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IVertexConsumer
 
     @Override
     public void addServerMesh(
-            RenderType renderType,
-            int offset,
-            int size,
-            int color,
-            int light,
-            int overlay
+        RenderType renderType,
+        int offset,
+        int size,
+        int color,
+        int light,
+        int overlay
     ) {
         putElements(size);
 
@@ -367,7 +367,7 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IVertexConsumer
 
         MemoryUtil.memPutInt(mesh, offset / bufferSet.getVertexSize());
         MemoryUtil.memPutInt(varying + 1L * 4L, sharing);
-        MemoryUtil.memPutInt(varying + 2L * 4L, FastColor.ABGR32.fromArgb32(color));
+        MemoryUtil.memPutInt(varying + 2L * 4L, ARGB.toABGR(color));
         MemoryUtil.memPutInt(varying + 3L * 4L, light);
         MemoryUtil.memPutInt(varying + 4L * 4L, overlay);
 

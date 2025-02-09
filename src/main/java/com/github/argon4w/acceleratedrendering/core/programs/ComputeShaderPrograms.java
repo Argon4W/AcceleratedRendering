@@ -12,7 +12,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
+import net.neoforged.neoforge.client.event.AddClientReloadListenersEvent;
 
 import java.util.function.UnaryOperator;
 
@@ -23,6 +23,7 @@ public class ComputeShaderPrograms {
     public static final ResourceLocation CORE_POS_TEX_COLOR_VERTEX_TRANSFORM_KEY = AcceleratedRenderingModEntry.location("core_pos_tex_color_vertex_transform");
     public static final ResourceLocation CORE_POS_TEX_VERTEX_TRANSFORM_KEY = AcceleratedRenderingModEntry.location("core_pos_tex_vertex_transform");
     public static final ResourceLocation CORE_PASS_THROUGH_POLYGON_CULLING_KEY = AcceleratedRenderingModEntry.location("core_pass_through_polygon_culling");
+    public static final ResourceLocation COMPUTE_SHADER_PROGRAM_LOADER_KEY = AcceleratedRenderingModEntry.location("compute_shader_program_loader");
 
     @SubscribeEvent
     public static void onLoadComputeShaders(LoadComputeShaderEvent event) {
@@ -85,7 +86,7 @@ public class ComputeShaderPrograms {
     }
 
     @SubscribeEvent
-    public static void onRegisterResourceReloadListeners(RegisterClientReloadListenersEvent event) {
-        event.registerReloadListener(ComputeShaderProgramLoader.INSTANCE);
+    public static void onRegisterResourceReloadListeners(AddClientReloadListenersEvent event) {
+        event.addListener(COMPUTE_SHADER_PROGRAM_LOADER_KEY, ComputeShaderProgramLoader.INSTANCE);
     }
 }

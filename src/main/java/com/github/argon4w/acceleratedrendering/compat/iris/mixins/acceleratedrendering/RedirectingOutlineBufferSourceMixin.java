@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(RedirectingOutlineBufferSource.class)
 public class RedirectingOutlineBufferSourceMixin {
 
-    @WrapOperation(method = "getBuffer", at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/RenderType;name:Ljava/lang/String;"))
+    @WrapOperation(method = "getBuffer", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/RenderType;toString()Ljava/lang/String;"))
     public String unwrapIrisRenderType(RenderType instance, Operation<String> original) {
         if (!IrisCompatFeature.isEnabled()) {
             return original.call(instance);

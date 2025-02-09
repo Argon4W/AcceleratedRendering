@@ -12,6 +12,7 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
 import net.irisshaders.iris.shaderpack.materialmap.WorldRenderingSettings;
 import net.irisshaders.iris.vertices.ImmediateState;
+import net.irisshaders.iris.vertices.sodium.terrain.XHFPModelVertexType;
 import net.minecraft.client.renderer.RenderType;
 
 public class IrisBufferEnvironment implements IBufferEnvironment {
@@ -29,7 +30,7 @@ public class IrisBufferEnvironment implements IBufferEnvironment {
     }
 
     private boolean shouldUseIrisSubSet() {
-        return WorldRenderingSettings.INSTANCE.shouldUseExtendedVertexFormat()
+        return WorldRenderingSettings.INSTANCE.getVertexFormat() instanceof XHFPModelVertexType
                 && ImmediateState.isRenderingLevel;
     }
 
