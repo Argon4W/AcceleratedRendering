@@ -10,7 +10,7 @@ import java.util.Set;
 
 public abstract class AbstractCompatMixinPlugin implements IMixinConfigPlugin {
 
-    protected abstract String getModID();
+    protected abstract String[] getModID();
 
     @Override
     public void onLoad(String mixinPackage) {
@@ -24,7 +24,10 @@ public abstract class AbstractCompatMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        return LoadingModList.get().getModFileById(getModID()) != null;
+        for (int i = 0; i < getModID().length; i++) {
+            if(LoadingModList.get().getModFileById(getModID()[i]) != null) return true;
+        }
+        return false;
     }
 
     @Override
