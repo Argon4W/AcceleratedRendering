@@ -137,8 +137,8 @@ dependencies {
     // For more info:
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html54
-    implementation "maven.modrinth:sodium:mc1.21.1-0.6.9-neoforge"
-    implementation "maven.modrinth:iris:1.8.8+1.21.1-neoforge"
+    implementation "maven.modrinth:sodium:mc1.21.1-0.6.13-neoforge"
+    implementation "maven.modrinth:iris:1.8.12-snapshot+1.21.1-local-neoforge"
     compileOnly "maven.modrinth:touhou-little-maid:3XPwCAVd"
     compileOnly 'com.github.TartaricAcid:SimpleBedrockModel:neoforge-1.21.1-1.2.1-release'
 
