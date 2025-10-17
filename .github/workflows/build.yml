@@ -21,5 +21,8 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
+      - name: Grant Premission
+        run: chmod +x ./gradlew
+
       - name: Build with Gradle
         run: ./gradlew build
