@@ -24,7 +24,7 @@ public class TransformProgramDispatcher {
 
 	public TransformProgramDispatcher() {
 		this.lastOverride = null;
-		this.lastBarriers = GL_SHADER_STORAGE_BUFFER;
+		this.lastBarriers = GL_SHADER_STORAGE_BARRIER_BIT;
 	}
 
 	public void dispatch(Collection<AcceleratedBufferBuilder> builders) {
@@ -73,8 +73,8 @@ public class TransformProgramDispatcher {
 			lastOverride.setupProgram	();
 		}
 
-		vertexBuffer			.bindBase			(GL_SHADER_STORAGE_BUFFER, VERTEX_BUFFER_IN_INDEX);
-		varyingBuffer			.bindBase			(GL_SHADER_STORAGE_BUFFER, VARYING_BUFFER_IN_INDEX);
+		vertexBuffer	.bindBase(GL_SHADER_STORAGE_BUFFER, VERTEX_BUFFER_IN_INDEX);
+		varyingBuffer	.bindBase(GL_SHADER_STORAGE_BUFFER, VARYING_BUFFER_IN_INDEX);
 
 		return currentOverride	.dispatchTransform	(
 				(int) vertexCount,

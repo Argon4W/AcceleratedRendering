@@ -148,13 +148,21 @@ dependencies {
     implementation "maven.modrinth:sodium:mc1.21.1-0.6.13-neoforge"
     implementation "maven.modrinth:iris:1.8.8+1.21.1-neoforge"
 
+    implementation "curse.maven:architectury-api-419699:5786327"
+    implementation "curse.maven:ftb-teams-forge-404468:7369021"
+    implementation "curse.maven:ftb-quests-forge-289412:7429016"
+    implementation "curse.maven:certain-questing-additions-1372051:7450467"
+
+    implementation "maven.modrinth:kotlin-for-forge:5.11.0"
+    implementation "maven.modrinth:elytra-trims:3.9.3"
+
     compileOnly "maven.modrinth:entity-model-features:3.0.7-neoforge-1.21"
     compileOnly "maven.modrinth:touhou-little-maid:3XPwCAVd"
     compileOnly "maven.modrinth:geckolib:QEqpUJ1G"
     compileOnly "maven.modrinth:immediatelyfast:1.6.6+1.21.1-neoforge"
     compileOnly "maven.modrinth:curios:9.5.1+1.21.1"
     compileOnly "com.github.TartaricAcid:SimpleBedrockModel:neoforge-1.21.1-1.2.1-release"
-    compileOnly "curse.maven:ftb-library-forge-404465:7182154"
+    implementation "curse.maven:ftb-library-forge-404465:7420412"
     compileOnly "org.projectlombok:lombok:1.18.38"
 
     annotationProcessor "org.projectlombok:lombok:1.18.38"

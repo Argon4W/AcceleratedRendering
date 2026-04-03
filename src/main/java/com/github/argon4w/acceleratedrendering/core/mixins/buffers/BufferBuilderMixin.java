@@ -1,6 +1,5 @@
 package com.github.argon4w.acceleratedrendering.core.mixins.buffers;
 
-import com.github.argon4w.acceleratedrendering.core.CoreBuffers;
 import com.github.argon4w.acceleratedrendering.core.CoreFeature;
 import com.github.argon4w.acceleratedrendering.core.buffers.EmptyAcceleratedBufferSources;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.IAcceleratedBufferSource;
@@ -25,9 +24,9 @@ public class BufferBuilderMixin implements IAccelerationHolder, IAcceleratedVert
 
 	@Unique
 	@Override
-	public VertexConsumer initAcceleration(RenderType renderType) {
+	public VertexConsumer initAcceleration(RenderType renderType, IAcceleratedBufferSource bufferSource) {
 		if (CoreFeature.isLoaded()) {
-			this.bufferSources	= renderType.isOutline() ? CoreBuffers.OUTLINE : CoreBuffers.getCoreBufferSources();
+			this.bufferSources	= bufferSource;
 			this.renderType		= renderType;
 			this.acceleration	= null;
 		}

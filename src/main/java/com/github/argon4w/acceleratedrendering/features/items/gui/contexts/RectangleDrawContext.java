@@ -12,9 +12,17 @@ public record RectangleDrawContext(
 		int			minY,
 		int			maxX,
 		int			maxY,
+		int			blitOffset,
 		int			color,
 		int			light,
 		int			overlay
-) {
+) implements Comparable<RectangleDrawContext> {
 
+	@Override
+	public int compareTo(RectangleDrawContext that) {
+		return Integer.compare(
+				this.blitOffset,
+				that.blitOffset
+		);
+	}
 }

@@ -7,6 +7,7 @@ import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.layers.L
 import com.github.argon4w.acceleratedrendering.features.items.AcceleratedItemRenderingFeature;
 import com.github.argon4w.acceleratedrendering.features.items.IAcceleratedGuiGraphics;
 import com.github.argon4w.acceleratedrendering.features.items.gui.GuiBatchingController;
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.platform.Lighting;
@@ -17,70 +18,25 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FastColor;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.ItemDecoratorHandler;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @SuppressWarnings	("UnstableApiUsage")
 @Mixin				(GuiGraphics.class)
 public class GuiGraphicsMixin implements IAcceleratedGuiGraphics {
 
-	@WrapOperation(
-			method	= "renderItemDecorations(Lnet/minecraft/client/gui/Font;Lnet/minecraft/world/item/ItemStack;IILjava/lang/String;)V",
-			at		= @At(
-					value	= "INVOKE",
-					target	= "Lnet/minecraft/client/gui/GuiGraphics;drawString(Lnet/minecraft/client/gui/Font;Ljava/lang/String;IIIZ)I"
-			)
-	)
-	public int renderDecorationStringsFast(
-			GuiGraphics			instance,
-			Font				font,
-			String				text,
-			int					textX,
-			int					textY,
-			int					textColor,
-			boolean				dropShadow,
-			Operation<Integer>	original
-	) {
-		if (!CoreFeature.isGuiBatching()) {
-			return original.call(
-					instance,
-					font,
-					text,
-					textX,
-					textY,
-					textColor,
-					dropShadow
-			);
-		}
+	@Shadow @Final private PoseStack pose;
 
-		GuiBatchingController.INSTANCE.recordString(
-				instance,
-				font,
-				text,
-				textX,
-				textY,
-				textColor,
-				dropShadow
-		);
-		return 0;
-	}
-
-	@WrapOperation(
-			method	= "renderItemDecorations(Lnet/minecraft/client/gui/Font;Lnet/minecraft/world/item/ItemStack;IILjava/lang/String;)V",
-			at		= @At(
-					value	= "INVOKE",
-					target	= "Lnet/minecraft/client/gui/GuiGraphics;fill(Lnet/minecraft/client/renderer/RenderType;IIIII)V"
-			)
-	)
+	@WrapMethod(method	= "fill(IIIII)V")
 	public void renderDecorationRectanglesFast(
-			GuiGraphics		instance,
-			RenderType		renderType,
 			int				minX,
 			int				minY,
 			int				maxX,
@@ -90,8 +46,6 @@ public class GuiGraphicsMixin implements IAcceleratedGuiGraphics {
 	) {
 		if (!CoreFeature.isGuiBatching()) {
 			original.call(
-					instance,
-					renderType,
 					minX,
 					minY,
 					maxX,
@@ -101,14 +55,168 @@ public class GuiGraphicsMixin implements IAcceleratedGuiGraphics {
 			return;
 		}
 
+		var last = pose.last();
+
 		GuiBatchingController.INSTANCE.recordRectangle(
-				instance,
+				last		.pose	(),
+				last		.normal	(),
+				RenderType	.gui	(),
+				minX,
+				minY,
+				maxX,
+				maxY,
+				-1,
+				color
+		);
+	}
+
+	@WrapMethod(method	= "fill(Lnet/minecraft/client/renderer/RenderType;IIIIII)V")
+	public void renderDecorationRectanglesFast(
+			RenderType		renderType,
+			int				minX,
+			int				minY,
+			int				maxX,
+			int				maxY,
+			int				blitOffset,
+			int				color,
+			Operation<Void>	original
+	) {
+		if (!CoreFeature.isGuiBatching()) {
+			original.call(
+					renderType,
+					minX,
+					minY,
+					maxX,
+					maxY,
+					blitOffset,
+					color
+			);
+			return;
+		}
+
+		var last = pose.last();
+
+		GuiBatchingController.INSTANCE.recordRectangle(
+				last.pose	(),
+				last.normal	(),
 				renderType,
 				minX,
 				minY,
 				maxX,
 				maxY,
+				blitOffset,
 				color
+		);
+	}
+
+	@WrapMethod(method = "innerBlit(Lnet/minecraft/resources/ResourceLocation;IIIIIFFFF)V")
+	public void renderBlitFast(
+			ResourceLocation atlasLocation,
+			int					minX,
+			int					maxX,
+			int					minY,
+			int					maxY,
+			int					blitOffset,
+			float				minU,
+			float				maxU,
+			float				minV,
+			float				maxV,
+			Operation<Void>		original
+	) {
+		if (!CoreFeature.isGuiBatching()) {
+			original.call(
+					atlasLocation,
+					minX,
+					maxX,
+					minY,
+					maxY,
+					blitOffset,
+					minU,
+					maxU,
+					minV,
+					maxV
+			);
+			return;
+		}
+
+		var last = pose.last();
+
+		GuiBatchingController.INSTANCE.recordBlit(
+				last.pose	(),
+				last.normal	(),
+				atlasLocation,
+				minX,
+				maxX,
+				minY,
+				maxY,
+				blitOffset,
+				-1,
+				minU,
+				maxU,
+				minV,
+				maxV
+		);
+	}
+
+	@WrapMethod(method = "innerBlit(Lnet/minecraft/resources/ResourceLocation;IIIIIFFFFFFFF)V")
+	public void renderBlitFast(
+			ResourceLocation	atlasLocation,
+			int					minX,
+			int					maxX,
+			int					minY,
+			int					maxY,
+			int					blitOffset,
+			float				minU,
+			float				maxU,
+			float				minV,
+			float				maxV,
+			float				red,
+			float				green,
+			float				blue,
+			float				alpha,
+			Operation<Void>		original
+	) {
+		if (!CoreFeature.isGuiBatching()) {
+			original.call(
+					atlasLocation,
+					minX,
+					maxX,
+					minY,
+					maxY,
+					blitOffset,
+					minU,
+					maxU,
+					minV,
+					maxV,
+					red,
+					green,
+					blue,
+					alpha
+			);
+			return;
+		}
+
+		var last = pose.last();
+
+		GuiBatchingController.INSTANCE.recordBlit(
+				last.pose	(),
+				last.normal	(),
+				atlasLocation,
+				minX,
+				maxX,
+				minY,
+				maxY,
+				blitOffset,
+				FastColor.ARGB32.color(
+						(int) (alpha	* 255.0f),
+						(int) (red		* 255.0f),
+						(int) (green	* 255.0f),
+						(int) (blue		* 255.0f)
+				),
+				minU,
+				maxU,
+				minV,
+				maxV
 		);
 	}
 
@@ -140,8 +248,11 @@ public class GuiGraphicsMixin implements IAcceleratedGuiGraphics {
 			return;
 		}
 
+		var last = pose.last();
+
 		GuiBatchingController.INSTANCE.recordDecorator(
-				guiGraphics,
+				last.pose	(),
+				last.normal	(),
 				instance,
 				font,
 				stack,

@@ -7,7 +7,6 @@ import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.world.inventory.Slot;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -108,8 +107,11 @@ public abstract class AbstractContainerScreenMixin {
 			return;
 		}
 
+		var last = guiGraphics.pose().last();
+
 		GuiBatchingController.INSTANCE.recordHighlight(
-				guiGraphics,
+				last.pose	(),
+				last.normal	(),
 				highlightX,
 				highLightY,
 				blitOffset,

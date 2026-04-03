@@ -1,4 +1,4 @@
-package com.github.argon4w.acceleratedrendering.features.items.gui;
+package com.github.argon4w.acceleratedrendering.features.items.gui.renderer;
 
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.VertexConsumerExtension;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.renderers.IAcceleratedRenderer;
@@ -27,15 +27,29 @@ public class AcceleratedRectangleRenderer implements IAcceleratedRenderer<Rectan
 
 		extension.beginTransform(transform, normal);
 
-		var minX = context.minX();
-		var minY = context.minY();
-		var maxX = context.maxX();
-		var maxY = context.maxY();
+		var blitOffset	= context.blitOffset();
+		var minX		= context.minX		();
+		var minY		= context.minY		();
+		var maxX		= context.maxX		();
+		var maxY		= context.maxY		();
+		var swap		= 0;
 
-		vertexConsumer.addVertex(minX, minY, 0).setColor(color);
-		vertexConsumer.addVertex(minX, maxY, 0).setColor(color);
-		vertexConsumer.addVertex(maxX, maxY, 0).setColor(color);
-		vertexConsumer.addVertex(maxX, minY, 0).setColor(color);
+		if (minX < maxX) {
+			swap = minX;
+			minX = maxX;
+			maxX = swap;
+		}
+
+		if (minY < maxY) {
+			swap = minY;
+			minY = maxY;
+			maxY = swap;
+		}
+
+		vertexConsumer.addVertex(minX, minY, blitOffset).setColor(color);
+		vertexConsumer.addVertex(minX, maxY, blitOffset).setColor(color);
+		vertexConsumer.addVertex(maxX, maxY, blitOffset).setColor(color);
+		vertexConsumer.addVertex(maxX, minY, blitOffset).setColor(color);
 
 		extension.endTransform();
 	}

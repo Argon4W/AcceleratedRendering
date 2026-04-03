@@ -9,6 +9,7 @@
     "compatibility.ClientHooksMixin",
     "compatibility.GuiLayerManagerMixin",
     "gui.AbstractContainerScreenMixin",
+    "gui.FontMixin",
     "gui.GuiGraphicsMixin",
     "gui.GuiMixin",
     "models.BakedCompositeModelMixin",

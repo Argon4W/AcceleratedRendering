@@ -2,9 +2,11 @@ package com.github.argon4w.acceleratedrendering.compat.iris.mixins.iris;
 
 import net.irisshaders.iris.vertices.sodium.ModelToEntityVertexSerializer;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
 
+@Pseudo
 @Mixin(ModelToEntityVertexSerializer.class)
 public class ModelToEntityVertexSerializerMixin {
 
