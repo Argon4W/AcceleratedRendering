@@ -74,7 +74,7 @@ public abstract class AbstractContainerScreenMixin {
 			at		= @At(
 					value	= "INVOKE",
 					target	= "Lnet/minecraft/client/gui/screens/inventory/AbstractContainerScreen;renderLabels(Lnet/minecraft/client/gui/GuiGraphics;II)V",
-					shift	= At.Shift.BEFORE
+					shift	= At.Shift.AFTER
 			)
 	)
 	public void flushItemBatching(

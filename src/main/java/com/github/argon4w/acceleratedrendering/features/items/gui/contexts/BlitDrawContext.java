@@ -20,6 +20,10 @@ public record BlitDrawContext(
 		float				maxU,
 		float				minV,
 		float				maxV
-) {
+) implements IGuiElementContext {
 
+	@Override
+	public float depth() {
+		return blitOffset;
+	}
 }

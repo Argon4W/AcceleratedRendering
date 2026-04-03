@@ -10,6 +10,10 @@ public record HighlightDrawContext(
 		int			highlightY,
 		int			blitOffset,
 		int			color
-) {
+) implements IGuiElementContext {
 
+	@Override
+	public float depth() {
+		return blitOffset;
+	}
 }

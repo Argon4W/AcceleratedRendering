@@ -16,13 +16,10 @@ public record RectangleDrawContext(
 		int			color,
 		int			light,
 		int			overlay
-) implements Comparable<RectangleDrawContext> {
+) implements IGuiElementContext {
 
 	@Override
-	public int compareTo(RectangleDrawContext that) {
-		return Integer.compare(
-				this.blitOffset,
-				that.blitOffset
-		);
+	public float depth() {
+		return blitOffset;
 	}
 }
