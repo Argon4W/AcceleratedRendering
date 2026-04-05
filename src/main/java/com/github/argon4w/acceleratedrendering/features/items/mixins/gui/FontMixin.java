@@ -228,6 +228,8 @@ public abstract class FontMixin {
 					bufferSource,
 					packedLight
 			);
+
+			return;
 		}
 
 		GuiBatchingController.INSTANCE.recordString(new Outline8StringDrawContext(
