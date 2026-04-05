@@ -1,11 +1,13 @@
 package com.github.argon4w.acceleratedrendering.features.emf.mixins;
 
 import com.github.argon4w.acceleratedrendering.core.CoreFeature;
+import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.IAcceleratedVertexConsumer;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.IBufferGraph;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.VertexConsumerExtension;
+import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.renderers.IAcceleratedRenderer;
 import com.github.argon4w.acceleratedrendering.core.meshes.IMesh;
 import com.github.argon4w.acceleratedrendering.core.meshes.collectors.CulledMeshCollector;
-import com.github.argon4w.acceleratedrendering.core.meshes.data.IMeshData;
+import com.github.argon4w.acceleratedrendering.core.meshes.data.MeshData;
 import com.github.argon4w.acceleratedrendering.features.emf.IEMFModelVariant;
 import com.github.argon4w.acceleratedrendering.features.entities.AcceleratedEntityRenderingFeature;
 import com.github.argon4w.acceleratedrendering.features.modelparts.mixins.ModelPartMixin;
@@ -15,6 +17,7 @@ import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import lombok.experimental.ExtensionMethod;
+import net.minecraft.client.model.geom.ModelPart;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Mixin;
@@ -31,8 +34,44 @@ import java.util.Map;
 public class EMFModelPartMixin extends ModelPartMixin implements IEMFModelVariant {
 
 	@Unique private final	Int2ReferenceMap<Map<IBufferGraph,	IMesh>>	emfMeshes	= new Int2ReferenceOpenHashMap<>();
-	@Unique private final	Int2ReferenceMap<Map<IMeshData,		IMesh>>	emfMerges	= new Int2ReferenceOpenHashMap<>();
+	@Unique private final	Int2ReferenceMap<Map<MeshData,		IMesh>>	emfMerges	= new Int2ReferenceOpenHashMap<>();
 	@Unique private			int											emfVariant	= Integer.MIN_VALUE;
+
+
+	@Inject(
+			method		= "renderLikeVanilla",
+			at			= @At("HEAD"),
+			cancellable	= true
+	)
+	public void renderLikeVanillaFast(
+			PoseStack		poseStack,
+			VertexConsumer	buffer,
+			int				packedLight,
+			int				packedOverlay,
+			int				color,
+			CallbackInfo	ci
+	) {
+		var extension = buffer.getAccelerated();
+
+		if (			AcceleratedEntityRenderingFeature	.isEnabled						()
+				&&		AcceleratedEntityRenderingFeature	.shouldUseAcceleratedPipeline	()
+				&&	(	CoreFeature							.isRenderingLevel				()
+				||	(	CoreFeature							.isRenderingGui					()
+				&&		AcceleratedEntityRenderingFeature	.shouldAccelerateInGui			()))
+				&&		extension							.isAccelerated					()
+		) {
+			ci.cancel();
+
+			renderFast(
+					(ModelPart) (Object) this,
+					poseStack,
+					extension,
+					packedLight,
+					packedOverlay,
+					color
+			);
+		}
+	}
 
 	@Inject(
 			method		= "compile",
@@ -169,5 +208,55 @@ public class EMFModelPartMixin extends ModelPartMixin implements IEMFModelVarian
 	@Override
 	public void setCurrentVariant(int variant) {
 		emfVariant = variant;
+	}
+
+	@Unique
+	@SuppressWarnings("unchecked")
+	private static void renderFast(
+			ModelPart					modelPart,
+			PoseStack					poseStack,
+			IAcceleratedVertexConsumer	extension,
+			int							packedLight,
+			int							packedOverlay,
+			int							packedColor
+	) {
+		if (!modelPart.visible) {
+			return;
+		}
+
+		if (		modelPart.cubes		.isEmpty()
+				&&	modelPart.children	.isEmpty()
+		) {
+			return;
+		}
+
+		poseStack.pushPose();
+
+		modelPart.translateAndRotate(poseStack);
+
+		if (!modelPart.skipDraw) {
+			extension.doRender(
+					(IAcceleratedRenderer<Void>) (Object) modelPart,
+					null,
+					poseStack.last().pose(),
+					poseStack.last().normal(),
+					packedLight,
+					packedOverlay,
+					packedColor
+			);
+		}
+
+		for(var child : modelPart.children.values()) {
+			renderFast(
+					child,
+					poseStack,
+					extension,
+					packedLight,
+					packedOverlay,
+					packedColor
+			);
+		}
+
+		poseStack.popPose();
 	}
 }

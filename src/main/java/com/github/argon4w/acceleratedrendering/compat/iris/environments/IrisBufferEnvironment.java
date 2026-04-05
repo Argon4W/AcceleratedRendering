@@ -2,8 +2,7 @@ package com.github.argon4w.acceleratedrendering.compat.iris.environments;
 
 import com.github.argon4w.acceleratedrendering.core.backends.buffers.IServerBuffer;
 import com.github.argon4w.acceleratedrendering.core.buffers.environments.IBufferEnvironment;
-import com.github.argon4w.acceleratedrendering.core.buffers.memory.IMemoryLayout;
-import com.github.argon4w.acceleratedrendering.core.buffers.memory.VertexFormatMemoryLayout;
+import com.github.argon4w.acceleratedrendering.core.buffers.memory.VertexLayout;
 import com.github.argon4w.acceleratedrendering.core.meshes.ServerMesh;
 import com.github.argon4w.acceleratedrendering.core.programs.culling.ICullingProgramDispatcher;
 import com.github.argon4w.acceleratedrendering.core.programs.culling.ICullingProgramSelector;
@@ -18,7 +17,6 @@ import com.github.argon4w.acceleratedrendering.core.programs.overrides.LoadShade
 import com.github.argon4w.acceleratedrendering.core.programs.processing.IPolygonProcessor;
 import com.github.argon4w.acceleratedrendering.core.programs.processing.LoadPolygonProcessorEvent;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormatElement;
 import net.irisshaders.iris.api.v0.IrisApi;
 import net.irisshaders.iris.vertices.ImmediateState;
 import net.minecraft.client.renderer.RenderType;
@@ -63,7 +61,7 @@ public class IrisBufferEnvironment implements IBufferEnvironment {
 	}
 
 	@Override
-	public IMemoryLayout<VertexFormatElement> getLayout() {
+	public VertexLayout getLayout() {
 		return getSubSet().getLayout();
 	}
 
@@ -114,15 +112,15 @@ public class IrisBufferEnvironment implements IBufferEnvironment {
 
 	public static class IrisSubSet implements IBufferEnvironment {
 
-		private final VertexFormat							vanillaVertexFormat;
-		private final VertexFormat							irisVertexFormat;
-		private final IMemoryLayout<VertexFormatElement>	layout;
+		private final VertexFormat						vanillaVertexFormat;
+		private final VertexFormat						irisVertexFormat;
+		private final VertexLayout						layout;
 
-		private final IShaderProgramOverrides				shaderProgramOverrides;
-		private final MeshUploadingProgramDispatcher		meshUploadingProgramDispatcher;
-		private final TransformProgramDispatcher			transformProgramDispatcher;
-		private final ICullingProgramSelector				cullingProgramSelector;
-		private final IPolygonProcessor						polygonProcessor;
+		private final IShaderProgramOverrides			shaderProgramOverrides;
+		private final MeshUploadingProgramDispatcher	meshUploadingProgramDispatcher;
+		private final TransformProgramDispatcher		transformProgramDispatcher;
+		private final ICullingProgramSelector			cullingProgramSelector;
+		private final IPolygonProcessor					polygonProcessor;
 
 		public IrisSubSet(
 				VertexFormat		vanillaVertexFormat,
@@ -135,14 +133,14 @@ public class IrisBufferEnvironment implements IBufferEnvironment {
 
 			this.vanillaVertexFormat			= vanillaVertexFormat;
 			this.irisVertexFormat				= irisVertexFormat;
-			this.layout							= new VertexFormatMemoryLayout				(this.irisVertexFormat);
+			this.layout							= new VertexLayout(this.irisVertexFormat);
 
-			this.shaderProgramOverrides			= ModLoader.postEventWithReturn				(new LoadShaderProgramOverridesEvent(this.irisVertexFormat)).getOverrides	(defaultTransformOverride, defaultUploadingOverride);
-			this.cullingProgramSelector			= ModLoader.postEventWithReturn				(new LoadCullingProgramSelectorEvent(this.irisVertexFormat)).getSelector	();
-			this.polygonProcessor				= ModLoader.postEventWithReturn				(new LoadPolygonProcessorEvent		(this.irisVertexFormat)).getProcessor	();
+			this.shaderProgramOverrides			= ModLoader.postEventWithReturn(new LoadShaderProgramOverridesEvent	(this.irisVertexFormat)).getOverrides	(defaultTransformOverride, defaultUploadingOverride);
+			this.cullingProgramSelector			= ModLoader.postEventWithReturn(new LoadCullingProgramSelectorEvent	(this.irisVertexFormat)).getSelector	();
+			this.polygonProcessor				= ModLoader.postEventWithReturn(new LoadPolygonProcessorEvent		(this.irisVertexFormat)).getProcessor	();
 
-			this.meshUploadingProgramDispatcher	= new MeshUploadingProgramDispatcher		();
-			this.transformProgramDispatcher		= new TransformProgramDispatcher			();
+			this.meshUploadingProgramDispatcher	= new MeshUploadingProgramDispatcher();
+			this.transformProgramDispatcher		= new TransformProgramDispatcher	();
 		}
 
 		@Override
@@ -161,7 +159,7 @@ public class IrisBufferEnvironment implements IBufferEnvironment {
 		}
 
 		@Override
-		public IMemoryLayout<VertexFormatElement> getLayout() {
+		public VertexLayout getLayout() {
 			return layout;
 		}
 

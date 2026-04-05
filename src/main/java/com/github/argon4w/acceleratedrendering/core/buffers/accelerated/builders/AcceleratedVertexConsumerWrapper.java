@@ -1,11 +1,10 @@
 package com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders;
 
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.renderers.IAcceleratedRenderer;
-import com.github.argon4w.acceleratedrendering.core.buffers.memory.IMemoryLayout;
+import com.github.argon4w.acceleratedrendering.core.buffers.memory.VertexLayout;
 import com.github.argon4w.acceleratedrendering.core.meshes.ServerMesh;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.blaze3d.vertex.VertexFormatElement;
 import lombok.experimental.ExtensionMethod;
 import net.minecraft.client.renderer.RenderType;
 import org.joml.Matrix3f;
@@ -49,7 +48,7 @@ public abstract class AcceleratedVertexConsumerWrapper implements IAcceleratedVe
 	}
 
 	@Override
-	public IMemoryLayout<VertexFormatElement> getLayout() {
+	public VertexLayout getLayout() {
 		return getDelegate		()
 				.getAccelerated	()
 				.getLayout		();

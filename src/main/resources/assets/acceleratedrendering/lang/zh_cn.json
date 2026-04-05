@@ -37,7 +37,7 @@
   "acceleratedrendering.configuration.core_settings.block_buffer_binding_restoring.tooltip": "部分MOD和光影会使用块缓冲进行渲染, 可能会与同样使用块缓冲的加速渲染造成冲突.\n块缓冲还原可以在加速前记录块缓冲绑定, 在加速后还原成加速前的块缓冲绑定以实现更好的兼容性",
   "acceleratedrendering.configuration.core_settings.block_buffer_binding_restoring.feature_status": "启用块缓冲还原",
   "acceleratedrendering.configuration.core_settings.block_buffer_binding_restoring.feature_status.tooltip": "- DISABLED: 禁用块缓冲还原, 速度更快但可能与使用块缓冲的MOD和光影冲突.\n- ENABLED: 启用块缓冲还原, 速度可能由于需要记录和还原块缓冲绑定而略慢, 但能确保在使用了块缓冲的MOD和光影的环境中正常工作.",
-  "acceleratedrendering.configuration.core_settings.block_buffer_binding_restoring.binding_cache_type": "坏缓冲绑定缓存类型",
+  "acceleratedrendering.configuration.core_settings.block_buffer_binding_restoring.binding_cache_type": "块缓冲绑定缓存类型",
   "acceleratedrendering.configuration.core_settings.block_buffer_binding_restoring.binding_cache_type.tooltip": "- SIMPLE: 最基础的缓存实现, 通常用来检测其他缓存类型是否正常工作.\n- HANDLE: 更快的缓存实现, 使用VarHandle和扁平化数据来提高读写性能.\n- UNSAFE: 最快的缓存实现, 使用了不安全的内存操作来跳过多项检查进行读写.",
   "acceleratedrendering.configuration.core_settings.block_buffer_binding_restoring.shader_storage_type": "着色器储存缓冲还原类型",
   "acceleratedrendering.configuration.core_settings.block_buffer_binding_restoring.shader_storage_type.tooltip": "- IGNORED: 着色器储存缓冲的还原将被忽略, 可以改善FPS但可能降低与使用了着色器储存缓冲的MOD和光影的兼容性.\n- RESTORED: 着色器储存缓冲将被记录和还原, 可能略微降低FPS但与使用了着色器储存缓冲的MOD和光影有更好的兼容性.",

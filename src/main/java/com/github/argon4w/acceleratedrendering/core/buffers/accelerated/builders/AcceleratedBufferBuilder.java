@@ -7,10 +7,7 @@ import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.El
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.StagingBufferPool;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.meshes.MeshUploaderPool;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.renderers.IAcceleratedRenderer;
-import com.github.argon4w.acceleratedrendering.core.buffers.memory.IMemoryInterface;
-import com.github.argon4w.acceleratedrendering.core.buffers.memory.IMemoryLayout;
-import com.github.argon4w.acceleratedrendering.core.buffers.memory.SimpleDynamicMemoryInterface;
-import com.github.argon4w.acceleratedrendering.core.buffers.memory.SimpleMemoryInterface;
+import com.github.argon4w.acceleratedrendering.core.buffers.memory.*;
 import com.github.argon4w.acceleratedrendering.core.meshes.ServerMesh;
 import com.github.argon4w.acceleratedrendering.core.programs.culling.ICullingProgramDispatcher;
 import com.github.argon4w.acceleratedrendering.core.programs.dispatchers.IPolygonProgramDispatcher;
@@ -54,7 +51,7 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
 
 
 	@EqualsAndHashCode.Include private			final	RenderType										renderType;
-	@Getter @EqualsAndHashCode.Include private	final	IMemoryLayout<VertexFormatElement>				layout;
+	@Getter @EqualsAndHashCode.Include private	final	VertexLayout									layout;
 	@Getter private								final	IPolygonProgramDispatcher						polygonProgramDispatcher;
 	@Getter private								final	ICullingProgramDispatcher						cullingProgramDispatcher;
 	@Getter private								final	ITransformShaderProgramOverride					transformOverride;

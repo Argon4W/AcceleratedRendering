@@ -7,7 +7,7 @@ import com.github.argon4w.acceleratedrendering.core.backends.states.viewports.Vi
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.layers.storage.LayerStorageType;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.meshes.MeshInfoCacheType;
 import com.github.argon4w.acceleratedrendering.core.meshes.MeshType;
-import com.github.argon4w.acceleratedrendering.core.meshes.data.MeshMergeType;
+import com.github.argon4w.acceleratedrendering.core.meshes.data.cache.MeshDataCacheType;
 import com.github.argon4w.acceleratedrendering.features.filter.FilterType;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.neoforged.neoforge.common.ModConfigSpec;
@@ -29,7 +29,7 @@ public class FeatureConfig {
 	public			final	ModConfigSpec.ConfigValue<FeatureStatus>				coreCacheIdenticalPose;
 	public			final	ModConfigSpec.ConfigValue<MeshInfoCacheType>			coreMeshInfoCacheType;
 	public			final	ModConfigSpec.ConfigValue<LayerStorageType>				coreLayerStorageType;
-	public			final	ModConfigSpec.ConfigValue<MeshMergeType>				coreMeshMergeType;
+	public			final	ModConfigSpec.ConfigValue<MeshDataCacheType>				coreMeshMergeType;
 	public			final	ModConfigSpec.ConfigValue<FeatureStatus>				coreUploadMeshImmediately;
 	public			final	ModConfigSpec.ConfigValue<FeatureStatus>				coreCacheDynamicRenderType;
 	public			final	ModConfigSpec.ConfigValue<ViewportBindingStateType>		coreViewportBindingType;
@@ -170,7 +170,7 @@ public class FeatureConfig {
 				.comment				("- MERGED: Meshes with identical vertices will be merged together, which will use less VRAM more RAM in storing the data of meshes used in merging.")
 				.translation			("acceleratedrendering.configuration.core_settings.mesh_merge_type")
 				.gameRestart			()
-				.defineEnum				("mesh_merge_type",						MeshMergeType.MERGED);
+				.defineEnum				("mesh_merge_type",						MeshDataCacheType.MERGED);
 
 		coreUploadMeshImmediately						= builder
 				.comment				("- DISABLED: Meshes that is going to be accelerated will be collected and uploaded together at the end for choosing better uploading method and increasing memory access efficiency to reach the best performance. Also this method allows mesh cache with bigger capacity (up to VRAM limit), but it may not follow the correct draw order.")

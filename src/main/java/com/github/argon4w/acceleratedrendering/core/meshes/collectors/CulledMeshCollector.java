@@ -1,25 +1,24 @@
 package com.github.argon4w.acceleratedrendering.core.meshes.collectors;
 
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.IAcceleratedVertexConsumer;
-import com.github.argon4w.acceleratedrendering.core.buffers.memory.IMemoryLayout;
-import com.github.argon4w.acceleratedrendering.core.meshes.data.IMeshData;
+import com.github.argon4w.acceleratedrendering.core.buffers.memory.VertexLayout;
+import com.github.argon4w.acceleratedrendering.core.meshes.data.MeshData;
 import com.github.argon4w.acceleratedrendering.core.utils.CullerUtils;
 import com.github.argon4w.acceleratedrendering.core.utils.Vertex;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.blaze3d.vertex.VertexFormatElement;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 
 public class CulledMeshCollector implements VertexConsumer, IMeshCollector {
 
-	private final	int									polygonSize;
-	private final	NativeImage							texture;
-	private	final	IMemoryLayout<VertexFormatElement>	layout;
-	private final	SimpleMeshCollector					meshCollector;
-	private final	Vertex[]							polygon;
+	private final	int					polygonSize;
+	private final	NativeImage			texture;
+	private	final	VertexLayout		layout;
+	private final	SimpleMeshCollector	meshCollector;
+	private final	Vertex[]			polygon;
 
-	private			int									vertexIndex;
+	private			int					vertexIndex;
 
 	public CulledMeshCollector(IAcceleratedVertexConsumer vertexConsumer) {
 		this.polygonSize	= vertexConsumer	.getPolygonSize	();
@@ -140,7 +139,7 @@ public class CulledMeshCollector implements VertexConsumer, IMeshCollector {
 	}
 
 	@Override
-	public IMeshData getData() {
+	public MeshData getData() {
 		return meshCollector.getData();
 	}
 
@@ -150,7 +149,7 @@ public class CulledMeshCollector implements VertexConsumer, IMeshCollector {
 	}
 
 	@Override
-	public IMemoryLayout<VertexFormatElement> getLayout() {
+	public VertexLayout getLayout() {
 		return meshCollector.getLayout();
 	}
 
