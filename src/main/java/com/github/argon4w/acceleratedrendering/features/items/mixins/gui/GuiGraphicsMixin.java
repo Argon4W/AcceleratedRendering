@@ -30,7 +30,7 @@ public class GuiGraphicsMixin {
 	@Shadow @Final private PoseStack pose;
 
 	@WrapMethod(method	= "fill(IIIII)V")
-	public void renderDecorationRectanglesFast(
+	public void renderFillFast(
 			int				minX,
 			int				minY,
 			int				maxX,
@@ -51,7 +51,7 @@ public class GuiGraphicsMixin {
 
 		var last = pose.last();
 
-		GuiBatchingController.INSTANCE.recordRectangle(
+		GuiBatchingController.INSTANCE.submitFill(
 				last		.pose	(),
 				last		.normal	(),
 				RenderType	.gui	(),
@@ -65,7 +65,7 @@ public class GuiGraphicsMixin {
 	}
 
 	@WrapMethod(method	= "fill(Lnet/minecraft/client/renderer/RenderType;IIIIII)V")
-	public void renderDecorationRectanglesFast(
+	public void renderFillFast(
 			RenderType		renderType,
 			int				minX,
 			int				minY,
@@ -90,7 +90,7 @@ public class GuiGraphicsMixin {
 
 		var last = pose.last();
 
-		GuiBatchingController.INSTANCE.recordRectangle(
+		GuiBatchingController.INSTANCE.submitFill(
 				last.pose	(),
 				last.normal	(),
 				renderType,
@@ -100,6 +100,86 @@ public class GuiGraphicsMixin {
 				maxY,
 				blitOffset,
 				color
+		);
+	}
+
+	@WrapMethod(method = "fillGradient(Lnet/minecraft/client/renderer/RenderType;IIIIIII)V")
+	public void renderGradientFast(
+			RenderType		renderType,
+			int				minX,
+			int				minY,
+			int				maxX,
+			int				maxY,
+			int				colorFrom,
+			int				colorTo,
+			int				blitOffset,
+			Operation<Void>	original
+	) {
+		if (!CoreFeature.isGuiBatching()) {
+			original.call(
+					renderType,
+					minX,
+					minY,
+					maxX,
+					maxY,
+					colorFrom,
+					colorTo,
+					blitOffset
+			);
+			return;
+		}
+
+		var last = pose.last();
+
+		GuiBatchingController.INSTANCE.submitGradient(
+				last.pose	(),
+				last.normal	(),
+				renderType,
+				minX,
+				minY,
+				maxX,
+				maxY,
+				blitOffset,
+				colorFrom,
+				colorTo
+		);
+	}
+
+	@WrapMethod(method = "fillRenderType")
+	public void renderRenderTypeFast(
+			RenderType		renderType,
+			int				minX,
+			int				minY,
+			int				maxX,
+			int				maxY,
+			int				blitOffset,
+			Operation<Void>	original
+	) {
+		if (!CoreFeature.isGuiBatching()) {
+			original.call(
+					renderType,
+					minX,
+					minY,
+					maxX,
+					maxY,
+					blitOffset
+			);
+			return;
+		}
+
+		var last = pose.last();
+
+		GuiBatchingController.INSTANCE.submitGradient(
+				last.pose	(),
+				last.normal	(),
+				renderType,
+				minX,
+				minY,
+				maxX,
+				maxY,
+				blitOffset,
+				-1,
+				-1
 		);
 	}
 
@@ -135,7 +215,7 @@ public class GuiGraphicsMixin {
 
 		var last = pose.last();
 
-		GuiBatchingController.INSTANCE.recordBlit(
+		GuiBatchingController.INSTANCE.submitBlit(
 				last.pose	(),
 				last.normal	(),
 				atlasLocation,
@@ -192,7 +272,7 @@ public class GuiGraphicsMixin {
 
 		var last = pose.last();
 
-		GuiBatchingController.INSTANCE.recordBlit(
+		GuiBatchingController.INSTANCE.submitBlit(
 				last.pose	(),
 				last.normal	(),
 				atlasLocation,
@@ -245,7 +325,7 @@ public class GuiGraphicsMixin {
 
 		var last = pose.last();
 
-		GuiBatchingController.INSTANCE.recordDecorator(
+		GuiBatchingController.INSTANCE.submitCustomDecorator(
 				last.pose	(),
 				last.normal	(),
 				instance,
@@ -297,7 +377,7 @@ public class GuiGraphicsMixin {
 		if (CoreFeature.isGuiBatching()) {
 			var last = pose.last();
 
-			GuiBatchingController.INSTANCE.recordItem(
+			GuiBatchingController.INSTANCE.submitItem(
 					last.pose	(),
 					last.normal	(),
 					itemStack,

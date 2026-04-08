@@ -19,18 +19,23 @@ import java.util.function.Supplier;
 @Mixin			(MultiBufferSource.BufferSource	.class)
 public class BufferSourceMixin implements IAcceleratableBufferSource {
 
-	@Unique private Supplier<IAcceleratedBufferSource> supplier = CoreBuffersProvider.EMPTY;
+	@Unique private Supplier<IAcceleratedBufferSource> bufferSource = CoreBuffersProvider.EMPTY;
 
 	@Unique
 	@Override
-	public void bindAcceleratedBufferSource(Supplier<IAcceleratedBufferSource> supplier) {
-		this.supplier = supplier;
+	public Supplier<IAcceleratedBufferSource> getBoundAcceleratedBufferSource() {
+		return bufferSource;
+	}
+
+	@Override
+	public boolean isBufferSourceAcceleratable() {
+		return bufferSource != CoreBuffersProvider.EMPTY;
 	}
 
 	@Unique
 	@Override
-	public IAcceleratedBufferSource getBoundAcceleratedBufferSource() {
-		return supplier.get();
+	public void bindAcceleratedBufferSource(Supplier<IAcceleratedBufferSource> bufferSource) {
+		this.bufferSource = bufferSource;
 	}
 
 	@ModifyReturnValue(
@@ -40,6 +45,6 @@ public class BufferSourceMixin implements IAcceleratableBufferSource {
 	public VertexConsumer initAcceleration(VertexConsumer original, RenderType renderType) {
 		return original
 				.getHolder			()
-				.initAcceleration	(renderType, supplier.get());
+				.initAcceleration	(renderType, bufferSource);
 	}
 }

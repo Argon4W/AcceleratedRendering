@@ -4,14 +4,17 @@ import com.github.argon4w.acceleratedrendering.core.CoreBuffers;
 import com.github.argon4w.acceleratedrendering.core.CoreFeature;
 import com.github.argon4w.acceleratedrendering.core.CoreStates;
 import com.github.argon4w.acceleratedrendering.core.backends.states.IBindingState;
+import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.BufferSourceExtension;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.VertexConsumerExtension;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.layers.LayerDrawType;
+import com.github.argon4w.acceleratedrendering.core.utils.PoseStackExtension;
 import com.github.argon4w.acceleratedrendering.core.utils.RenderTypeUtils;
 import com.github.argon4w.acceleratedrendering.features.items.AcceleratedItemRenderingFeature;
 import com.github.argon4w.acceleratedrendering.features.items.gui.contexts.*;
 import com.github.argon4w.acceleratedrendering.features.items.gui.contexts.string.IStringDrawContext;
 import com.github.argon4w.acceleratedrendering.features.items.gui.renderer.AcceleratedBlitRenderer;
-import com.github.argon4w.acceleratedrendering.features.items.gui.renderer.AcceleratedRectangleRenderer;
+import com.github.argon4w.acceleratedrendering.features.items.gui.renderer.AcceleratedFillRenderer;
+import com.github.argon4w.acceleratedrendering.features.items.gui.renderer.AcceleratedGradientRenderer;
 import com.mojang.blaze3d.platform.Lighting;
 import it.unimi.dsi.fastutil.floats.Float2ReferenceAVLTreeMap;
 import it.unimi.dsi.fastutil.floats.Float2ReferenceSortedMap;
@@ -24,7 +27,6 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.FastColor;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.ItemDecoratorHandler;
@@ -34,7 +36,11 @@ import org.joml.Matrix4f;
 import java.util.List;
 
 
-@ExtensionMethod(VertexConsumerExtension.class)
+@ExtensionMethod({
+		VertexConsumerExtension	.class,
+		BufferSourceExtension	.class,
+		PoseStackExtension		.class,
+})
 public class GuiBatchingController {
 
 	public static	final	GuiBatchingController								INSTANCE = new GuiBatchingController();
@@ -44,8 +50,9 @@ public class GuiBatchingController {
 	private			final	List<BlitDrawContext>								blitDrawContexts;
 	private			final	List<IStringDrawContext>							stringDrawContexts;
 	private			final	List<DecoratorDrawContext>							decoratorDrawContexts;
+	private			final	List<FillDrawContext>								fillDrawContexts;
 	private			final	List<HighlightDrawContext>							highlightDrawContexts;
-	private			final	List<RectangleDrawContext>							rectangleDrawContexts;
+	private			final	List<GradientDrawContext>							gradientDrawContexts;
 	private			final	List<ItemRenderContext>								flatItemDrawContexts;
 	private			final	List<ItemRenderContext>								blockItemDrawContexts;
 	private			final	Float2ReferenceSortedMap<List<IGuiElementContext>>	depthLayers;
@@ -56,19 +63,21 @@ public class GuiBatchingController {
 		this.blitDrawContexts		= new ReferenceArrayList		<>	();
 		this.stringDrawContexts		= new ReferenceArrayList		<>	();
 		this.decoratorDrawContexts	= new ReferenceArrayList		<>	();
+		this.fillDrawContexts		= new ReferenceArrayList		<>	();
 		this.highlightDrawContexts	= new ReferenceArrayList		<>	();
-		this.rectangleDrawContexts	= new ReferenceArrayList		<>	();
+		this.gradientDrawContexts	= new ReferenceArrayList		<>	();
 		this.flatItemDrawContexts	= new ReferenceArrayList		<>	();
 		this.blockItemDrawContexts	= new ReferenceArrayList		<>	();
 		this.depthLayers			= new Float2ReferenceAVLTreeMap	<>	();
 	}
 
 	public void startBatching(GuiGraphics graphics) {
-		if (		AcceleratedItemRenderingFeature	.isEnabled						()
-				&&	AcceleratedItemRenderingFeature	.shouldUseAcceleratedPipeline	()
-				&&	AcceleratedItemRenderingFeature	.shouldAccelerateInGui			()
-				&&	AcceleratedItemRenderingFeature	.shouldUseGuiItemBatching		()
-				&&	CoreFeature						.isLoaded						()
+		if (		graphics.bufferSource().getAcceleratable()	.isBufferSourceAcceleratable	()
+				&&	AcceleratedItemRenderingFeature				.isEnabled						()
+				&&	AcceleratedItemRenderingFeature				.shouldUseAcceleratedPipeline	()
+				&&	AcceleratedItemRenderingFeature				.shouldAccelerateInGui			()
+				&&	AcceleratedItemRenderingFeature				.shouldUseGuiItemBatching		()
+				&&	CoreFeature									.isLoaded						()
 		) {
 			CoreFeature.setGuiBatching	();
 			scissorDraw.record			(graphics);
@@ -78,7 +87,9 @@ public class GuiBatchingController {
 	@SuppressWarnings("UnstableApiUsage")
 	public void flushBatching(GuiGraphics graphics) {
 		if (CoreFeature.isGuiBatching()) {
-			var poseStack = graphics.pose();
+			var itemRenderer	= Minecraft.getInstance()	.getItemRenderer();
+			var bufferSource	= graphics					.bufferSource	();
+			var poseStack		= graphics					.pose			();
 
 			CoreFeature.resetGuiBatching();
 			CoreFeature.setRenderingGui	();
@@ -127,40 +138,15 @@ public class GuiBatchingController {
 							context.blitOverlay	(),
 							context.blitColor	()
 					);
-				} else {
-					poseStack.pushPose	();
-					poseStack.last		().pose		().set(context.transform());
-					poseStack.last		().normal	().set(context.normal	());
-
-					var blitColor = context.blitColor();
-
-					graphics.innerBlit(
-							context.atlasLocation	(),
-							context.minX			(),
-							context.maxX			(),
-							context.minY			(),
-							context.maxY			(),
-							context.blitOffset		(),
-							context.minU			(),
-							context.maxU			(),
-							context.minV			(),
-							context.maxV			(),
-							FastColor.ARGB32.red	(blitColor),
-							FastColor.ARGB32.green	(blitColor),
-							FastColor.ARGB32.blue	(blitColor),
-							FastColor.ARGB32.alpha	(blitColor)
-					);
-
-					graphics.pose().popPose();
 				}
 			}
 
-			for (var context : rectangleDrawContexts) {
+			for (var context : fillDrawContexts) {
 				var extension = graphics.bufferSource().getBuffer(context.renderType()).getAccelerated();
 
 				if (extension.isAccelerated()) {
 					extension.doRender(
-							AcceleratedRectangleRenderer.INSTANCE,
+							AcceleratedFillRenderer.INSTANCE,
 							context,
 							context.transform	(),
 							context.normal		(),
@@ -168,21 +154,22 @@ public class GuiBatchingController {
 							context.overlay		(),
 							context.color		()
 					);
-				} else {
-					poseStack.pushPose	();
-					poseStack.last		().pose		().set(context.transform());
-					poseStack.last		().normal	().set(context.normal	());
+				}
+			}
 
-					graphics.fill(
-							context.renderType	(),
-							context.minX		(),
-							context.minY		(),
-							context.maxX		(),
-							context.maxY		(),
-							context.color		()
+			for (var context : gradientDrawContexts) {
+				var extension = graphics.bufferSource().getBuffer(context.renderType()).getAccelerated();
+
+				if (extension.isAccelerated()) {
+					extension.doRender(
+							AcceleratedGradientRenderer.INSTANCE,
+							context,
+							context.transform	(),
+							context.normal		(),
+							context.light		(),
+							context.overlay		(),
+							-1
 					);
-
-					graphics.pose().popPose();
 				}
 			}
 
@@ -199,18 +186,17 @@ public class GuiBatchingController {
 
 			for (var context : flatItemDrawContexts) {
 				poseStack.pushPose	();
-				poseStack.last		().pose		().set(context.transform());
-				poseStack.last		().normal	().set(context.normal	());
+				poseStack.setPose	(context.transform(), context.normal());
 
-				Minecraft.getInstance().getItemRenderer().render(
+				itemRenderer.render(
 						context.itemStack		(),
 						context.displayContext	(),
 						context.leftHand		(),
 						poseStack,
-						graphics.bufferSource	(),
-						context	.combinedLight	(),
-						context	.combinedOverlay(),
-						context	.bakedModel		()
+						bufferSource,
+						context.combinedLight	(),
+						context.combinedOverlay	(),
+						context.bakedModel		()
 				);
 
 				poseStack.popPose();
@@ -222,18 +208,17 @@ public class GuiBatchingController {
 
 			for (var context : blockItemDrawContexts) {
 				poseStack.pushPose	();
-				poseStack.last		().pose		().set(context.transform());
-				poseStack.last		().normal	().set(context.normal	());
+				poseStack.setPose	(context.transform(), context.normal());
 
-				Minecraft.getInstance().getItemRenderer().render(
+				itemRenderer.render(
 						context.itemStack		(),
 						context.displayContext	(),
 						context.leftHand		(),
 						poseStack,
-						graphics.bufferSource	(),
-						context	.combinedLight	(),
-						context	.combinedOverlay(),
-						context	.bakedModel		()
+						bufferSource,
+						context.combinedLight	(),
+						context.combinedOverlay	(),
+						context.bakedModel		()
 				);
 
 				poseStack.popPose();
@@ -244,8 +229,7 @@ public class GuiBatchingController {
 
 			for (var context : decoratorDrawContexts) {
 				poseStack.pushPose	();
-				poseStack.last		().pose		().set(context.transform());
-				poseStack.last		().normal	().set(context.normal	());
+				poseStack.setPose	(context.transform(), context.normal());
 
 				context.handler().render(
 						graphics,
@@ -277,8 +261,9 @@ public class GuiBatchingController {
 			blitDrawContexts		.clear	();
 			stringDrawContexts		.clear	();
 			decoratorDrawContexts	.clear	();
+			fillDrawContexts		.clear	();
 			highlightDrawContexts	.clear	();
-			rectangleDrawContexts	.clear	();
+			gradientDrawContexts	.clear	();
 			flatItemDrawContexts	.clear	();
 			blockItemDrawContexts	.clear	();
 			scissorFlush			.restore();
@@ -313,7 +298,7 @@ public class GuiBatchingController {
 		CoreBuffers.POS_COLOR_TEX_LIGHT	.clearBuffers	();
 	}
 
-	public void recordBlit(
+	public void submitBlit(
 			Matrix4f			transform,
 			Matrix3f			normal,
 			ResourceLocation	atlasLocation,
@@ -356,7 +341,7 @@ public class GuiBatchingController {
 		layer			.add(context);
 	}
 
-	public void recordItem(
+	public void submitItem(
 			Matrix4f			transform,
 			Matrix3f			normal,
 			ItemStack			itemStack,
@@ -390,7 +375,7 @@ public class GuiBatchingController {
 		layer	.add(context);
 	}
 
-	public void recordRectangle(
+	public void submitFill(
 			Matrix4f	transform,
 			Matrix3f	normal,
 			RenderType	renderType,
@@ -408,7 +393,7 @@ public class GuiBatchingController {
 					blitOffset
 			));
 
-			var context = new RectangleDrawContext(
+			var context = new FillDrawContext(
 					new Matrix4f(transform),
 					new Matrix3f(normal),
 					renderType,
@@ -422,13 +407,13 @@ public class GuiBatchingController {
 					0
 			);
 
-			rectangleDrawContexts	.add(context);
-			layer					.add(context);
+			fillDrawContexts.add(context);
+			layer			.add(context);
 		} else {
 			var depth = depthLayers.lastFloatKey();
 			var layer = depthLayers.get			(depth);
 
-			var context = new RectangleDrawContext(
+			var context = new FillDrawContext(
 					new Matrix4f				(transform).translate(0.0f, 0.0f, depth),
 					new Matrix3f				(normal),
 					RenderTypeUtils.withDepth	(renderType),
@@ -442,13 +427,73 @@ public class GuiBatchingController {
 					0
 			);
 
-			rectangleDrawContexts	.add(context);
-			layer					.add(context);
+			fillDrawContexts.add(context);
+			layer			.add(context);
+		}
+	}
+
+	public void submitGradient(
+			Matrix4f	transform,
+			Matrix3f	normal,
+			RenderType	renderType,
+			int			minX,
+			int			minY,
+			int			maxX,
+			int			maxY,
+			int			blitOffset,
+			int			colorFrom,
+			int			colorTo
+	) {
+		if (RenderTypeUtils.hasDepth(renderType)) {
+			var layer = getLayer(getGlobalDepth(
+					transform.m22(),
+					transform.m32(),
+					blitOffset
+			));
+
+			var context = new GradientDrawContext(
+					new Matrix4f(transform),
+					new Matrix3f(normal),
+					renderType,
+					minX,
+					minY,
+					maxX,
+					maxY,
+					blitOffset,
+					colorFrom,
+					colorTo,
+					0,
+					0
+			);
+
+			gradientDrawContexts.add(context);
+			layer				.add(context);
+		} else {
+			var depth = depthLayers.lastFloatKey();
+			var layer = depthLayers.get			(depth);
+
+			var context = new GradientDrawContext(
+					new Matrix4f				(transform).translate(0.0f, 0.0f, depth),
+					new Matrix3f				(normal),
+					RenderTypeUtils.withDepth	(renderType),
+					minX,
+					minY,
+					maxX,
+					maxY,
+					0,
+					colorFrom,
+					colorTo,
+					0,
+					0
+			);
+
+			gradientDrawContexts.add(context);
+			layer				.add(context);
 		}
 	}
 
 	@SuppressWarnings("UnstableApiUsage")
-	public void recordDecorator(
+	public void submitCustomDecorator(
 			Matrix4f				transform,
 			Matrix3f				normal,
 			ItemDecoratorHandler	handler,
@@ -477,7 +522,7 @@ public class GuiBatchingController {
 		layer					.add(context);
 	}
 
-	public void recordHighlight(
+	public void submitHighlight(
 			Matrix4f	transform,
 			Matrix3f	normal,
 			int			highlightX,
@@ -504,7 +549,7 @@ public class GuiBatchingController {
 		layer					.add(context);
 	}
 
-	public void recordString(IStringDrawContext context) {
+	public void submitString(IStringDrawContext context) {
 		var layer = getLayer(getGlobalDepth(
 				context.transform().m22(),
 				context.transform().m32(),
@@ -532,14 +577,6 @@ public class GuiBatchingController {
 			float localDepth
 	) {
 		return m22 * localDepth + m32;
-	}
-
-	public static int getLocalDepth(
-			float m22,
-			float m32,
-			float globalDepth
-	) {
-		return (int) ((globalDepth - m32) / m22);
 	}
 
 	public void delete() {

@@ -16,10 +16,22 @@ import org.spongepowered.asm.mixin.injection.At;
 public class BatchingBuffersMixin {
 
 	@ModifyReturnValue(
+			method	= "getNonBatchingEntityVertexConsumers",
+			at		= @At("RETURN")
+	)
+	private static MultiBufferSource.BufferSource bindAcceleratableBufferSourceCore1(MultiBufferSource.BufferSource original) {
+		original
+				.getAcceleratable			()
+				.bindAcceleratedBufferSource(CoreBuffersProvider.CORE);
+
+		return original;
+	}
+
+	@ModifyReturnValue(
 			method	= "getHudBatchingVertexConsumers",
 			at		= @At("RETURN")
 	)
-	private static MultiBufferSource.BufferSource bindAcceleratableBufferSourceCore(MultiBufferSource.BufferSource original) {
+	private static MultiBufferSource.BufferSource bindAcceleratableBufferSourceCore2(MultiBufferSource.BufferSource original) {
 		original
 				.getAcceleratable			()
 				.bindAcceleratedBufferSource(CoreBuffersProvider.CORE);

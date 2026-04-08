@@ -4,7 +4,7 @@ import net.minecraft.client.renderer.RenderType;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 
-public record RectangleDrawContext(
+public record FillDrawContext(
 		Matrix4f	transform,
 		Matrix3f	normal,
 		RenderType	renderType,

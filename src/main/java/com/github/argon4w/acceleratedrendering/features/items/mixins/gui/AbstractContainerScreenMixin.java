@@ -109,7 +109,7 @@ public abstract class AbstractContainerScreenMixin {
 
 		var last = guiGraphics.pose().last();
 
-		GuiBatchingController.INSTANCE.recordHighlight(
+		GuiBatchingController.INSTANCE.submitHighlight(
 				last.pose	(),
 				last.normal	(),
 				highlightX,

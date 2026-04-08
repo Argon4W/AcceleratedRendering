@@ -50,7 +50,7 @@ public abstract class FontMixin {
 			);
 		}
 
-		GuiBatchingController.INSTANCE.recordString(new RawStringDrawContext(
+		GuiBatchingController.INSTANCE.submitString(new RawStringDrawContext(
 				new Matrix4f(transform),
 				(Font) (Object) this,
 				text,
@@ -98,7 +98,7 @@ public abstract class FontMixin {
 			);
 		}
 
-		GuiBatchingController.INSTANCE.recordString(new RawStringDrawContext(
+		GuiBatchingController.INSTANCE.submitString(new RawStringDrawContext(
 				new Matrix4f(transform),
 				(Font) (Object) this,
 				text,
@@ -144,7 +144,7 @@ public abstract class FontMixin {
 			);
 		}
 
-		GuiBatchingController.INSTANCE.recordString(new ComponentStringDrawContext(
+		GuiBatchingController.INSTANCE.submitString(new ComponentStringDrawContext(
 				new Matrix4f(transform),
 				(Font) (Object) this,
 				text,
@@ -189,7 +189,7 @@ public abstract class FontMixin {
 			);
 		}
 
-		GuiBatchingController.INSTANCE.recordString(new FormattedStringDrawContext(
+		GuiBatchingController.INSTANCE.submitString(new FormattedStringDrawContext(
 				new Matrix4f(transform),
 				(Font) (Object) this,
 				text,
@@ -232,7 +232,7 @@ public abstract class FontMixin {
 			return;
 		}
 
-		GuiBatchingController.INSTANCE.recordString(new Outline8StringDrawContext(
+		GuiBatchingController.INSTANCE.submitString(new Outline8StringDrawContext(
 				new Matrix4f(transform),
 				(Font) (Object) this,
 				text,

@@ -7,12 +7,12 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.neoforged.bus.api.Event;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.client.ClientHooks;
 import net.neoforged.neoforge.client.gui.GuiLayerManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-@Mixin(GuiLayerManager.class)
+@SuppressWarnings	("UnstableApiUsage")
+@Mixin				(GuiLayerManager.class)
 public class GuiLayerManagerMixin {
 
 	@WrapOperation(

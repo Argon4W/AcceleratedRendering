@@ -2,26 +2,26 @@ package com.github.argon4w.acceleratedrendering.features.items.gui.renderer;
 
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.VertexConsumerExtension;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.renderers.IAcceleratedRenderer;
-import com.github.argon4w.acceleratedrendering.features.items.gui.contexts.RectangleDrawContext;
+import com.github.argon4w.acceleratedrendering.features.items.gui.contexts.FillDrawContext;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import lombok.experimental.ExtensionMethod;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 
 @ExtensionMethod(VertexConsumerExtension.class)
-public class AcceleratedRectangleRenderer implements IAcceleratedRenderer<RectangleDrawContext> {
+public class AcceleratedFillRenderer implements IAcceleratedRenderer<FillDrawContext> {
 
-	public static final AcceleratedRectangleRenderer INSTANCE = new AcceleratedRectangleRenderer();
+	public static final AcceleratedFillRenderer INSTANCE = new AcceleratedFillRenderer();
 
 	@Override
 	public void render(
-			VertexConsumer			vertexConsumer,
-			RectangleDrawContext	context,
-			Matrix4f				transform,
-			Matrix3f				normal,
-			int						light,
-			int						overlay,
-			int						color
+			VertexConsumer	vertexConsumer,
+			FillDrawContext	context,
+			Matrix4f		transform,
+			Matrix3f		normal,
+			int				light,
+			int				overlay,
+			int				color
 	) {
 		var extension = vertexConsumer.getAccelerated();
 

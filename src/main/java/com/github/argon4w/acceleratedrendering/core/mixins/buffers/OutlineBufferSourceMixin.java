@@ -21,17 +21,25 @@ public class OutlineBufferSourceMixin implements IAcceleratableBufferSource {
 
 	@Unique
 	@Override
-	public void bindAcceleratedBufferSource(Supplier<IAcceleratedBufferSource> supplier) {
-		outlineBufferSource
-				.getAcceleratable			()
-				.bindAcceleratedBufferSource(supplier);
+	public Supplier<IAcceleratedBufferSource> getBoundAcceleratedBufferSource() {
+		return outlineBufferSource
+				.getAcceleratable				()
+				.getBoundAcceleratedBufferSource();
 	}
 
 	@Unique
 	@Override
-	public IAcceleratedBufferSource getBoundAcceleratedBufferSource() {
+	public boolean isBufferSourceAcceleratable() {
 		return outlineBufferSource
-				.getAcceleratable				()
-				.getBoundAcceleratedBufferSource();
+				.getAcceleratable			()
+				.isBufferSourceAcceleratable();
+	}
+
+	@Unique
+	@Override
+	public void bindAcceleratedBufferSource(Supplier<IAcceleratedBufferSource> supplier) {
+		outlineBufferSource
+				.getAcceleratable			()
+				.bindAcceleratedBufferSource(supplier);
 	}
 }

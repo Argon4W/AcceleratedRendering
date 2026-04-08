@@ -6,6 +6,7 @@ import java.util.function.Supplier;
 
 public interface IAcceleratableBufferSource {
 
-	void						bindAcceleratedBufferSource		(Supplier<IAcceleratedBufferSource> supplier);
-	IAcceleratedBufferSource	getBoundAcceleratedBufferSource	();
+	Supplier<IAcceleratedBufferSource>	getBoundAcceleratedBufferSource	();
+	boolean								isBufferSourceAcceleratable		();
+	void								bindAcceleratedBufferSource		(Supplier<IAcceleratedBufferSource> bufferSource);
 }

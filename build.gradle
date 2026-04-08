@@ -162,7 +162,7 @@ dependencies {
     implementation "maven.modrinth:entity-model-features:3.0.17-neoforge-1.21"
     implementation "maven.modrinth:touhou-little-maid:1.5.0-neoforge+mc1.21.1"
     compileOnly "maven.modrinth:geckolib:QEqpUJ1G"
-    compileOnly "maven.modrinth:immediatelyfast:1.6.6+1.21.1-neoforge"
+    implementation "maven.modrinth:immediatelyfast:1.6.8+1.21.1-neoforge"
     compileOnly "maven.modrinth:curios:9.5.1+1.21.1"
     implementation "curse.maven:ftb-library-forge-404465:7420412"
     compileOnly "org.projectlombok:lombok:1.18.38"
