@@ -1,30 +1,35 @@
 package com.github.argon4w.acceleratedrendering.core.meshes.data;
 
+import com.github.argon4w.acceleratedrendering.core.buffers.memory.VertexLayout;
 import com.github.argon4w.acceleratedrendering.core.utils.Vertex;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import lombok.EqualsAndHashCode;
 
 import java.util.List;
 
-//@EqualsAndHashCode
+@EqualsAndHashCode
 public class MeshData {
 
-	private final int[] data;
+	private final VertexLayout	layout;
+	private final int[]			data;
 
-	private MeshData(int[] data) {
-		this.data = data;
+	private MeshData(VertexLayout layout, int[] data) {
+		this.layout	= layout;
+		this.data	= data;
 	}
 
-	public static Builder builder() {
-		return new Builder();
+	public static Builder builder(VertexLayout layout) {
+		return new Builder(layout);
 	}
 
 	public static class Builder {
 
+		private final VertexLayout	layout;
 		private final List<Vertex>	vertices;
 		private final Vertex		scratch;
 
-		public Builder() {
+		public Builder(VertexLayout layout) {
+			this.layout		= layout;
 			this.vertices	= new ReferenceArrayList<>	();
 			this.scratch	= new Vertex				();
 		}
@@ -146,7 +151,7 @@ public class MeshData {
 				data[i * 8 + 7] = vertex.getPackedNormal	();
 			}
 
-			return new MeshData(data);
+			return new MeshData(layout, data);
 		}
 	}
 }

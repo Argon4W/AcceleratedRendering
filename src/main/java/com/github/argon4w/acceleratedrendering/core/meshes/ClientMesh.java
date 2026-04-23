@@ -57,7 +57,7 @@ public class ClientMesh implements IMesh {
 
 			if (mesh != null) {
 				builder.discard	();
-				builder.clear	();
+				builder.close	();
 
 				return mesh;
 			}
@@ -67,6 +67,7 @@ public class ClientMesh implements IMesh {
 			if (result == null) {
 				builder.discard	();
 				builder.close	();
+
 				return EmptyMesh.INSTANCE;
 			}
 

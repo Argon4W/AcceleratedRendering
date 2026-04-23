@@ -33,7 +33,10 @@ public class ShadowRendererMixin {
 	@Shadow @Final private RenderBuffers	buffers;
 	@Shadow @Final private RenderBuffersExt	renderBuffersExt;
 
-	@Inject(method = "<init>", at = @At("TAIL"))
+	@Inject(
+			method	= "<init>",
+			at		= @At("TAIL")
+	)
 	public void bindAcceleratedShadowBufferSources(
 			IrisRenderingPipeline	pipeline,
 			ProgramSource			shadow,

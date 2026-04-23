@@ -49,7 +49,11 @@ public class BedrockPartMixin implements IAcceleratedRenderer<Void> {
 	@Unique private final			Map<IBufferGraph,	IMesh>	meshes = new Object2ObjectOpenHashMap<>();
 	@Unique private final			Map<MeshData,		IMesh>	merges = new Object2ObjectOpenHashMap<>();
 
-	@Inject(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;IIFFFF)V", at = @At("HEAD"), cancellable = true)
+	@Inject(
+			method		= "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;IIFFFF)V",
+			at			= @At("HEAD"),
+			cancellable	= true
+	)
 	public void renderFast(
 			PoseStack		poseStack,
 			VertexConsumer	consumer,

@@ -28,10 +28,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin			(HandRenderer			.class)
 public class HandRendererMixin {
 
-
-	@Shadow
-	@Final
-	private FullyBufferedMultiBufferSource bufferSource;
+	@Shadow @Final private FullyBufferedMultiBufferSource bufferSource;
 
 	@Inject(
 			method	= "<init>",
