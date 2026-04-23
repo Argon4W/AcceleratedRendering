@@ -160,5 +160,20 @@
   "acceleratedrendering.configuration.curios_compatibility.item_filter_values": "Curios Item Filter Values",
   "acceleratedrendering.configuration.curios_compatibility.item_filter_values.tooltip": "You can configure the curios item filter by this list.\nCurios item filter will use this list and the filter type to determine if a curios item can pass the filter.",
   "acceleratedrendering.configuration.curios_compatibility.item_filter_values.button": "Configure",
-  "acceleratedrendering.configuration.curios_compatibility.button": "Configure"
+  "acceleratedrendering.configuration.curios_compatibility.button": "Configure",
+  "acceleratedrendering.configuration.mods_compatibility": "Miscellaneous Mods Compatibility Settings",
+  "acceleratedrendering.configuration.mods_compatibility.tooltip": "Miscellaneous Mod Compatibility Settings allows Accelerated Rendering to prevent negative optimization on specific mods by controlling whether Accelerated Rendering should accelerate the rendering of the corresponding mod.",
+  "acceleratedrendering.configuration.mods_compatibility.feature_status": "Enable Miscellaneous Mods Compatibility Settings",
+  "acceleratedrendering.configuration.mods_compatibility.feature_status.tooltip": "- DISABLED: Accelerations of all mods listed in the miscellaneous mods compatibility settings will be disabled.\n- ENABLED: Accelerated Rendering will determine if a mod should be accelerated by the acceleration feature configuration item of this mod listed below.",
+  "acceleratedrendering.configuration.mods_compatibility.emf_feature_status": "Enable Entity Model Feature Compatibility",
+  "acceleratedrendering.configuration.mods_compatibility.emf_feature_status.tooltip": "- DISABLED: Accelerations of animated ModelPart variants in Entity Model Features will be disabled.\n- ENABLED: Accelerations of animated ModelPart variants in Entity Model Features will be enabled.",
+  "acceleratedrendering.configuration.mods_compatibility.gecko_feature_status": "Enable GeckoLib Compatibility",
+  "acceleratedrendering.configuration.mods_compatibility.gecko_feature_status.tooltip": "- DISABLED: Accelerations of models in GeckoLib will be disabled.\n- ENABLED: Accelerations of models in GeckoLib will be enabled.",
+  "acceleratedrendering.configuration.mods_compatibility.tlm_feature_status": "Enable Touhou Little Maid Compatibility",
+  "acceleratedrendering.configuration.mods_compatibility.tlm_feature_status.tooltip": "- DISABLED: Accelerations of GeckoLib variant models in Touhou Little Maid will be disabled.\n- ENABLED: Accelerations of GeckoLib variant models in Touhou Little Maid will be enabled.",
+  "acceleratedrendering.configuration.mods_compatibility.sbm_feature_status": "Enable Simple Bedrock Model Compatibility",
+  "acceleratedrendering.configuration.mods_compatibility.sbm_feature_status.tooltip": "- DISABLED: Accelerations of bedrock models in Simple Bedrock Model will be disabled.\n- ENABLED: Accelerations of bedrock models in Simple Bedrock Model will be enabled.",
+  "acceleratedrendering.configuration.mods_compatibility.ftb_feature_status": "Enable FTB Library Compatibility",
+  "acceleratedrendering.configuration.mods_compatibility.ftb_feature_status.tooltip": "- DISABLED: Accelerations of UI driven by FTB Library will be disabled.\n- ENABLED: Accelerations of UI driven by FTB Library will be enabled.",
+  "acceleratedrendering.configuration.mods_compatibility.button": "Configure"
 }

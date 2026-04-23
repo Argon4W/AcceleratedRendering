@@ -11,6 +11,7 @@ import com.github.argon4w.acceleratedrendering.core.meshes.data.MeshData;
 import com.github.argon4w.acceleratedrendering.features.emf.IEMFModelVariant;
 import com.github.argon4w.acceleratedrendering.features.entities.AcceleratedEntityRenderingFeature;
 import com.github.argon4w.acceleratedrendering.features.modelparts.mixins.ModelPartMixin;
+import com.github.argon4w.acceleratedrendering.features.mods.ModsFeature;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
@@ -55,6 +56,8 @@ public class EMFModelPartMixin extends ModelPartMixin implements IEMFModelVarian
 
 		if (			AcceleratedEntityRenderingFeature	.isEnabled						()
 				&&		AcceleratedEntityRenderingFeature	.shouldUseAcceleratedPipeline	()
+				&&		ModsFeature							.isEnabled						()
+				&&		ModsFeature							.shouldAccelerateEmf			()
 				&&	(	CoreFeature							.isRenderingLevel				()
 				||	(	CoreFeature							.isRenderingGui					()
 				&&		AcceleratedEntityRenderingFeature	.shouldAccelerateInGui			()))
@@ -90,6 +93,8 @@ public class EMFModelPartMixin extends ModelPartMixin implements IEMFModelVarian
 
 		if (			AcceleratedEntityRenderingFeature	.isEnabled						()
 				&&		AcceleratedEntityRenderingFeature	.shouldUseAcceleratedPipeline	()
+				&&		ModsFeature							.isEnabled						()
+				&&		ModsFeature							.shouldAccelerateEmf			()
 				&&	(	CoreFeature							.isRenderingLevel				()
 				||	(	CoreFeature							.isRenderingGui					()
 				&&		AcceleratedEntityRenderingFeature	.shouldAccelerateInGui			()))

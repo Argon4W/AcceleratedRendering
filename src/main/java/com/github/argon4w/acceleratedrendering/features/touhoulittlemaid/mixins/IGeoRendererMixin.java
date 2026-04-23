@@ -5,6 +5,7 @@ import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.VertexConsumerExtension;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.renderers.IAcceleratedRenderer;
 import com.github.argon4w.acceleratedrendering.features.entities.AcceleratedEntityRenderingFeature;
+import com.github.argon4w.acceleratedrendering.features.mods.ModsFeature;
 import com.github.tartaricacid.touhoulittlemaid.geckolib3.geo.IGeoRenderer;
 import com.github.tartaricacid.touhoulittlemaid.geckolib3.geo.animated.AnimatedGeoBone;
 import com.github.tartaricacid.touhoulittlemaid.geckolib3.util.RenderUtils;
@@ -48,6 +49,8 @@ public interface IGeoRendererMixin {
 
 		if (			AcceleratedEntityRenderingFeature	.isEnabled						()
 				&&		AcceleratedEntityRenderingFeature	.shouldUseAcceleratedPipeline	()
+				&&		ModsFeature							.isEnabled						()
+				&&		ModsFeature							.shouldAccelerateTlm			()
 				&&	(	CoreFeature							.isRenderingLevel				()
 				||	(	CoreFeature							.isRenderingGui					()
 				&&		AcceleratedEntityRenderingFeature	.shouldAccelerateInGui			()))
@@ -95,6 +98,8 @@ public interface IGeoRendererMixin {
 
 		if (			AcceleratedEntityRenderingFeature	.isEnabled						()
 				&&		AcceleratedEntityRenderingFeature	.shouldUseAcceleratedPipeline	()
+				&&		ModsFeature							.isEnabled						()
+				&&		ModsFeature							.shouldAccelerateTlm			()
 				&&	(	CoreFeature							.isRenderingLevel				()
 				||	(	CoreFeature							.isRenderingGui					()
 				&&		AcceleratedEntityRenderingFeature	.shouldAccelerateInGui			()))

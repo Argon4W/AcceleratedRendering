@@ -160,5 +160,20 @@
   "acceleratedrendering.configuration.curios_compatibility.item_filter_values": "Curios物品过滤器列表",
   "acceleratedrendering.configuration.curios_compatibility.item_filter_values.tooltip": "你可以通过这个列表配置Curios物品过滤器.\nCurios物品过滤器将根据这个列表和过滤器类型来判断对应Curios物品能否通过过滤器.",
   "acceleratedrendering.configuration.curios_compatibility.item_filter_values.button": "配置列表",
-  "acceleratedrendering.configuration.curios_compatibility.button": "配置"
+  "acceleratedrendering.configuration.curios_compatibility.button": "配置",
+  "acceleratedrendering.configuration.mods_compatibility": "杂项MOD兼容性配置",
+  "acceleratedrendering.configuration.mods_compatibility.tooltip": "杂项MOD兼容性配置允许加速渲染通过控制是否对对应MOD启用加速以在对应MOD的环境下避免对其造成负优化",
+  "acceleratedrendering.configuration.mods_compatibility.feature_status": "启用杂项MOD兼容性",
+  "acceleratedrendering.configuration.mods_compatibility.feature_status.tooltip": "- DISABLED: 下列所有MOD的加速特性都将被禁用.\n- ENABLED: 加速渲染将根据这个MOD的加速特性配置项来决定是否为这个MOD启用加速.",
+  "acceleratedrendering.configuration.mods_compatibility.emf_feature_status": "启用EMF兼容性",
+  "acceleratedrendering.configuration.mods_compatibility.emf_feature_status.tooltip": "- DISABLED: 禁止加速渲染对EMF(Entity Model Feature)的动画ModelPart变体进行加速.\n- ENABLED: 加速渲染将会对EMF的动画ModelPart变体进行加速.",
+  "acceleratedrendering.configuration.mods_compatibility.gecko_feature_status": "启用GeckoLib兼容性",
+  "acceleratedrendering.configuration.mods_compatibility.gecko_feature_status.tooltip": "- DISABLED: 禁止加速渲染对GeckoLib模型进行加速.\n- ENABLED: 加速渲染将对GeckoLib模型进行加速.",
+  "acceleratedrendering.configuration.mods_compatibility.tlm_feature_status": "启用车万女仆兼容性",
+  "acceleratedrendering.configuration.mods_compatibility.tlm_feature_status.tooltip": "- DISABLED: 禁止加速渲染对车万女仆的GeckoLib模型变体进行加速.\n- ENABLED: 加速渲染将会对车万女仆的GeckoLib模型变体进行加速.",
+  "acceleratedrendering.configuration.mods_compatibility.sbm_feature_status": "启用SBM兼容性",
+  "acceleratedrendering.configuration.mods_compatibility.sbm_feature_status.tooltip": "- DISABLED: 禁止加速渲染对SBM(简单基岩版模型, SimpleBedrockModel)的基岩版模型进行加速.\n- ENABLED: 加速渲染将会对SBM的基岩版模型进行加速.",
+  "acceleratedrendering.configuration.mods_compatibility.ftb_feature_status": "启用FTB Library兼容性",
+  "acceleratedrendering.configuration.mods_compatibility.ftb_feature_status.tooltip": "- DISABLED: 禁止加速渲染对FTB Library驱动的UI界面(如FTB Quests)进行加速.\n- ENABLED: 加速渲染将会对FTB Library驱动的UI界面进行加速.",
+  "acceleratedrendering.configuration.mods_compatibility.button": "配置"
 }

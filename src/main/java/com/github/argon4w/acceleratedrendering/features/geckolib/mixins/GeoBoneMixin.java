@@ -35,7 +35,7 @@ public class GeoBoneMixin implements IAcceleratedRenderer<Void> {
 
 	@Override
 	public void render(
-			VertexConsumer vertexConsumer,
+			VertexConsumer	vertexConsumer,
 			Void			context,
 			Matrix4f		transform,
 			Matrix3f		normal,

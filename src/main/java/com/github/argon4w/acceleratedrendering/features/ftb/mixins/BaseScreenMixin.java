@@ -1,6 +1,10 @@
 package com.github.argon4w.acceleratedrendering.features.ftb.mixins;
 
+import com.github.argon4w.acceleratedrendering.features.entities.AcceleratedEntityRenderingFeature;
+import com.github.argon4w.acceleratedrendering.features.items.AcceleratedItemRenderingFeature;
 import com.github.argon4w.acceleratedrendering.features.items.gui.GuiBatchingController;
+import com.github.argon4w.acceleratedrendering.features.mods.ModsFeature;
+import com.github.argon4w.acceleratedrendering.features.text.AcceleratedTextRenderingFeature;
 import dev.ftb.mods.ftblibrary.ui.BaseScreen;
 import dev.ftb.mods.ftblibrary.ui.Theme;
 import net.minecraft.client.gui.GuiGraphics;
@@ -38,7 +42,13 @@ public class BaseScreenMixin {
 			int				h,
 			CallbackInfo	ci
 	) {
-		GuiBatchingController.INSTANCE.startBatching(graphics);
+		if (ModsFeature.shouldAccelerateFtb()) {
+			GuiBatchingController.INSTANCE.startBatching(graphics);
+		} else {
+			AcceleratedEntityRenderingFeature	.useVanillaPipeline();
+			AcceleratedItemRenderingFeature		.useVanillaPipeline();
+			AcceleratedTextRenderingFeature		.useVanillaPipeline();
+		}
 	}
 
 	@Inject(
@@ -65,6 +75,12 @@ public class BaseScreenMixin {
 			int				h,
 			CallbackInfo	ci
 	) {
-		GuiBatchingController.INSTANCE.flushBatching(graphics);
+		if (ModsFeature.shouldAccelerateFtb()) {
+			GuiBatchingController.INSTANCE.flushBatching(graphics);
+		} else {
+			AcceleratedEntityRenderingFeature	.resetPipeline();
+			AcceleratedItemRenderingFeature		.resetPipeline();
+			AcceleratedTextRenderingFeature		.resetPipeline();
+		}
 	}
 }

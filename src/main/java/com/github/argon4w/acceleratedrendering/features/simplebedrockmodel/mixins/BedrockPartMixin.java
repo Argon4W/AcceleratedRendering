@@ -9,6 +9,7 @@ import com.github.argon4w.acceleratedrendering.core.meshes.IMesh;
 import com.github.argon4w.acceleratedrendering.core.meshes.collectors.CulledMeshCollector;
 import com.github.argon4w.acceleratedrendering.core.meshes.data.MeshData;
 import com.github.argon4w.acceleratedrendering.features.entities.AcceleratedEntityRenderingFeature;
+import com.github.argon4w.acceleratedrendering.features.mods.ModsFeature;
 import com.github.tartaricacid.simplebedrockmodel.client.bedrock.model.BedrockCube;
 import com.github.tartaricacid.simplebedrockmodel.client.bedrock.model.BedrockPart;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -64,6 +65,8 @@ public class BedrockPartMixin implements IAcceleratedRenderer<Void> {
 
 		if (			AcceleratedEntityRenderingFeature	.isEnabled						()
 				&&		AcceleratedEntityRenderingFeature	.shouldUseAcceleratedPipeline	()
+				&&		ModsFeature							.isEnabled						()
+				&&		ModsFeature							.shouldAccelerateSbm			()
 				&&	(	CoreFeature							.isRenderingLevel				()
 				||	(	CoreFeature							.isRenderingGui					()
 				&&		AcceleratedEntityRenderingFeature	.shouldAccelerateInGui			()))
@@ -107,6 +110,8 @@ public class BedrockPartMixin implements IAcceleratedRenderer<Void> {
 
 		if (			AcceleratedEntityRenderingFeature	.isEnabled						()
 				&&		AcceleratedEntityRenderingFeature	.shouldUseAcceleratedPipeline	()
+				&&		ModsFeature							.isEnabled						()
+				&&		ModsFeature							.shouldAccelerateSbm			()
 				&&	(	CoreFeature							.isRenderingLevel				()
 				||	(	CoreFeature							.isRenderingGui					()
 				&&		AcceleratedEntityRenderingFeature	.shouldAccelerateInGui			()))

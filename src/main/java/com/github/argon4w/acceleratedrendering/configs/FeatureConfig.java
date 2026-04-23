@@ -92,6 +92,13 @@ public class FeatureConfig {
 	public			final	ModConfigSpec.ConfigValue<FilterType>					curiosItemFilterType;
 	public			final	ModConfigSpec.ConfigValue<List<? extends String>>		curiosItemFilterValues;
 
+	public			final	ModConfigSpec.ConfigValue<FeatureStatus>				modsFeatureStatus;
+	public			final	ModConfigSpec.ConfigValue<FeatureStatus>				modsEmfFeatureStatus;
+	public			final	ModConfigSpec.ConfigValue<FeatureStatus>				modsGeckoFeatureStatus;
+	public			final	ModConfigSpec.ConfigValue<FeatureStatus>				modsTlmFeatureStatus;
+	public			final	ModConfigSpec.ConfigValue<FeatureStatus>				modsSbmFeatureStatus;
+	public			final	ModConfigSpec.ConfigValue<FeatureStatus>				modsFtbFeatureStatus;
+
 	static {
 		Pair<FeatureConfig, ModConfigSpec> pair	= new ModConfigSpec.Builder()	.configure	(FeatureConfig::new);
 		CONFIG									= pair							.getLeft	();
@@ -574,6 +581,50 @@ public class FeatureConfig {
 				.translation			("acceleratedrendering.configuration.curios_compatibility.item_filter_values")
 				.gameRestart			()
 				.defineListAllowEmpty	("item_filter_values",					new ObjectArrayList<>(), () -> "minecraft:air", object -> object instanceof String);
+
+		builder.pop();
+
+		builder
+				.comment				("Miscellaneous Mods Compatibility Settings")
+				.comment				("Miscellaneous Mod Compatibility Settings allows Accelerated Rendering to prevent negative optimization on specific mods by controlling whether Accelerated Rendering should accelerate the rendering of the corresponding mod.")
+				.translation			("acceleratedrendering.configuration.mods_compatibility")
+				.push					("mods_compatibility");
+
+		modsFeatureStatus								= builder
+				.comment				("- DISABLED: Accelerations of all mods listed in the miscellaneous mods compatibility settings will be disabled.")
+				.comment				("- ENABLED: Accelerated Rendering will determine if a mod should be accelerated by the acceleration feature configuration item of this mod listed below.")
+				.translation			("acceleratedrendering.configuration.mods_compatibility.feature_status")
+				.defineEnum				("feature_status",						FeatureStatus.ENABLED);
+
+		modsEmfFeatureStatus							= builder
+				.comment				("- DISABLED: Accelerations of animated ModelPart variants in Entity Model Features will be disabled.")
+				.comment				("- ENABLED: Accelerations of animated ModelPart variants in Entity Model Features will be enabled.")
+				.translation			("acceleratedrendering.configuration.mods_compatibility.emf_feature_status")
+				.defineEnum				("emf_feature_status",					FeatureStatus.ENABLED);
+
+		modsGeckoFeatureStatus							= builder
+				.comment				("- DISABLED: Accelerations of models in GeckoLib will be disabled.")
+				.comment				("- ENABLED: Accelerations of models in GeckoLib will be enabled.")
+				.translation			("acceleratedrendering.configuration.mods_compatibility.gecko_feature_status")
+				.defineEnum				("gecko_feature_status",				FeatureStatus.ENABLED);
+
+		modsTlmFeatureStatus							= builder
+				.comment				("- DISABLED: Accelerations of GeckoLib variant models in Touhou Little Maid will be disabled.")
+				.comment				("- ENABLED: Accelerations of GeckoLib variant models in Touhou Little Maid will be enabled.")
+				.translation			("acceleratedrendering.configuration.mods_compatibility.tlm_feature_status")
+				.defineEnum				("tlm_feature_status",					FeatureStatus.ENABLED);
+
+		modsSbmFeatureStatus							= builder
+				.comment				("- DISABLED: Accelerations of bedrock models in Simple Bedrock Model will be disabled.")
+				.comment				("- ENABLED: Accelerations of bedrock models in Simple Bedrock Model will be enabled.")
+				.translation			("acceleratedrendering.configuration.mods_compatibility.sbm_feature_status")
+				.defineEnum				("sbm_feature_status",					FeatureStatus.ENABLED);
+
+		modsFtbFeatureStatus							= builder
+				.comment				("- DISABLED: Accelerations of UI driven by FTB Library will be disabled.")
+				.comment				("- ENABLED: Accelerations of UI driven by FTB Library will be enabled.")
+				.translation			("acceleratedrendering.configuration.mods_compatibility.ftb_feature_status")
+				.defineEnum				("ftb_feature_status",					FeatureStatus.ENABLED);
 
 		builder.pop();
 	}
