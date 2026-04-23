@@ -38,7 +38,7 @@ public class SimpleMeshCollector extends DefaultedVertexConsumer implements IMes
 		this.uv0Offset		= this.layout	.getElement		(DefaultVertexFormat.ELEMENT_UV);
 		this.uv2Offset		= this.layout	.getElement		(DefaultVertexFormat.ELEMENT_UV2);
 		this.normalOffset	= this.layout	.getElement		(DefaultVertexFormat.ELEMENT_NORMAL);
-		this.builder		= MeshData		.builder		();
+		this.builder		= MeshData		.builder		(layout);
 
 		this.vertexAddress	= -1L;
 		this.vertexCount	= 0;

@@ -180,9 +180,11 @@ public class GuiBatchingController {
 			scissorFlush.record	(graphics);
 			scissorDraw	.restore();
 
-			CoreFeature.forceSetDefaultLayer				(1);
-			CoreFeature.forceSetDefaultLayerBeforeFunction	(Lighting::setupForFlatItems);
-			CoreFeature.forceSetDefaultLayerAfterFunction	(Lighting::setupFor3DItems);
+
+			Lighting	.setupForFlatItems					();
+			CoreFeature	.forceSetDefaultLayer				(1);
+			CoreFeature	.forceSetDefaultLayerBeforeFunction	(Lighting::setupForFlatItems);
+			CoreFeature	.forceSetDefaultLayerAfterFunction	(Lighting::setupFor3DItems);
 
 			for (var context : flatItemDrawContexts) {
 				poseStack.pushPose	();
@@ -202,9 +204,11 @@ public class GuiBatchingController {
 				poseStack.popPose();
 			}
 
-			CoreFeature.resetDefaultLayer				();
-			CoreFeature.resetDefaultLayerBeforeFunction	();
-			CoreFeature.resetDefaultLayerAfterFunction	();
+			graphics	.flush							();
+			Lighting	.setupFor3DItems				();
+			CoreFeature	.resetDefaultLayer				();
+			CoreFeature	.resetDefaultLayerBeforeFunction();
+			CoreFeature	.resetDefaultLayerAfterFunction	();
 
 			for (var context : blockItemDrawContexts) {
 				poseStack.pushPose	();
@@ -244,8 +248,7 @@ public class GuiBatchingController {
 
 			for (var context : highlightDrawContexts) {
 				poseStack.pushPose	();
-				poseStack.last		().pose		().set(context.transform());
-				poseStack.last		().normal	().set(context.normal	());
+				poseStack.setPose	(context.transform(), context.normal());
 
 				AbstractContainerScreen.renderSlotHighlight(
 						graphics,
@@ -272,30 +275,30 @@ public class GuiBatchingController {
 
 	public void flushBatching() {
 		CoreStates						.recordBuffers	();
-		CoreBuffers.ENTITY				.prepareBuffers	();
-		CoreBuffers.BLOCK				.prepareBuffers	();
 		CoreBuffers.POS					.prepareBuffers	();
 		CoreBuffers.POS_COLOR			.prepareBuffers	();
-		CoreBuffers.POS_TEX				.prepareBuffers	();
 		CoreBuffers.POS_TEX_COLOR		.prepareBuffers	();
 		CoreBuffers.POS_COLOR_TEX_LIGHT	.prepareBuffers	();
+		CoreBuffers.ENTITY				.prepareBuffers	();
+		CoreBuffers.BLOCK				.prepareBuffers	();
+		CoreBuffers.POS_TEX				.prepareBuffers	();
 		CoreStates						.restoreBuffers	();
 
-		CoreBuffers.ENTITY				.drawBuffers	(LayerDrawType.ALL);
-		CoreBuffers.BLOCK				.drawBuffers	(LayerDrawType.ALL);
 		CoreBuffers.POS					.drawBuffers	(LayerDrawType.ALL);
 		CoreBuffers.POS_COLOR			.drawBuffers	(LayerDrawType.ALL);
-		CoreBuffers.POS_TEX				.drawBuffers	(LayerDrawType.ALL);
 		CoreBuffers.POS_TEX_COLOR		.drawBuffers	(LayerDrawType.ALL);
 		CoreBuffers.POS_COLOR_TEX_LIGHT	.drawBuffers	(LayerDrawType.ALL);
+		CoreBuffers.ENTITY				.drawBuffers	(LayerDrawType.ALL);
+		CoreBuffers.BLOCK				.drawBuffers	(LayerDrawType.ALL);
+		CoreBuffers.POS_TEX				.drawBuffers	(LayerDrawType.ALL);
 
-		CoreBuffers.ENTITY				.clearBuffers	();
-		CoreBuffers.BLOCK				.clearBuffers	();
 		CoreBuffers.POS					.clearBuffers	();
 		CoreBuffers.POS_COLOR			.clearBuffers	();
-		CoreBuffers.POS_TEX				.clearBuffers	();
 		CoreBuffers.POS_TEX_COLOR		.clearBuffers	();
 		CoreBuffers.POS_COLOR_TEX_LIGHT	.clearBuffers	();
+		CoreBuffers.ENTITY				.clearBuffers	();
+		CoreBuffers.BLOCK				.clearBuffers	();
+		CoreBuffers.POS_TEX				.clearBuffers	();
 	}
 
 	public void submitBlit(
