@@ -1,15 +1,11 @@
 package com.github.argon4w.acceleratedrendering.features.items.mixins.gui;
 
-import com.github.argon4w.acceleratedrendering.core.CoreBuffers;
 import com.github.argon4w.acceleratedrendering.core.CoreFeature;
-import com.github.argon4w.acceleratedrendering.core.CoreStates;
-import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.layers.LayerDrawType;
 import com.github.argon4w.acceleratedrendering.features.items.AcceleratedItemRenderingFeature;
-import com.github.argon4w.acceleratedrendering.features.items.IAcceleratedGuiGraphics;
 import com.github.argon4w.acceleratedrendering.features.items.gui.GuiBatchingController;
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -17,68 +13,24 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FastColor;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.client.ItemDecoratorHandler;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 
-@SuppressWarnings	("UnstableApiUsage")
-@Mixin				(GuiGraphics.class)
-public class GuiGraphicsMixin implements IAcceleratedGuiGraphics {
 
-	@WrapOperation(
-			method	= "renderItemDecorations(Lnet/minecraft/client/gui/Font;Lnet/minecraft/world/item/ItemStack;IILjava/lang/String;)V",
-			at		= @At(
-					value	= "INVOKE",
-					target	= "Lnet/minecraft/client/gui/GuiGraphics;drawString(Lnet/minecraft/client/gui/Font;Ljava/lang/String;IIIZ)I"
-			)
-	)
-	public int renderDecorationStringsFast(
-			GuiGraphics			instance,
-			Font				font,
-			String				text,
-			int					textX,
-			int					textY,
-			int					textColor,
-			boolean				dropShadow,
-			Operation<Integer>	original
-	) {
-		if (!CoreFeature.isGuiBatching()) {
-			return original.call(
-					instance,
-					font,
-					text,
-					textX,
-					textY,
-					textColor,
-					dropShadow
-			);
-		}
+@Mixin(GuiGraphics.class)
+public class GuiGraphicsMixin {
 
-		GuiBatchingController.INSTANCE.recordString(
-				instance,
-				font,
-				text,
-				textX,
-				textY,
-				textColor,
-				dropShadow
-		);
-		return 0;
-	}
+	@Shadow @Final private PoseStack pose;
 
-	@WrapOperation(
-			method	= "renderItemDecorations(Lnet/minecraft/client/gui/Font;Lnet/minecraft/world/item/ItemStack;IILjava/lang/String;)V",
-			at		= @At(
-					value	= "INVOKE",
-					target	= "Lnet/minecraft/client/gui/GuiGraphics;fill(Lnet/minecraft/client/renderer/RenderType;IIIII)V"
-			)
-	)
-	public void renderDecorationRectanglesFast(
-			GuiGraphics		instance,
-			RenderType		renderType,
+	@WrapMethod(method	= "fill(IIIII)V")
+	public void renderFillFast(
 			int				minX,
 			int				minY,
 			int				maxX,
@@ -88,8 +40,6 @@ public class GuiGraphicsMixin implements IAcceleratedGuiGraphics {
 	) {
 		if (!CoreFeature.isGuiBatching()) {
 			original.call(
-					instance,
-					renderType,
 					minX,
 					minY,
 					maxX,
@@ -99,18 +49,215 @@ public class GuiGraphicsMixin implements IAcceleratedGuiGraphics {
 			return;
 		}
 
-		GuiBatchingController.INSTANCE.recordRectangle(
-				instance,
+		var last = pose.last();
+
+		GuiBatchingController.INSTANCE.submitFill(
+				last		.pose	(),
+				last		.normal	(),
+				RenderType	.gui	(),
+				minX,
+				minY,
+				maxX,
+				maxY,
+				-1,
+				color
+		);
+	}
+
+	@WrapMethod(method	= "fill(Lnet/minecraft/client/renderer/RenderType;IIIIII)V")
+	public void renderFillFast(
+			RenderType		renderType,
+			int				minX,
+			int				minY,
+			int				maxX,
+			int				maxY,
+			int				blitOffset,
+			int				color,
+			Operation<Void>	original
+	) {
+		if (!CoreFeature.isGuiBatching()) {
+			original.call(
+					renderType,
+					minX,
+					minY,
+					maxX,
+					maxY,
+					blitOffset,
+					color
+			);
+			return;
+		}
+
+		var last = pose.last();
+
+		GuiBatchingController.INSTANCE.submitFill(
+				last.pose	(),
+				last.normal	(),
 				renderType,
 				minX,
 				minY,
 				maxX,
 				maxY,
+				blitOffset,
 				color
 		);
 	}
 
-	@WrapOperation(
+	@WrapMethod(method = "fillGradient(Lnet/minecraft/client/renderer/RenderType;IIIIIII)V")
+	public void renderGradientFast(
+			RenderType		renderType,
+			int				minX,
+			int				minY,
+			int				maxX,
+			int				maxY,
+			int				colorFrom,
+			int				colorTo,
+			int				blitOffset,
+			Operation<Void>	original
+	) {
+		if (!CoreFeature.isGuiBatching()) {
+			original.call(
+					renderType,
+					minX,
+					minY,
+					maxX,
+					maxY,
+					colorFrom,
+					colorTo,
+					blitOffset
+			);
+			return;
+		}
+
+		var last = pose.last();
+
+		GuiBatchingController.INSTANCE.submitGradient(
+				last.pose	(),
+				last.normal	(),
+				renderType,
+				minX,
+				minY,
+				maxX,
+				maxY,
+				blitOffset,
+				colorFrom,
+				colorTo
+		);
+	}
+
+	@WrapMethod(method = "innerBlit(Lnet/minecraft/resources/ResourceLocation;IIIIIFFFF)V")
+	public void renderBlitFast(
+			ResourceLocation atlasLocation,
+			int					minX,
+			int					maxX,
+			int					minY,
+			int					maxY,
+			int					blitOffset,
+			float				minU,
+			float				maxU,
+			float				minV,
+			float				maxV,
+			Operation<Void>		original
+	) {
+		if (!CoreFeature.isGuiBatching()) {
+			original.call(
+					atlasLocation,
+					minX,
+					maxX,
+					minY,
+					maxY,
+					blitOffset,
+					minU,
+					maxU,
+					minV,
+					maxV
+			);
+			return;
+		}
+
+		var last = pose.last();
+
+		GuiBatchingController.INSTANCE.submitBlit(
+				last.pose	(),
+				last.normal	(),
+				atlasLocation,
+				minX,
+				maxX,
+				minY,
+				maxY,
+				blitOffset,
+				-1,
+				minU,
+				maxU,
+				minV,
+				maxV
+		);
+	}
+
+	@WrapMethod(method = "innerBlit(Lnet/minecraft/resources/ResourceLocation;IIIIIFFFFFFFF)V")
+	public void renderBlitFast(
+			ResourceLocation	atlasLocation,
+			int					minX,
+			int					maxX,
+			int					minY,
+			int					maxY,
+			int					blitOffset,
+			float				minU,
+			float				maxU,
+			float				minV,
+			float				maxV,
+			float				red,
+			float				green,
+			float				blue,
+			float				alpha,
+			Operation<Void>		original
+	) {
+		if (!CoreFeature.isGuiBatching()) {
+			original.call(
+					atlasLocation,
+					minX,
+					maxX,
+					minY,
+					maxY,
+					blitOffset,
+					minU,
+					maxU,
+					minV,
+					maxV,
+					red,
+					green,
+					blue,
+					alpha
+			);
+			return;
+		}
+
+		var last = pose.last();
+
+		GuiBatchingController.INSTANCE.submitBlit(
+				last.pose	(),
+				last.normal	(),
+				atlasLocation,
+				minX,
+				maxX,
+				minY,
+				maxY,
+				blitOffset,
+				FastColor.ARGB32.color(
+						(int) (alpha	* 255.0f),
+						(int) (red		* 255.0f),
+						(int) (green	* 255.0f),
+						(int) (blue		* 255.0f)
+				),
+				minU,
+				maxU,
+				minV,
+				maxV
+		);
+	}
+
+	@SuppressWarnings	("UnstableApiUsage")
+	@WrapOperation		(
 			method	= "renderItemDecorations(Lnet/minecraft/client/gui/Font;Lnet/minecraft/world/item/ItemStack;IILjava/lang/String;)V",
 			at		= @At(
 					value	= "INVOKE",
@@ -139,8 +286,11 @@ public class GuiGraphicsMixin implements IAcceleratedGuiGraphics {
 			return;
 		}
 
-		GuiBatchingController.INSTANCE.recordDecorator(
-				guiGraphics,
+		var last = pose.last();
+
+		GuiBatchingController.INSTANCE.submitCustomDecorator(
+				last.pose	(),
+				last.normal	(),
 				instance,
 				font,
 				stack,
@@ -156,7 +306,7 @@ public class GuiGraphicsMixin implements IAcceleratedGuiGraphics {
 					target	= "Lnet/minecraft/client/renderer/entity/ItemRenderer;render(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemDisplayContext;ZLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;IILnet/minecraft/client/resources/model/BakedModel;)V"
 			)
 	)
-	public void setupBatchingLayers(
+	public void renderItemFast(
 			ItemRenderer		instance,
 			ItemStack			itemStack,
 			ItemDisplayContext	displayContext,
@@ -187,13 +337,21 @@ public class GuiGraphicsMixin implements IAcceleratedGuiGraphics {
 			return;
 		}
 
-		var useGuiBatching	= CoreFeature.isGuiBatching();
-		var useFlatLight	= useGuiBatching && !bakedModel.usesBlockLight();
+		if (CoreFeature.isGuiBatching()) {
+			var last = pose.last();
 
-		if (useFlatLight) {
-			CoreFeature.forceSetDefaultLayer				(1);
-			CoreFeature.forceSetDefaultLayerBeforeFunction	(Lighting::setupForFlatItems);
-			CoreFeature.forceSetDefaultLayerAfterFunction	(Lighting::setupFor3DItems);
+			GuiBatchingController.INSTANCE.submitItem(
+					last.pose	(),
+					last.normal	(),
+					itemStack,
+					displayContext,
+					leftHand,
+					combinedLight,
+					combinedOverlay,
+					bakedModel,
+					bakedModel.usesBlockLight()
+			);
+			return;
 		}
 
 		CoreFeature.setRenderingGui();
@@ -210,46 +368,7 @@ public class GuiGraphicsMixin implements IAcceleratedGuiGraphics {
 				bakedModel
 		);
 
-		CoreFeature.resetRenderingGui();
-
-		if (useFlatLight) {
-			CoreFeature.resetDefaultLayer				();
-			CoreFeature.resetDefaultLayerBeforeFunction	();
-			CoreFeature.resetDefaultLayerAfterFunction	();
-		}
-
-		if (!useGuiBatching) {
-			flushItemBatching();
-		}
-	}
-
-	@Unique
-	@Override
-	public void flushItemBatching() {
-		CoreStates						.recordBuffers	();
-		CoreBuffers.ENTITY				.prepareBuffers	();
-		CoreBuffers.BLOCK				.prepareBuffers	();
-		CoreBuffers.POS					.prepareBuffers	();
-		CoreBuffers.POS_COLOR			.prepareBuffers	();
-		CoreBuffers.POS_TEX				.prepareBuffers	();
-		CoreBuffers.POS_TEX_COLOR		.prepareBuffers	();
-		CoreBuffers.POS_COLOR_TEX_LIGHT	.prepareBuffers	();
-		CoreStates						.restoreBuffers	();
-
-		CoreBuffers.ENTITY				.drawBuffers	(LayerDrawType.ALL);
-		CoreBuffers.BLOCK				.drawBuffers	(LayerDrawType.ALL);
-		CoreBuffers.POS					.drawBuffers	(LayerDrawType.ALL);
-		CoreBuffers.POS_COLOR			.drawBuffers	(LayerDrawType.ALL);
-		CoreBuffers.POS_TEX				.drawBuffers	(LayerDrawType.ALL);
-		CoreBuffers.POS_TEX_COLOR		.drawBuffers	(LayerDrawType.ALL);
-		CoreBuffers.POS_COLOR_TEX_LIGHT	.drawBuffers	(LayerDrawType.ALL);
-
-		CoreBuffers.ENTITY				.clearBuffers	();
-		CoreBuffers.BLOCK				.clearBuffers	();
-		CoreBuffers.POS					.clearBuffers	();
-		CoreBuffers.POS_COLOR			.clearBuffers	();
-		CoreBuffers.POS_TEX				.clearBuffers	();
-		CoreBuffers.POS_TEX_COLOR		.clearBuffers	();
-		CoreBuffers.POS_COLOR_TEX_LIGHT	.clearBuffers	();
+		CoreFeature						.resetRenderingGui	();
+		GuiBatchingController.INSTANCE	.flushBatching		();
 	}
 }

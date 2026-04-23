@@ -35,8 +35,4 @@ public class CoreBuffers {
 			.mode	(VertexFormat.Mode	.QUADS)
 			.mode	(VertexFormat.Mode	.TRIANGLES)
 			.build	();
-
-	public static AcceleratedBufferSources getCoreBufferSources() {
-		return CORE;
-	}
 }

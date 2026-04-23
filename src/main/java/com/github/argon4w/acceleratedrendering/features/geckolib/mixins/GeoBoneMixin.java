@@ -5,7 +5,7 @@ import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.renderers.IAcceleratedRenderer;
 import com.github.argon4w.acceleratedrendering.core.meshes.IMesh;
 import com.github.argon4w.acceleratedrendering.core.meshes.collectors.CulledMeshCollector;
-import com.github.argon4w.acceleratedrendering.core.meshes.data.IMeshData;
+import com.github.argon4w.acceleratedrendering.core.meshes.data.MeshData;
 import com.github.argon4w.acceleratedrendering.features.entities.AcceleratedEntityRenderingFeature;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -31,11 +31,11 @@ public class GeoBoneMixin implements IAcceleratedRenderer<Void> {
 	@Shadow(remap = false) @Final private	List<GeoCube>				cubes;
 
 	@Unique private	final					Map<IBufferGraph,	IMesh>	meshes = new Object2ObjectOpenHashMap<>();
-	@Unique private final					Map<IMeshData,		IMesh>	merges = new Object2ObjectOpenHashMap<>();
+	@Unique private final					Map<MeshData,		IMesh>	merges = new Object2ObjectOpenHashMap<>();
 
 	@Override
 	public void render(
-			VertexConsumer vertexConsumer,
+			VertexConsumer	vertexConsumer,
 			Void			context,
 			Matrix4f		transform,
 			Matrix3f		normal,
@@ -93,9 +93,9 @@ public class GeoBoneMixin implements IAcceleratedRenderer<Void> {
 								vertex			.texV(),
 								overlay,
 								0,
-								polygonNormal	.x,
-								polygonNormal	.y,
-								polygonNormal	.z
+								polygonNormal.x,
+								polygonNormal.y,
+								polygonNormal.z
 						);
 					}
 				}

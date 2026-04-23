@@ -1,5 +1,6 @@
 package com.github.argon4w.acceleratedrendering.compat.sodium.mixins;
 
+import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.IAcceleratedBufferSource;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.IAccelerationHolder;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.AcceleratedBufferBuilder;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.IAcceleratedVertexConsumer;
@@ -12,6 +13,8 @@ import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.*;
 
+import java.util.function.Supplier;
+
 @Pseudo
 @Mixin(SodiumBufferBuilder.class)
 public class SodiumBufferBuilderMixin implements IAcceleratedVertexConsumer, IAccelerationHolder {
@@ -20,8 +23,8 @@ public class SodiumBufferBuilderMixin implements IAcceleratedVertexConsumer, IAc
 
 	@Unique
 	@Override
-	public VertexConsumer initAcceleration(RenderType renderType) {
-		return ((IAccelerationHolder) builder).initAcceleration(renderType);
+	public VertexConsumer initAcceleration(RenderType renderType, Supplier<IAcceleratedBufferSource> bufferSource) {
+		return ((IAccelerationHolder) builder).initAcceleration(renderType, bufferSource);
 	}
 
 	@Unique

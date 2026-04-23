@@ -12,13 +12,11 @@ import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.layers.s
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.layers.storage.LayerStorageType;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.meshes.IMeshInfoCache;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.meshes.MeshInfoCacheType;
-import com.github.argon4w.acceleratedrendering.core.buffers.memory.IMemoryLayout;
-import com.github.argon4w.acceleratedrendering.core.meshes.data.IMeshData;
-import com.github.argon4w.acceleratedrendering.core.meshes.data.MeshMergeType;
+import com.github.argon4w.acceleratedrendering.core.meshes.data.cache.IMeshDataCache;
+import com.github.argon4w.acceleratedrendering.core.meshes.data.cache.MeshDataCacheType;
 import com.github.argon4w.acceleratedrendering.core.programs.ComputeShaderProgramLoader;
 import com.github.argon4w.acceleratedrendering.core.utils.PackedVector2i;
 import com.google.common.util.concurrent.Runnables;
-import com.mojang.blaze3d.vertex.VertexFormatElement;
 
 import java.util.ArrayDeque;
 
@@ -78,7 +76,7 @@ public class CoreFeature {
 		return FeatureConfig.CONFIG.coreLayerStorageType.get();
 	}
 
-	public static MeshMergeType getMeshMergeType() {
+	public static MeshDataCacheType getMeshMergeType() {
 		return FeatureConfig.CONFIG.coreMeshMergeType.get();
 	}
 
@@ -130,8 +128,8 @@ public class CoreFeature {
 		return getLayerStorageType().create(getPooledBatchingSize());
 	}
 
-	public static IMeshData createMeshData(IMemoryLayout<VertexFormatElement> layout) {
-		return getMeshMergeType().create(layout);
+	public static IMeshDataCache createMeshDataCache() {
+		return getMeshMergeType().create();
 	}
 
 	public static IBindingState createViewportState() {

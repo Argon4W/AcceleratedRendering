@@ -6,7 +6,7 @@ import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.renderers.IAcceleratedRenderer;
 import com.github.argon4w.acceleratedrendering.core.meshes.IMesh;
 import com.github.argon4w.acceleratedrendering.core.meshes.collectors.CulledMeshCollector;
-import com.github.argon4w.acceleratedrendering.core.meshes.data.IMeshData;
+import com.github.argon4w.acceleratedrendering.core.meshes.data.MeshData;
 import com.github.argon4w.acceleratedrendering.core.utils.DirectionUtils;
 import com.github.argon4w.acceleratedrendering.features.entities.AcceleratedEntityRenderingFeature;
 import com.github.argon4w.acceleratedrendering.features.items.IAcceleratedBakedModel;
@@ -46,7 +46,7 @@ public abstract class SimpleBakedModelMixin implements IAcceleratedBakedModel, I
 	@Shadow public abstract List<BakedQuad> getQuads(BlockState pState, Direction pDirection, RandomSource pRandom);
 
 	@Unique private final Map<IBufferGraph,	Int2ObjectMap<IMesh>>	meshes = new Object2ObjectOpenHashMap<>();
-	@Unique private final Map<IMeshData,	IMesh>					merges = new Object2ObjectOpenHashMap<>();
+	@Unique private final Map<MeshData,		IMesh>					merges = new Object2ObjectOpenHashMap<>();
 
 	@Unique
 	@Override

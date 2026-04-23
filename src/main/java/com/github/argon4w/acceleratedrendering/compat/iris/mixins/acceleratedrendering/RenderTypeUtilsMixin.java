@@ -48,6 +48,28 @@ public class RenderTypeUtilsMixin {
 		return renderType instanceof WrappableRenderType wrapped ? wrapped.unwrap() : renderType;
 	}
 
+	@ModifyVariable(
+			method		= "hasDepth",
+			at			= @At("HEAD"),
+			ordinal		= 0,
+			argsOnly	= true,
+			remap		= false
+	)
+	private static RenderType unwrapIrisRenderType4(RenderType renderType) {
+		return renderType instanceof WrappableRenderType wrapped ? wrapped.unwrap() : renderType;
+	}
+
+	@ModifyVariable(
+			method		= "withDepth",
+			at			= @At("HEAD"),
+			ordinal		= 0,
+			argsOnly	= true,
+			remap		= false
+	)
+	private static RenderType unwrapIrisRenderType5(RenderType renderType) {
+		return renderType instanceof WrappableRenderType wrapped ? wrapped.unwrap() : renderType;
+	}
+
 	@Inject(
 			method		= "getDrawType",
 			at			= @At("HEAD"),

@@ -4,20 +4,19 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
 import it.unimi.dsi.fastutil.objects.*;
 
-public class VertexFormatMemoryLayout implements IMemoryLayout<VertexFormatElement> {
+public class VertexLayout implements IMemoryLayout<VertexFormatElement> {
 
 	private final long															size;
 	private final Reference2IntMap		<VertexFormatElement>					offsets;
 	private final Reference2ObjectMap	<VertexFormatElement, IMemoryInterface>	interfaces;
 
-
-	public VertexFormatMemoryLayout(VertexFormat vertexFormat) {
+	public VertexLayout(VertexFormat vertexFormat) {
 		var elements		= vertexFormat	.getElements();
 		var count			= elements		.size		();
 
-		this.size			= vertexFormat	.getVertexSize			();
-		this.offsets		= new Reference2IntLinkedOpenHashMap<>	();
-		this.interfaces		= new Reference2ObjectOpenHashMap	<>	(count);
+		this.size		= vertexFormat.getVertexSize			();
+		this.offsets	= new Reference2IntOpenHashMap		<>	();
+		this.interfaces	= new Reference2ObjectOpenHashMap	<>	();
 
 		for (var i = 0; i < count; i ++) {
 			var element		= elements		.get		(i);

@@ -74,7 +74,7 @@ public abstract class AbstractContainerScreenMixin {
 			at		= @At(
 					value	= "INVOKE",
 					target	= "Lnet/minecraft/client/gui/screens/inventory/AbstractContainerScreen;renderLabels(Lnet/minecraft/client/gui/GuiGraphics;II)V",
-					shift	= At.Shift.BEFORE
+					shift	= At.Shift.AFTER
 			)
 	)
 	public void flushItemBatching(
@@ -110,8 +110,11 @@ public abstract class AbstractContainerScreenMixin {
 			return;
 		}
 
-		GuiBatchingController.INSTANCE.recordHighlight(
-				guiGraphics,
+		var last = guiGraphics.pose().last();
+
+		GuiBatchingController.INSTANCE.submitHighlight(
+				last.pose	(),
+				last.normal	(),
 				highlightX,
 				highLightY,
 				blitOffset,

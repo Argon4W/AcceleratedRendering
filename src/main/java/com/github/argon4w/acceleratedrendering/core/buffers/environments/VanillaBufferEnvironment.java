@@ -1,8 +1,7 @@
 package com.github.argon4w.acceleratedrendering.core.buffers.environments;
 
 import com.github.argon4w.acceleratedrendering.core.backends.buffers.IServerBuffer;
-import com.github.argon4w.acceleratedrendering.core.buffers.memory.IMemoryLayout;
-import com.github.argon4w.acceleratedrendering.core.buffers.memory.VertexFormatMemoryLayout;
+import com.github.argon4w.acceleratedrendering.core.buffers.memory.VertexLayout;
 import com.github.argon4w.acceleratedrendering.core.meshes.ServerMesh;
 import com.github.argon4w.acceleratedrendering.core.programs.culling.ICullingProgramDispatcher;
 import com.github.argon4w.acceleratedrendering.core.programs.culling.ICullingProgramSelector;
@@ -17,7 +16,6 @@ import com.github.argon4w.acceleratedrendering.core.programs.overrides.LoadShade
 import com.github.argon4w.acceleratedrendering.core.programs.processing.IPolygonProcessor;
 import com.github.argon4w.acceleratedrendering.core.programs.processing.LoadPolygonProcessorEvent;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormatElement;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.fml.ModLoader;
@@ -26,14 +24,14 @@ import java.util.Set;
 
 public class VanillaBufferEnvironment implements IBufferEnvironment {
 
-	private final VertexFormat							vertexFormat;
-	private final IMemoryLayout<VertexFormatElement>	layout;
+	private final VertexFormat						vertexFormat;
+	private final VertexLayout						layout;
 
-	private final IShaderProgramOverrides				shaderProgramOverrides;
-	private final MeshUploadingProgramDispatcher		meshUploadingProgramDispatcher;
-	private final TransformProgramDispatcher			transformProgramDispatcher;
-	private final ICullingProgramSelector				cullingProgramSelector;
-	private final IPolygonProcessor						polygonProcessor;
+	private final IShaderProgramOverrides			shaderProgramOverrides;
+	private final MeshUploadingProgramDispatcher	meshUploadingProgramDispatcher;
+	private final TransformProgramDispatcher		transformProgramDispatcher;
+	private final ICullingProgramSelector			cullingProgramSelector;
+	private final IPolygonProcessor					polygonProcessor;
 
 	public VanillaBufferEnvironment(
 			VertexFormat		vertexFormat,
@@ -44,14 +42,14 @@ public class VanillaBufferEnvironment implements IBufferEnvironment {
 		var defaultUploadingOverride		= new MeshUploadingProgramDispatcher.Default(uploadingProgramKey, 5L * 4L);
 
 		this.vertexFormat					= vertexFormat;
-		this.layout							= new VertexFormatMemoryLayout				(vertexFormat);
+		this.layout							= new VertexLayout(vertexFormat);
 
 		this.shaderProgramOverrides			= ModLoader.get().postEventWithReturn		(new LoadShaderProgramOverridesEvent(this.vertexFormat)).getOverrides	(defaultTransformOverride, defaultUploadingOverride);
 		this.cullingProgramSelector			= ModLoader.get().postEventWithReturn		(new LoadCullingProgramSelectorEvent(this.vertexFormat)).getSelector	();
 		this.polygonProcessor				= ModLoader.get().postEventWithReturn		(new LoadPolygonProcessorEvent		(this.vertexFormat)).getProcessor	();
 
-		this.meshUploadingProgramDispatcher	= new MeshUploadingProgramDispatcher		();
-		this.transformProgramDispatcher		= new TransformProgramDispatcher			();
+		this.meshUploadingProgramDispatcher	= new MeshUploadingProgramDispatcher();
+		this.transformProgramDispatcher		= new TransformProgramDispatcher	();
 	}
 
 	@Override
@@ -65,7 +63,7 @@ public class VanillaBufferEnvironment implements IBufferEnvironment {
 	}
 
 	@Override
-	public IMemoryLayout<VertexFormatElement> getLayout() {
+	public VertexLayout getLayout() {
 		return layout;
 	}
 

@@ -3,6 +3,7 @@ package com.github.argon4w.acceleratedrendering.core.meshes;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.IAcceleratedVertexConsumer;
 import com.github.argon4w.acceleratedrendering.core.meshes.collectors.IMeshCollector;
 import com.github.argon4w.acceleratedrendering.core.utils.ByteBufferBuilder;
+import com.github.argon4w.acceleratedrendering.core.meshes.data.cache.MeshDataCaches;
 import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet;
 import lombok.AllArgsConstructor;
 
@@ -49,8 +50,17 @@ public class ClientMesh implements IMesh {
 				return EmptyMesh.INSTANCE;
 			}
 
-			var builder	= collector	.getBuffer	();
-			var result	= builder	.build		();
+			var builder		= collector				.getBuffer		();
+			var layout		= collector				.getLayout		();
+			var data		= collector				.getData		();
+			var mesh		= MeshDataCaches.CLIENT	.get			(layout, data);
+
+			if (mesh != null) {
+				builder.close();
+				return mesh;
+			}
+
+			var result = builder.build();
 
 			if (result == null) {
 				builder.close();
@@ -58,7 +68,16 @@ public class ClientMesh implements IMesh {
 			}
 
 			builders.add(builder);
-			return new ClientMesh(vertexCount, result.byteBuffer());
+
+			mesh = new ClientMesh(vertexCount, result.byteBuffer());
+
+			MeshDataCaches.CLIENT.set(
+					layout,
+					data,
+					mesh
+			);
+
+			return mesh;
 		}
 
 		@Override

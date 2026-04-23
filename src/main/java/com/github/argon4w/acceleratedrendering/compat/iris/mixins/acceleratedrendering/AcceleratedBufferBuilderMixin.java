@@ -7,10 +7,9 @@ import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.layers.f
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.ElementBufferPool;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.StagingBufferPool;
 import com.github.argon4w.acceleratedrendering.core.buffers.memory.IMemoryInterface;
-import com.github.argon4w.acceleratedrendering.core.buffers.memory.IMemoryLayout;
+import com.github.argon4w.acceleratedrendering.core.buffers.memory.VertexLayout;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.blaze3d.vertex.VertexFormatElement;
 import net.irisshaders.iris.uniforms.CapturedRenderingState;
 import net.irisshaders.iris.vertices.IrisVertexFormats;
 import net.minecraft.client.renderer.RenderType;
@@ -26,11 +25,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(AcceleratedBufferBuilder.class)
 public class AcceleratedBufferBuilderMixin implements IIrisAcceleratedBufferBuilder {
 
-	@Shadow(remap = false) @Final private	IMemoryLayout<VertexFormatElement>	layout;
-	@Shadow(remap = false) private			long								vertexAddress;
+	@Shadow(remap = false) @Final private	VertexLayout		layout;
+	@Shadow(remap = false) private			long				vertexAddress;
 
-	@Unique private							IMemoryInterface					entityIdOffset;
-	@Unique private							IMemoryInterface					entityOffset;
+	@Unique private							IMemoryInterface	entityIdOffset;
+	@Unique private							IMemoryInterface	entityOffset;
 
 	@Inject(
 			method	= "<init>",

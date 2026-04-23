@@ -4,8 +4,7 @@
   "package": "com.github.argon4w.acceleratedrendering.compat.sodium.mixins",
   "compatibilityLevel": "JAVA_17",
   "client": [
-    "SodiumBufferBuilderMixin",
-    "VertexConsumerUtilsMixin"
+    "SodiumBufferBuilderMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -7,7 +7,7 @@ import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.renderers.IAcceleratedRenderer;
 import com.github.argon4w.acceleratedrendering.core.meshes.IMesh;
 import com.github.argon4w.acceleratedrendering.core.meshes.collectors.CulledMeshCollector;
-import com.github.argon4w.acceleratedrendering.core.meshes.data.IMeshData;
+import com.github.argon4w.acceleratedrendering.core.meshes.data.MeshData;
 import com.github.argon4w.acceleratedrendering.features.entities.AcceleratedEntityRenderingFeature;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -28,7 +28,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.List;
 import java.util.Map;
 
-@SuppressWarnings	("unchecked")
 @ExtensionMethod	(VertexConsumerExtension.class)
 @Mixin				(ModelPart				.class)
 public class ModelPartMixin implements IAcceleratedRenderer<Void> {
@@ -36,7 +35,7 @@ public class ModelPartMixin implements IAcceleratedRenderer<Void> {
 	@Shadow @Final public	List<ModelPart.Cube>		cubes;
 
 	@Unique private final	Map<IBufferGraph,	IMesh>	meshes = new Object2ObjectOpenHashMap<>();
-	@Unique private final	Map<IMeshData,		IMesh>	merges = new Object2ObjectOpenHashMap<>();
+	@Unique private final	Map<MeshData,		IMesh>	merges = new Object2ObjectOpenHashMap<>();
 
 	@Inject(
 			method		= "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;IIFFFF)V",
@@ -81,7 +80,7 @@ public class ModelPartMixin implements IAcceleratedRenderer<Void> {
 		}
 	}
 
-	/*@Inject(
+	@Inject(
 			method		= "compile",
 			at			= @At("HEAD"),
 			cancellable	= true
@@ -122,7 +121,7 @@ public class ModelPartMixin implements IAcceleratedRenderer<Void> {
 					)
 			);
 		}
-	}*/
+	}
 
 	@Unique
 	@Override
@@ -210,6 +209,7 @@ public class ModelPartMixin implements IAcceleratedRenderer<Void> {
 	}
 
 	@Unique
+	@SuppressWarnings("unchecked")
 	private static void renderFast(
 			ModelPart					modelPart,
 			PoseStack					poseStack,
@@ -233,11 +233,13 @@ public class ModelPartMixin implements IAcceleratedRenderer<Void> {
 		modelPart.translateAndRotate(poseStack);
 
 		if (!modelPart.skipDraw) {
+			var last = poseStack.last();
+
 			extension.doRender(
 					(IAcceleratedRenderer<Void>) (Object) modelPart,
 					null,
-					poseStack.last().pose(),
-					poseStack.last().normal(),
+					last.pose	(),
+					last.normal	(),
 					packedLight,
 					packedOverlay,
 					packedColor

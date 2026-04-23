@@ -1,5 +1,6 @@
 package com.github.argon4w.acceleratedrendering.compat.immediatelyfast.mixins;
 
+import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.IAcceleratableBufferSource;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.VertexConsumerExtension;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -13,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.At;
 @Pseudo
 @ExtensionMethod(VertexConsumerExtension.class)
 @Mixin			(BatchableBufferSource	.class)
-public class BatchableBufferSourceMixin {
+public abstract class BatchableBufferSourceMixin implements IAcceleratableBufferSource {
 
 	@ModifyReturnValue(
 			method	= "getBuffer",
@@ -22,6 +23,6 @@ public class BatchableBufferSourceMixin {
 	public VertexConsumer initAcceleration(VertexConsumer original, RenderType renderType) {
 		return original
 				.getHolder			()
-				.initAcceleration	(renderType);
+				.initAcceleration	(renderType, getBoundAcceleratedBufferSource());
 	}
 }

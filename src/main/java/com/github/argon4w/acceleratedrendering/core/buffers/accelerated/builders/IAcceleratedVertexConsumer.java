@@ -2,12 +2,11 @@ package com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builder
 
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.renderers.IAcceleratedRenderer;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.renderers.IBufferDecorator;
-import com.github.argon4w.acceleratedrendering.core.buffers.memory.IMemoryLayout;
+import com.github.argon4w.acceleratedrendering.core.buffers.memory.VertexLayout;
 import com.github.argon4w.acceleratedrendering.core.meshes.ServerMesh;
 import com.github.argon4w.acceleratedrendering.core.utils.TextureUtils;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.blaze3d.vertex.VertexFormatElement;
 import net.minecraft.client.renderer.RenderType;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
@@ -37,7 +36,7 @@ public interface IAcceleratedVertexConsumer extends IBufferDecorator, IBufferGra
 		throw new UnsupportedOperationException("Unsupported Operation.");
 	}
 
-	default IMemoryLayout<VertexFormatElement> getLayout() {
+	default VertexLayout getLayout() {
 		throw new UnsupportedOperationException("Unsupported Operation.");
 	}
 

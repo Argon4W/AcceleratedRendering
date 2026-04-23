@@ -13,9 +13,8 @@ import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.El
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.StagingBufferPool;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.meshes.MeshUploaderPool;
 import com.github.argon4w.acceleratedrendering.core.buffers.environments.IBufferEnvironment;
-import com.github.argon4w.acceleratedrendering.core.buffers.memory.IMemoryLayout;
+import com.github.argon4w.acceleratedrendering.core.buffers.memory.VertexLayout;
 import com.github.argon4w.acceleratedrendering.core.utils.LoopResetPool;
-import com.mojang.blaze3d.vertex.VertexFormatElement;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
@@ -99,7 +98,7 @@ public class AcceleratedRingBuffers extends LoopResetPool<AcceleratedRingBuffers
 		@Getter private	final	int														size;
 
 		private 				boolean													used;
-		private 				IMemoryLayout<VertexFormatElement>						layout;
+		private					VertexLayout											layout;
 
 		public Buffers(IBufferEnvironment bufferEnvironment) {
 			this.size				= CoreFeature.getPooledBatchingSize		();

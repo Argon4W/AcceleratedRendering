@@ -1,6 +1,5 @@
 package com.github.argon4w.acceleratedrendering.core.mixins.buffers;
 
-import com.github.argon4w.acceleratedrendering.core.CoreBuffers;
 import com.github.argon4w.acceleratedrendering.core.CoreFeature;
 import com.github.argon4w.acceleratedrendering.core.buffers.EmptyAcceleratedBufferSources;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.IAcceleratedBufferSource;
@@ -16,6 +15,8 @@ import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
+import java.util.function.Supplier;
+
 @Mixin(BufferBuilder.class)
 public class BufferBuilderMixin implements IAccelerationHolder, IAcceleratedVertexConsumer {
 
@@ -25,9 +26,9 @@ public class BufferBuilderMixin implements IAccelerationHolder, IAcceleratedVert
 
 	@Unique
 	@Override
-	public VertexConsumer initAcceleration(RenderType renderType) {
+	public VertexConsumer initAcceleration(RenderType renderType, Supplier<IAcceleratedBufferSource> bufferSource) {
 		if (CoreFeature.isLoaded()) {
-			this.bufferSources	= renderType.isOutline() ? CoreBuffers.OUTLINE : CoreBuffers.getCoreBufferSources();
+			this.bufferSources	= bufferSource.get();
 			this.renderType		= renderType;
 			this.acceleration	= null;
 		}
@@ -38,7 +39,7 @@ public class BufferBuilderMixin implements IAccelerationHolder, IAcceleratedVert
 	@Unique
 	@Override
 	public boolean isAccelerated() {
-		return getAccelerated() != null;
+		return bufferSources != EmptyAcceleratedBufferSources.INSTANCE && getAccelerated() != null;
 	}
 
 	@Unique

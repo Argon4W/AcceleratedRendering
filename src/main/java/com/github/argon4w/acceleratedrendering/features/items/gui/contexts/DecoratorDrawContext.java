@@ -15,6 +15,10 @@ public record DecoratorDrawContext(
 		ItemStack				stack,
 		int						xOffset,
 		int						yOffset
-) {
+) implements IGuiElementContext {
 
+	@Override
+	public float depth() {
+		return 100.0f;
+	}
 }

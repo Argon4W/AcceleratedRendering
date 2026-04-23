@@ -6,9 +6,9 @@ import com.github.argon4w.acceleratedrendering.core.backends.buffers.EmptyServer
 import com.github.argon4w.acceleratedrendering.core.backends.buffers.IServerBuffer;
 import com.github.argon4w.acceleratedrendering.core.backends.buffers.MappedBuffer;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.IAcceleratedVertexConsumer;
-import com.github.argon4w.acceleratedrendering.core.buffers.memory.IMemoryLayout;
+import com.github.argon4w.acceleratedrendering.core.buffers.memory.VertexLayout;
 import com.github.argon4w.acceleratedrendering.core.meshes.collectors.IMeshCollector;
-import com.mojang.blaze3d.vertex.VertexFormatElement;
+import com.github.argon4w.acceleratedrendering.core.meshes.data.cache.MeshDataCaches;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
@@ -43,8 +43,8 @@ public record ServerMesh(
 
 	public static class Builder implements IMesh.Builder {
 
-		public static final Builder																			INSTANCE;
-		public static final Reference2ObjectMap<IMemoryLayout<VertexFormatElement>, List<IServerBuffer>>	BUFFERS;
+		public static final Builder													INSTANCE;
+		public static final Reference2ObjectMap<VertexLayout, List<IServerBuffer>>	BUFFERS;
 
 		static {
 			INSTANCE	= new Builder						();
@@ -58,29 +58,37 @@ public record ServerMesh(
 
 		@Override
 		public IMesh build(IMeshCollector collector, boolean forceDense) {
-			var vertexCount = collector.getVertexCount();
+			var vertexCount	= collector.getVertexCount	();
 
 			if (vertexCount == 0) {
 				return EmptyMesh.INSTANCE;
 			}
 
-			var builder	= collector	.getBuffer	();
-			var result	= builder	.build		();
+			var builder		= collector				.getBuffer		();
+			var layout		= collector				.getLayout		();
+			var data		= collector				.getData		();
+			var mesh		= MeshDataCaches.SERVER	.get			(layout, data);
 
-			if (result == null) {
+			if (mesh != null) {
+				builder.close();
+				return mesh;
+			}
+
+			var builderResult = builder.build();
+
+			if (builderResult == null) {
 				builder.close();
 				return EmptyMesh.INSTANCE;
 			}
 
-			var clientBuffer	= result		.byteBuffer		();
-			var capacity		= clientBuffer	.capacity		();
-			var layout			= collector		.getLayout		();
+			var byteBuffer		= builderResult	.byteBuffer		();
+			var capacity		= byteBuffer	.capacity		();
 			var meshBuffers		= BUFFERS		.getOrDefault	(layout, null);
 			var meshBuffer		= (MappedBuffer) null;
 
 			if (meshBuffers == null) {
-				meshBuffer	= new MappedBuffer			(64L);
 				meshBuffers = new ReferenceArrayList<>	();
+				meshBuffer	= new MappedBuffer			(64L);
 				meshBuffers	.add						(meshBuffer);
 				BUFFERS		.put 						(layout, meshBuffers);
 			} else {
@@ -96,10 +104,10 @@ public record ServerMesh(
 					var crashReport	= CrashReport	.forThrowable	(new OutOfMemoryError("Mesh buffer size exceeds limits."), "Exception in building meshes.");
 					var category	= crashReport	.addCategory	("Mesh being built");
 
-					category						.setDetail		("Mesh type",					"Server side mesh");
-					category						.setDetail		("Mesh size (vertices)",		collector				.getVertexCount	());
-					category						.setDetail		("Mesh layout size (bytes)",	collector.getLayout()	.getSize		());
-					category						.setDetail		("Mesh buffer limits (bytes)",	GLConstants				.MAX_SHADER_STORAGE_BLOCK_SIZE);
+					category.setDetail("Mesh type",						"Server side mesh");
+					category.setDetail("Mesh layout size (bytes)",		collector.getLayout()	.getSize		());
+					category.setDetail("Mesh size (vertices)",			collector				.getVertexCount	());
+					category.setDetail("Mesh buffer limits (bytes)",	GLConstants				.MAX_SHADER_STORAGE_BLOCK_SIZE);
 
 					throw new ReportedException(crashReport);
 				}
@@ -109,22 +117,31 @@ public record ServerMesh(
 			}
 
 			var position	= meshBuffer.getPosition();
-			var srcAddress	= MemoryUtil.memAddress0(clientBuffer);
+			var srcAddress	= MemoryUtil.memAddress0(byteBuffer);
 			var destAddress	= meshBuffer.reserve	(capacity);
 
-			MemoryUtil	.memCopy(
+			MemoryUtil.memCopy(
 					srcAddress,
 					destAddress,
 					capacity
 			);
-			builder		.close	();
 
-			return new ServerMesh(
+			builder.close();
+
+			mesh = new ServerMesh(
 					vertexCount,
 					position / layout.getSize(),
 					forceDense,
 					meshBuffer
 			);
+
+			MeshDataCaches.SERVER.set(
+					layout,
+					data,
+					mesh
+			);
+
+			return mesh;
 		}
 
 		@Override

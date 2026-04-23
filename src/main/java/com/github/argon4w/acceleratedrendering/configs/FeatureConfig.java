@@ -7,7 +7,7 @@ import com.github.argon4w.acceleratedrendering.core.backends.states.viewports.Vi
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.layers.storage.LayerStorageType;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.meshes.MeshInfoCacheType;
 import com.github.argon4w.acceleratedrendering.core.meshes.MeshType;
-import com.github.argon4w.acceleratedrendering.core.meshes.data.MeshMergeType;
+import com.github.argon4w.acceleratedrendering.core.meshes.data.cache.MeshDataCacheType;
 import com.github.argon4w.acceleratedrendering.features.filter.FilterType;
 import net.minecraftforge.common.ForgeConfigSpec;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -29,7 +29,7 @@ public class FeatureConfig {
 	public			final	ForgeConfigSpec.ConfigValue<FeatureStatus>					coreCacheIdenticalPose;
 	public			final	ForgeConfigSpec.ConfigValue<MeshInfoCacheType>				coreMeshInfoCacheType;
 	public			final	ForgeConfigSpec.ConfigValue<LayerStorageType>				coreLayerStorageType;
-	public			final	ForgeConfigSpec.ConfigValue<MeshMergeType>					coreMeshMergeType;
+	public			final	ForgeConfigSpec.ConfigValue<MeshDataCacheType>				coreMeshMergeType;
 	public			final	ForgeConfigSpec.ConfigValue<FeatureStatus>					coreUploadMeshImmediately;
 	public			final	ForgeConfigSpec.ConfigValue<FeatureStatus>					coreCacheDynamicRenderType;
 	public			final	ForgeConfigSpec.ConfigValue<ViewportBindingStateType>		coreViewportBindingType;
@@ -86,14 +86,18 @@ public class FeatureConfig {
 	public			final	ForgeConfigSpec.ConfigValue<FeatureStatus>					irisCompatShadowCulling;
 	public			final	ForgeConfigSpec.ConfigValue<FeatureStatus>					irisCompatPolygonProcessing;
 
-	public			final	ForgeConfigSpec.ConfigValue<FeatureStatus>					sodiumCompatFeatureStatus;
-	public			final	ForgeConfigSpec.ConfigValue<FeatureStatus>					sodiumCompatDisableOptimizedPath;
-
 	public			final	ForgeConfigSpec.ConfigValue<FeatureStatus>					curiosCompatFeatureStatus;
 	public			final	ForgeConfigSpec.ConfigValue<FeatureStatus>					curiosCompatLayerAcceleration;
 	public			final	ForgeConfigSpec.ConfigValue<FeatureStatus>					curiosItemFilter;
 	public			final	ForgeConfigSpec.ConfigValue<FilterType>						curiosItemFilterType;
 	public			final	ForgeConfigSpec.ConfigValue<List<? extends String>>			curiosItemFilterValues;
+
+	public			final	ForgeConfigSpec.ConfigValue<FeatureStatus>					modsFeatureStatus;
+	public			final	ForgeConfigSpec.ConfigValue<FeatureStatus>					modsEmfFeatureStatus;
+	public			final	ForgeConfigSpec.ConfigValue<FeatureStatus>					modsGeckoFeatureStatus;
+	public			final	ForgeConfigSpec.ConfigValue<FeatureStatus>					modsTlmFeatureStatus;
+	public			final	ForgeConfigSpec.ConfigValue<FeatureStatus>					modsSbmFeatureStatus;
+	public			final	ForgeConfigSpec.ConfigValue<FeatureStatus>					modsFtbFeatureStatus;
 
 	static {
 		Pair<FeatureConfig, ForgeConfigSpec> pair	= new ForgeConfigSpec.Builder()	.configure	(FeatureConfig::new);
@@ -173,7 +177,7 @@ public class FeatureConfig {
 				.comment				("- MERGED: Meshes with identical vertices will be merged together, which will use less VRAM more RAM in storing the data of meshes used in merging.")
 				.translation			("acceleratedrendering.configuration.core_settings.mesh_merge_type")
 				.worldRestart			()
-				.defineEnum				("mesh_merge_type",						MeshMergeType.MERGED);
+				.defineEnum				("mesh_merge_type",						MeshDataCacheType.MERGED);
 
 		coreUploadMeshImmediately						= builder
 				.comment				("- DISABLED: Meshes that is going to be accelerated will be collected and uploaded together at the end for choosing better uploading method and increasing memory access efficiency to reach the best performance. Also this method allows mesh cache with bigger capacity (up to VRAM limit), but it may not follow the correct draw order.")
@@ -542,26 +546,6 @@ public class FeatureConfig {
 		builder.pop();
 
 		builder
-				.comment				("Sodium Compatibility Settings")
-				.comment				("Sodium Compatibility Settings allows Accelerated Rendering to work correctly with Sodium.")
-				.translation			("acceleratedrendering.configuration.sodium_compatibility")
-				.push					("sodium_compatibility");
-
-		sodiumCompatFeatureStatus						= builder
-				.comment				("- DISABLED: Accelerated Rendering may be incompatible with Sodium that takes over the rendering before Accelerated Rendering.")
-				.comment				("- ENABLED: Accelerated Rendering will take over the rendering before Sodium to work correctly with Sodium.")
-				.translation			("acceleratedrendering.configuration.sodium_compatibility.feature_status")
-				.defineEnum				("feature_status",						FeatureStatus.ENABLED);
-
-		sodiumCompatDisableOptimizedPath				= builder
-				.comment				("- DISABLED: Sodium's optimized vertex writing code path will not be disabled unless mods explicitly enable it temporarily when rendering their on geometries, which will take over the rendering before Accelerated Rendering's pipeline.")
-				.comment				("- ENABLED: Sodium's optimized vertex writing code path will be disabled unless mods explicitly disable it temporarily when rendering their on geometries and Accelerated Rendering's pipeline can take over the rendering. However, when acceleration feature is disabled, it's highly recommend to enable the optimized code path.")
-				.translation			("acceleratedrendering.configuration.sodium_compatibility.disabled_optimized_path")
-				.defineEnum				("disabled_optimized_path",				FeatureStatus.ENABLED);
-
-		builder.pop();
-
-		builder
 				.comment				("Curios Compatibility Settings")
 				.comment				("Curios Compatibility Settings allows Accelerated Rendering to work correctly with Curios.")
 				.translation			("acceleratedrendering.configuration.curios_compatibility")
@@ -597,6 +581,50 @@ public class FeatureConfig {
 				.translation			("acceleratedrendering.configuration.curios_compatibility.item_filter_values")
 				.worldRestart			()
 				.defineListAllowEmpty	("item_filter_values",					new ObjectArrayList<>(), object -> object instanceof String);
+
+		builder.pop();
+
+		builder
+				.comment				("Miscellaneous Mods Compatibility Settings")
+				.comment				("Miscellaneous Mod Compatibility Settings allows Accelerated Rendering to prevent negative optimization on specific mods by controlling whether Accelerated Rendering should accelerate the rendering of the corresponding mod.")
+				.translation			("acceleratedrendering.configuration.mods_compatibility")
+				.push					("mods_compatibility");
+
+		modsFeatureStatus								= builder
+				.comment				("- DISABLED: Accelerations of all mods listed in the miscellaneous mods compatibility settings will be disabled.")
+				.comment				("- ENABLED: Accelerated Rendering will determine if a mod should be accelerated by the acceleration feature configuration item of this mod listed below.")
+				.translation			("acceleratedrendering.configuration.mods_compatibility.feature_status")
+				.defineEnum				("feature_status",						FeatureStatus.ENABLED);
+
+		modsEmfFeatureStatus							= builder
+				.comment				("- DISABLED: Accelerations of animated ModelPart variants in Entity Model Features will be disabled.")
+				.comment				("- ENABLED: Accelerations of animated ModelPart variants in Entity Model Features will be enabled.")
+				.translation			("acceleratedrendering.configuration.mods_compatibility.emf_feature_status")
+				.defineEnum				("emf_feature_status",					FeatureStatus.ENABLED);
+
+		modsGeckoFeatureStatus							= builder
+				.comment				("- DISABLED: Accelerations of models in GeckoLib will be disabled.")
+				.comment				("- ENABLED: Accelerations of models in GeckoLib will be enabled.")
+				.translation			("acceleratedrendering.configuration.mods_compatibility.gecko_feature_status")
+				.defineEnum				("gecko_feature_status",				FeatureStatus.ENABLED);
+
+		modsTlmFeatureStatus							= builder
+				.comment				("- DISABLED: Accelerations of GeckoLib variant models in Touhou Little Maid will be disabled.")
+				.comment				("- ENABLED: Accelerations of GeckoLib variant models in Touhou Little Maid will be enabled.")
+				.translation			("acceleratedrendering.configuration.mods_compatibility.tlm_feature_status")
+				.defineEnum				("tlm_feature_status",					FeatureStatus.ENABLED);
+
+		modsSbmFeatureStatus							= builder
+				.comment				("- DISABLED: Accelerations of bedrock models in Simple Bedrock Model will be disabled.")
+				.comment				("- ENABLED: Accelerations of bedrock models in Simple Bedrock Model will be enabled.")
+				.translation			("acceleratedrendering.configuration.mods_compatibility.sbm_feature_status")
+				.defineEnum				("sbm_feature_status",					FeatureStatus.ENABLED);
+
+		modsFtbFeatureStatus							= builder
+				.comment				("- DISABLED: Accelerations of UI driven by FTB Library will be disabled.")
+				.comment				("- ENABLED: Accelerations of UI driven by FTB Library will be enabled.")
+				.translation			("acceleratedrendering.configuration.mods_compatibility.ftb_feature_status")
+				.defineEnum				("ftb_feature_status",					FeatureStatus.ENABLED);
 
 		builder.pop();
 	}
