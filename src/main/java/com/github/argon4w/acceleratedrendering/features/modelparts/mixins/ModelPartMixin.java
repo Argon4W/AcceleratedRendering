@@ -28,8 +28,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.List;
 import java.util.Map;
 
-@ExtensionMethod	(VertexConsumerExtension.class)
-@Mixin				(ModelPart				.class)
+@ExtensionMethod	(value = VertexConsumerExtension.class)
+@Mixin				(value = ModelPart				.class, priority = 800)
 public class ModelPartMixin implements IAcceleratedRenderer<Void> {
 
 	@Shadow @Final public	List<ModelPart.Cube>		cubes;
