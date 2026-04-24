@@ -262,8 +262,7 @@ public class GuiGraphicsMixin {
 			at		= @At(
 					value	= "INVOKE",
 					target	= "Lnet/minecraftforge/client/ItemDecoratorHandler;render(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/gui/Font;Lnet/minecraft/world/item/ItemStack;II)V"
-			),
-			remap	= false
+			)
 	)
 	public void renderDecorationCustomFast(
 			ItemDecoratorHandler	instance,
