@@ -8,6 +8,7 @@ import com.github.argon4w.acceleratedrendering.core.backends.buffers.MappedBuffe
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.IAcceleratedVertexConsumer;
 import com.github.argon4w.acceleratedrendering.core.buffers.memory.VertexLayout;
 import com.github.argon4w.acceleratedrendering.core.meshes.collectors.IMeshCollector;
+import com.github.argon4w.acceleratedrendering.core.meshes.data.MeshData;
 import com.github.argon4w.acceleratedrendering.core.meshes.data.cache.MeshDataCaches;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
@@ -23,7 +24,8 @@ public record ServerMesh(
 		int				size,
 		long			offset,
 		boolean			forceDense,
-		IServerBuffer	meshBuffer
+		IServerBuffer	meshBuffer,
+		MeshData		meshData
 ) implements IMesh {
 
 	@Override
@@ -39,6 +41,10 @@ public record ServerMesh(
 				light,
 				overlay
 		);
+	}
+
+	public boolean isDense(int count) {
+		return forceDense || count >= 128;
 	}
 
 	public static class Builder implements IMesh.Builder {
@@ -58,7 +64,7 @@ public record ServerMesh(
 
 		@Override
 		public IMesh build(IMeshCollector collector, boolean forceDense) {
-			var vertexCount	= collector.getVertexCount	();
+			var vertexCount	= collector.getVertexCount();
 
 			if (vertexCount == 0) {
 				return EmptyMesh.INSTANCE;
@@ -132,7 +138,8 @@ public record ServerMesh(
 					vertexCount,
 					position / layout.getSize(),
 					forceDense,
-					meshBuffer
+					meshBuffer,
+					data
 			);
 
 			MeshDataCaches.SERVER.set(

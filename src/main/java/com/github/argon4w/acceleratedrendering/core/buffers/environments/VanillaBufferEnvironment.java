@@ -39,7 +39,7 @@ public class VanillaBufferEnvironment implements IBufferEnvironment {
 			ResourceLocation	transformProgramKey
 	) {
 		var defaultTransformOverride		= new TransformProgramDispatcher	.Default(transformProgramKey, 4L * 4L);
-		var defaultUploadingOverride		= new MeshUploadingProgramDispatcher.Default(uploadingProgramKey, 5L * 4L);
+		var defaultUploadingOverride		= new MeshUploadingProgramDispatcher.Default(uploadingProgramKey, 7L * 4L);
 
 		this.vertexFormat					= vertexFormat;
 		this.layout							= new VertexLayout(vertexFormat);

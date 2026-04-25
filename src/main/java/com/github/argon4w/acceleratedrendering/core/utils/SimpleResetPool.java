@@ -14,8 +14,8 @@ public abstract class SimpleResetPool<T, C> {
 
 	public SimpleResetPool(int size, C context) {
 		this.size		= size;
-		this.pool		= new Object[size];
 		this.context	= context;
+		this.pool		= new Object[size];
 
 		this.cursor		= 0;
 

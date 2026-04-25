@@ -129,7 +129,7 @@ public class IrisBufferEnvironment implements IBufferEnvironment {
 				ResourceLocation	transformProgramKey
 		) {
 			var defaultTransformOverride		= new TransformProgramDispatcher	.Default(transformProgramKey, 4L * 4L);
-			var defaultUploadingOverride		= new MeshUploadingProgramDispatcher.Default(uploadingProgramKey, 7L * 4L);
+			var defaultUploadingOverride		= new MeshUploadingProgramDispatcher.Default(uploadingProgramKey, 9L * 4L);
 
 			this.vanillaVertexFormat			= vanillaVertexFormat;
 			this.irisVertexFormat				= irisVertexFormat;

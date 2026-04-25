@@ -20,6 +20,8 @@ struct SharingData {
 };
 
 struct MeshInfo {
+    uint    vertexOffset;
+    uint    varyingOffset;
     int     sharing;
     int     noCull;
     uint    color;
@@ -51,9 +53,7 @@ layout(binding=8, std430) restrict readonly buffer MeshInfos {
 
 layout(location=0) uniform uint meshCount;
 layout(location=1) uniform uint meshSize;
-layout(location=2) uniform uint vertexOffset;
-layout(location=3) uniform uint varyingOffset;
-layout(location=4) uniform uint meshOffset;
+layout(location=2) uniform uint meshOffset;
 
 void main() {
     uint        indexIn         = gl_GlobalInvocationID.x;
@@ -67,8 +67,8 @@ void main() {
     Vertex      vertex          = meshVertices  [meshOffset + index];
     MeshInfo    meshInfo        = meshInfos     [meshIndex];
     SharingData sharingData     = sharings      [meshInfo.sharing];
-    uint        vertexIndex     = index + meshIndex * meshSize + vertexOffset;
-    uint        varyingIndex    = index + meshIndex * meshSize + varyingOffset;
+    uint        vertexIndex     = index + meshInfo.vertexOffset;
+    uint        varyingIndex    = index + meshInfo.varyingOffset;
 
     vec4        colorIn         = unpackUnorm4x8    (meshInfo   .color);
     vec4        colorMesh       = unpackUnorm4x8    (vertex     .color);

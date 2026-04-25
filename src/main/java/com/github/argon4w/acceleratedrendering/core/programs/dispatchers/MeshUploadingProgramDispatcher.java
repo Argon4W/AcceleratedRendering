@@ -5,113 +5,311 @@ import com.github.argon4w.acceleratedrendering.core.backends.programs.ComputePro
 import com.github.argon4w.acceleratedrendering.core.backends.programs.Uniform;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.AcceleratedRingBuffers;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.AcceleratedBufferBuilder;
-import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.meshes.MeshUploaderPool;
+import com.github.argon4w.acceleratedrendering.core.meshes.ServerMesh;
 import com.github.argon4w.acceleratedrendering.core.programs.ComputeShaderProgramLoader;
 import com.github.argon4w.acceleratedrendering.core.programs.overrides.IUploadingShaderProgramOverride;
 import com.github.argon4w.acceleratedrendering.core.utils.FastColorUtils;
-import it.unimi.dsi.fastutil.objects.Reference2ObjectLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import net.minecraft.resources.ResourceLocation;
+import it.unimi.dsi.fastutil.objects.*;
+import org.apache.commons.lang3.mutable.MutableInt;
+import org.apache.commons.lang3.mutable.MutableLong;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 import static org.lwjgl.opengl.GL46.*;
+import static com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.meshes.MeshUploaderPool.MeshUploader;
 
 public class MeshUploadingProgramDispatcher {
 
-	private static	final	int														GROUP_SIZE					= 128;
-	private static	final	int														DISPATCH_COUNT_Y_Z			= 1;
-	public static	final	int														SPARSE_MESH_BUFFER_INDEX	= 5;
-	public static	final	int														MESH_BUFFER_INDEX			= 7;
+	private static	final	int									GROUP_SIZE					= 128;
+	private static	final	int									DISPATCH_COUNT_Y_Z			= 1;
+	public static	final	int									SPARSE_MESH_BUFFER_INDEX	= 5;
+	public static	final	int									MESH_BUFFER_INDEX			= 7;
+	public static	final	int									MESH_INFO_BUFFER_INDEX		= 8;
 
-	private			final	Map<IServerBuffer, List<MeshUploaderPool.MeshUploader>>	denseUploaders;
-	private			final	Map<IServerBuffer, List<MeshUploaderPool.MeshUploader>>	sparseUploaders;
+	private			final	Map<IServerBuffer, DenseStorage>	denseStorages;
+	private			final	Map<IServerBuffer, SparseStorage>	sparseStorages;
+	private			final	Map<IServerBuffer, Collector>		uploaderCollectors;
 
-	private					IUploadingShaderProgramOverride							lastOverride;
-	private					int														lastBarriers;
+	private					int									lastBarriers;
 
 	public MeshUploadingProgramDispatcher() {
-		this.denseUploaders		= new Reference2ObjectLinkedOpenHashMap<>();
-		this.sparseUploaders	= new Reference2ObjectLinkedOpenHashMap<>();
-		this.lastOverride		= null;
+		this.denseStorages		= new Reference2ObjectLinkedOpenHashMap<>();
+		this.sparseStorages		= new Reference2ObjectLinkedOpenHashMap<>();
+		this.uploaderCollectors	= new Reference2ObjectLinkedOpenHashMap<>();
+
 		this.lastBarriers		= GL_SHADER_STORAGE_BARRIER_BIT;
+	}
+
+	public static class Collector {
+
+		private final Reference2ObjectMap<ServerMesh, List<MeshUploader>>	meshUploaders;
+		private final Reference2ObjectMap<ServerMesh, MutableInt>			meshUploadCounts;
+
+		public Collector() {
+			this.meshUploaders		= new Reference2ObjectOpenHashMap<>();
+			this.meshUploadCounts	= new Reference2ObjectOpenHashMap<>();
+		}
+
+		public void add(MeshUploader uploader) {
+			var serverMesh	= uploader			.getServerMesh	();
+			var meshCount	= uploader			.getMeshCount	();
+			var uploaders	= meshUploaders		.get			(serverMesh);
+			var uploadCount	= meshUploadCounts	.get			(serverMesh);
+
+			if (uploaders == null) {
+				uploaders	= new ReferenceArrayList<>	();
+				uploadCount	= new MutableInt			();
+
+				meshUploaders	.put(serverMesh, uploaders);
+				meshUploadCounts.put(serverMesh, uploadCount);
+			}
+
+			uploaders	.add(uploader);
+			uploadCount	.add(meshCount);
+		}
+
+		public void clear() {
+			for (var serverMesh : meshUploaders.keySet()) {
+				meshUploaders	.get(serverMesh).clear		();
+				meshUploadCounts.get(serverMesh).setValue	(0);
+			}
+		}
+	}
+
+	public interface MeshStorage {
+
+		void add(MeshUploader uploader);
+	}
+
+	public static class SparseStorage implements MeshStorage {
+
+		private final Reference2ObjectMap<AcceleratedBufferBuilder, List<MeshUploader>>	sparseUploads;
+		private final Reference2ObjectMap<AcceleratedBufferBuilder, Offsets>			sparseOffsets;
+
+		public SparseStorage() {
+			this.sparseUploads = new Reference2ObjectOpenHashMap<>();
+			this.sparseOffsets = new Reference2ObjectOpenHashMap<>();
+
+			this.sparseUploads.defaultReturnValue(ReferenceLists.emptyList());
+			this.sparseOffsets.defaultReturnValue(null);
+		}
+
+		@Override
+		public void add(MeshUploader uploader) {
+			var builder = uploader		.getBufferBuilder	();
+			var uploads = sparseUploads	.getOrDefault		(builder, null);
+			var offsets = sparseOffsets	.getOrDefault		(builder, null);
+
+			if (uploads == null) {
+				uploads = new ReferenceArrayList<>	();
+				offsets = new Offsets				(builder);
+
+				sparseUploads.put(builder, uploads);
+				sparseOffsets.put(builder, offsets);
+			}
+
+			uploads.add(uploader);
+			offsets.add(uploader);
+		}
+
+		public Offsets getOffsets(MeshUploader uploader) {
+			var builder = uploader		.getBufferBuilder	();
+			var uploads = sparseUploads	.getOrDefault		(builder, null);
+			var offsets = sparseOffsets	.getOrDefault		(builder, null);
+
+			if (offsets == null) {
+				offsets = new Offsets				(builder);
+				uploads = new ReferenceArrayList<>	();
+
+				sparseUploads.put(builder, uploads);
+				sparseOffsets.put(builder, offsets);
+			}
+
+			return offsets;
+		}
+
+		public void clear() {
+			sparseUploads.clear();
+			sparseOffsets.clear();
+		}
+
+		public static class Offsets {
+
+			private final MutableLong vertexOffset;
+			private final MutableLong varyingOffset;
+
+			public Offsets(AcceleratedBufferBuilder builder) {
+				var vertexBuffer	= builder.getVertexBuffer	();
+				var varyingBuffer	= builder.getVaryingBuffer	();
+
+				this.vertexOffset	= new MutableLong(vertexBuffer	.getOffset() / builder.getVertexSize	());
+				this.varyingOffset	= new MutableLong(varyingBuffer	.getOffset() / builder.getVaryingSize	());
+			}
+
+			public void add(MeshUploader uploader) {
+				var vertexCount = uploader.getVertexCount();
+
+				vertexOffset	.add(vertexCount);
+				varyingOffset	.add(vertexCount);
+			}
+
+			public long getVertexOffset(long vertexCount) {
+				return vertexOffset.getAndAdd(vertexCount);
+			}
+
+			public long getVaryingOffset(long vertexCount) {
+				return varyingOffset.getAndAdd(vertexCount);
+			}
+		}
+	}
+
+	public static class DenseStorage implements MeshStorage {
+
+		private final Reference2ObjectMap<ServerMesh, Map<IUploadingShaderProgramOverride, List<MeshUploader>>>	denseUploaders;
+		private final Reference2ObjectMap<ServerMesh, Map<IUploadingShaderProgramOverride, MutableInt>>			denseCounts;
+
+		public DenseStorage() {
+			this.denseUploaders	= new Reference2ObjectOpenHashMap<>();
+			this.denseCounts	= new Reference2ObjectOpenHashMap<>();
+		}
+
+		@Override
+		public void add(MeshUploader uploader) {
+			var serverMesh		= uploader		.getServerMesh			();
+			var override		= uploader		.getUploadingOverride	();
+			var uploaders		= denseUploaders.get					(serverMesh);
+			var uploadCounts	= denseCounts	.get					(serverMesh);
+
+			if (uploaders == null) {
+				uploaders		= new Reference2ObjectOpenHashMap<>();
+				uploadCounts	= new Reference2ObjectOpenHashMap<>();
+
+				denseUploaders	.put(serverMesh, uploaders);
+				denseCounts		.put(serverMesh, uploadCounts);
+			}
+
+			var overrideUploaders	= uploaders		.get(override);
+			var overrideCounts		= uploadCounts	.get(override);
+
+			if (overrideUploaders == null) {
+				overrideUploaders	= new ReferenceArrayList<>	();
+				overrideCounts		= new MutableInt			(0);
+
+				uploaders	.put(override, overrideUploaders);
+				uploadCounts.put(override, overrideCounts);
+			}
+
+			overrideUploaders	.add(uploader);
+			overrideCounts		.add(uploader.getMeshCount());
+		}
+
+		public void clear() {
+			for		(var serverMesh	: denseUploaders.keySet()) {
+				for	(var list		: denseUploaders.get(serverMesh).values()) list	.clear();
+				for	(var count		: denseCounts	.get(serverMesh).values()) count.setValue(0L);
+			}
+		}
 	}
 
 	public void dispatch(Collection<AcceleratedBufferBuilder> builders, AcceleratedRingBuffers.Buffers buffer) {
 		glMemoryBarrier(lastBarriers);
 
-		lastOverride	= null;
-		var transform	= buffer
+		var transform = buffer
 				.getBufferEnvironment				()
 				.selectTransformProgramDispatcher	();
 
 		for (var builder : builders) {
-			var vertexBuffer	= builder	.getVertexBuffer	();
-			var varyingBuffer	= builder	.getVaryingBuffer	();
-			var meshVertexCount = builder	.getMeshVertexCount	();
+			var vertexBuffer	= builder.getVertexBuffer	();
+			var varyingBuffer	= builder.getVaryingBuffer	();
+			var meshVertexCount = builder.getMeshVertexCount();
 
-			vertexBuffer					.reserve			(meshVertexCount * builder.getVertexSize	());
-			varyingBuffer					.reserve			(meshVertexCount * builder.getVaryingSize	());
-			vertexBuffer					.allocateOffset		();
-			varyingBuffer					.allocateOffset		();
+			vertexBuffer	.reserve		(meshVertexCount * builder.getVertexSize	());
+			varyingBuffer	.reserve		(meshVertexCount * builder.getVaryingSize	());
+			vertexBuffer	.allocateOffset	();
+			varyingBuffer	.allocateOffset	();
+		}
+
+		for		(var builder	: builders) {
+			for	(var uploader	: builder.getMeshUploaders().values()) {
+				var meshBuffer	= uploader.getServerMesh()	.meshBuffer	();
+				var dense		= denseStorages				.get		(meshBuffer);
+				var sparse		= sparseStorages			.get		(meshBuffer);
+				var collector	= uploaderCollectors		.get		(meshBuffer);
+
+				if (		dense		== null
+						||	sparse		== null
+						||	collector	== null
+				) {
+					dense		= new DenseStorage	();
+					sparse		= new SparseStorage	();
+					collector	= new Collector		();
+
+					denseStorages		.put(meshBuffer, dense);
+					sparseStorages		.put(meshBuffer, sparse);
+					uploaderCollectors	.put(meshBuffer, collector);
+				}
+
+				collector.add(uploader);
+			}
+		}
+
+		for (var meshBuffer : uploaderCollectors.keySet()) {
+			var collector = uploaderCollectors.get(meshBuffer);
+
+			for (var serverMesh : collector.meshUploaders.keySet()) {
+				var uploaders	= collector.meshUploaders	.get(serverMesh);
+				var uploadCount	= collector.meshUploadCounts.get(serverMesh).getValue();
+
+				var storage = serverMesh.isDense(uploadCount)
+						? denseStorages	.get(meshBuffer)
+						: sparseStorages.get(meshBuffer);
+
+				for (var uploader : uploaders) {
+					storage.add(uploader);
+				}
+			}
 		}
 
 		buffer.prepare				();
 		buffer.bindTransformBuffers	();
 
 		for (var builder : builders) {
-			var offset			= 0;
-			var sparseStart		= 0;
+			var offset		= 0;
+			var sparseStart	= 0;
 
-			var vertexBuffer	= builder		.getVertexBuffer	();
-			var varyingBuffer	= builder		.getVaryingBuffer	();
-			var vertexCount		= builder		.getVertexCount		();
+			var vertexBuffer	= builder.getVertexBuffer	();
+			var varyingBuffer	= builder.getVaryingBuffer	();
+			var vertexCount		= builder.getVertexCount	();
 
-			var vertexAddress	= vertexBuffer	.getCurrent			();
-			var varyingAddress	= varyingBuffer	.getCurrent			();
-			var vertexOffset	= vertexBuffer	.getOffset			() / builder.getVertexSize	();
-			var varyingOffset	= varyingBuffer	.getOffset			() / builder.getVaryingSize	();
+			var vertexAddress	= vertexBuffer	.getCurrent	();
+			var varyingAddress	= varyingBuffer	.getCurrent	();
+			var vertexOffset	= vertexBuffer	.getOffset	() / builder.getVertexSize	();
+			var varyingOffset	= varyingBuffer	.getOffset	() / builder.getVaryingSize	();
 
-			for (var uploader : builder
-					.getMeshUploaders	()
-					.values				()
-			) {
-				var serverMesh	= uploader					.getServerMesh	();
-				var meshCount	= uploader.getMeshInfos()	.getMeshCount	();
-				var meshDense	= serverMesh				.forceDense		() || meshCount >= 128;
-				var meshBuffer	= serverMesh				.meshBuffer		();
-				var dense		= denseUploaders			.get			(meshBuffer);
-				var sparse		= sparseUploaders			.get			(meshBuffer);
+			for (var meshBuffer : sparseStorages.keySet()) {
+				var storage = sparseStorages.get(meshBuffer);
 
-				if (dense == null) {
-					dense	= new ReferenceArrayList<>	();
-					sparse	= new ReferenceArrayList<>	();
-					denseUploaders	.put				(meshBuffer, dense);
-					sparseUploaders	.put				(meshBuffer, sparse);
+				if (storage == null) {
+					continue;
 				}
 
-				(meshDense
-						? dense
-						: sparse).add(uploader);
-			}
-
-			for (		var meshBuffer	: sparseUploaders.keySet()) {
-				for (	var uploader	: sparseUploaders.get	(meshBuffer)) {
+				for	(var uploader : storage.sparseUploads.get(builder)) {
 					var mesh		= uploader	.getServerMesh	();
 					var meshInfos	= uploader	.getMeshInfos	();
 					var meshCount	= meshInfos	.getMeshCount	();
 					var meshSize	= mesh		.size			();
 
 					for (var i = 0; i < meshCount; i ++) {
-						builder.getColorOffset		().at(offset)	.putInt			(vertexAddress, FastColorUtils	.convert		(meshInfos.getColor(i)));
-						builder.getUv1Offset		().at(offset)	.putInt			(vertexAddress, meshInfos		.getOverlay		(i));
-						builder.getUv2Offset		().at(offset)	.putInt			(vertexAddress, meshInfos		.getLight		(i));
+						builder.getColorOffset		().at(offset)	.putInt			(vertexAddress, meshInfos	.getColor		(i));
+						builder.getUv1Offset		().at(offset)	.putInt			(vertexAddress, meshInfos	.getOverlay		(i));
+						builder.getUv2Offset		().at(offset)	.putInt			(vertexAddress, meshInfos	.getLight		(i));
 
-						builder.getVaryingSharing	().at(offset)	.putInt			(varyingAddress, meshInfos		.getSharing		(i));
-						builder.getVaryingMesh		().at(offset)	.putInt			(varyingAddress, mesh			.offset			());
-						builder.getVaryingShouldCull().at(offset)	.putInt			(varyingAddress, meshInfos		.getShouldCull	(i));
+						builder.getVaryingSharing	().at(offset)	.putInt			(varyingAddress, meshInfos	.getSharing		(i));
+						builder.getVaryingMesh		().at(offset)	.putInt			(varyingAddress, mesh		.offset			());
+						builder.getVaryingShouldCull().at(offset)	.putInt			(varyingAddress, meshInfos	.getShouldCull	(i));
 						builder.getTransformOverride()				.uploadVarying	(varyingAddress, offset);
 
 						for (var offsetValue = 0; offsetValue < meshSize; offsetValue ++) {
@@ -131,7 +329,6 @@ public class MeshUploadingProgramDispatcher {
 				if (count != 0) {
 					meshBuffer.bindBase(GL_SHADER_STORAGE_BUFFER, SPARSE_MESH_BUFFER_INDEX);
 
-					lastOverride =	null;
 					lastBarriers |=	transform.dispatch(
 							builder,
 							vertexBuffer,
@@ -144,48 +341,61 @@ public class MeshUploadingProgramDispatcher {
 
 				sparseStart = offset;
 			}
+		}
 
-			for (var meshBuffer : denseUploaders.keySet()) {
-				meshBuffer.bindBase(GL_SHADER_STORAGE_BUFFER, MESH_BUFFER_INDEX);
+		for (var meshBuffer : denseStorages.keySet()) {
+			var dense	= denseStorages	.get(meshBuffer);
+			var sparse 	= sparseStorages.get(meshBuffer);
 
-				for (var uploader : denseUploaders.get(meshBuffer)) {
-					var currentOverride	= builder					.getUploadingOverride	();
-					var meshCount		= uploader.getMeshInfos()	.getMeshCount			();
-					var mesh			= uploader					.getServerMesh			();
-					var meshSize		= mesh						.size					();
-					var uploadSize		= meshCount * meshSize;
+			for (var serverMesh : dense.denseUploaders.keySet()) {
+				var uploaders	= dense.denseUploaders	.get(serverMesh);
+				var counts		= dense.denseCounts		.get(serverMesh);
 
-					if (lastOverride == null) {
-						lastOverride = currentOverride;
-						lastOverride.useProgram		();
-						lastOverride.setupProgram	();
+				for (var override : uploaders.keySet()) {
+					var overrideUploaders	= uploaders	.get				(override);
+					var overrideCounts		= counts	.get				(override).getValue();
+					var infoBuffer			= buffer	.getMeshInfoBuffer	();
+
+					if (overrideCounts == 0) {
+						continue;
 					}
 
-					transform						.resetOverride		();
-					uploader						.upload				();
-					uploader						.bindBuffers		();
-					lastBarriers |= currentOverride	.dispatchUploading	(
-							uploadSize,
-							meshCount,
-							meshSize,
-							(int) (offset + vertexCount + vertexOffset),
-							(int) (offset + vertexCount + varyingOffset),
-							(int) mesh.offset()
-					);
+					for (var uploader : overrideUploaders) {
+						var offsets		= sparse	.getOffsets		(uploader);
+						var vertexCount	= uploader	.getVertexCount	();
 
-					offset += uploadSize;
+						var vertexOffset	= offsets	.getVertexOffset	(vertexCount);
+						var varyingOffset	= offsets	.getVaryingOffset	(vertexCount);
+						var address			= infoBuffer.reserve			(uploader.getMeshInfoSize());
+
+						uploader.upload(
+								address,
+								(int) vertexOffset,
+								(int) varyingOffset
+						);
+					}
+
+					transform	.resetOverride	();
+					override	.useProgram		();
+					override	.setupProgram	();
+
+					meshBuffer.bindBase(GL_SHADER_STORAGE_BUFFER, MESH_BUFFER_INDEX);
+					infoBuffer.bindBase(GL_SHADER_STORAGE_BUFFER, MESH_INFO_BUFFER_INDEX);
+
+					lastBarriers |= override.dispatchUploading(
+							overrideCounts,
+							serverMesh.size		(),
+							serverMesh.offset	()
+					);
 				}
 			}
-
-			for (var meshBuffer : denseUploaders.keySet()) {
-				denseUploaders	.get(meshBuffer).clear();
-				sparseUploaders	.get(meshBuffer).clear();
-			}
 		}
-	}
 
-	public void resetOverride() {
-		lastOverride = null;
+		for (var meshBuffer : uploaderCollectors.keySet()) {
+			denseStorages		.get(meshBuffer).clear();
+			sparseStorages		.get(meshBuffer).clear();
+			uploaderCollectors	.get(meshBuffer).clear();
+		}
 	}
 
 	public static class Default implements IUploadingShaderProgramOverride {
@@ -194,8 +404,6 @@ public class MeshUploadingProgramDispatcher {
 		private final ComputeProgram	program;
 		private final Uniform			meshCountUniform;
 		private final Uniform			meshSizeUniform;
-		private final Uniform			vertexOffsetUniform;
-		private final Uniform			varyingOffsetUniform;
 		private final Uniform			meshOffsetUniform;
 
 		public Default(ResourceLocation key, long meshInfoSize) {
@@ -203,8 +411,6 @@ public class MeshUploadingProgramDispatcher {
 			this.program				= ComputeShaderProgramLoader.getProgram(key);
 			this.meshCountUniform		= program					.getUniform("meshCount");
 			this.meshSizeUniform		= program					.getUniform("meshSize");
-			this.vertexOffsetUniform	= program					.getUniform("vertexOffset");
-			this.varyingOffsetUniform	= program					.getUniform("varyingOffset");
 			this.meshOffsetUniform		= program					.getUniform("meshOffset");
 		}
 
@@ -230,20 +436,16 @@ public class MeshUploadingProgramDispatcher {
 
 		@Override
 		public int dispatchUploading(
-				int uploadSize,
-				int meshCount,
-				int meshSize,
-				int vertexOffset,
-				int varyingOffset,
-				int meshOffset
+				int		meshCount,
+				int		meshSize,
+				long	meshOffset
 		) {
-			meshCountUniform	.uploadUnsignedInt	(meshCount);
-			meshSizeUniform		.uploadUnsignedInt	(meshSize);
-			vertexOffsetUniform	.uploadUnsignedInt	(vertexOffset);
-			varyingOffsetUniform.uploadUnsignedInt	(varyingOffset);
-			meshOffsetUniform	.uploadUnsignedInt	(meshOffset);
-			program				.dispatch			(
-					(uploadSize + GROUP_SIZE - 1) / GROUP_SIZE,
+			meshCountUniform	.uploadUnsignedInt(meshCount);
+			meshSizeUniform		.uploadUnsignedInt(meshSize);
+			meshOffsetUniform	.uploadUnsignedInt((int) meshOffset);
+
+			program.dispatch(
+					((meshCount * meshSize) + GROUP_SIZE - 1) / GROUP_SIZE,
 					DISPATCH_COUNT_Y_Z,
 					DISPATCH_COUNT_Y_Z
 			);

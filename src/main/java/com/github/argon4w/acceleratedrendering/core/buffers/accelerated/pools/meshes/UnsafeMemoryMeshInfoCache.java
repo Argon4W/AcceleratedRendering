@@ -1,5 +1,6 @@
 package com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.meshes;
 
+import com.github.argon4w.acceleratedrendering.core.utils.FastColorUtils;
 import io.netty.util.internal.shaded.org.jctools.util.UnsafeAccess;
 import sun.misc.Unsafe;
 
@@ -74,7 +75,7 @@ public class UnsafeMemoryMeshInfoCache implements IMeshInfoCache {
 
 	@Override
 	public int getColor(int i) {
-		return UNSAFE.getInt(address + i * MESH_INFO_SIZE + COLOR_OFFSET);
+		return  FastColorUtils.convert(UNSAFE.getInt(address + i * MESH_INFO_SIZE + COLOR_OFFSET));
 	}
 
 	@Override

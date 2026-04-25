@@ -435,6 +435,7 @@ public class AcceleratedBufferBuilder extends DefaultedVertexConsumer implements
 
 		if (meshUploader == null) {
 			meshUploader = buffer	.getMeshUploader		();
+			meshUploader			.setBufferBuilder		(this);
 			meshUploader			.setServerMesh			(serverMesh);
 			meshUploader			.setUploadingOverride	(uploadingOverride);
 			meshUploaders			.put					(serverMesh, meshUploader);

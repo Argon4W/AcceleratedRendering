@@ -1,5 +1,6 @@
 package com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.meshes;
 
+import com.github.argon4w.acceleratedrendering.core.utils.FastColorUtils;
 import com.github.argon4w.acceleratedrendering.core.utils.SimpleCachedArray;
 
 import java.util.function.IntFunction;
@@ -56,7 +57,7 @@ public class SimpleMeshInfoCache implements IMeshInfoCache, IntFunction<SimpleMe
 
 	@Override
 	public int getColor(int i) {
-		return meshInfos.at(i).getColor();
+		return FastColorUtils.convert(meshInfos.at(i).getColor());
 	}
 
 	@Override
