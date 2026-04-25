@@ -10,6 +10,7 @@ import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.layers.f
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.layers.storage.ILayerStorage;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.DrawContextPool;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.ElementBufferPool;
+import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.MappedBufferPool;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.StagingBufferPool;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.meshes.MeshUploaderPool;
 import com.github.argon4w.acceleratedrendering.core.buffers.environments.IBufferEnvironment;
@@ -82,6 +83,7 @@ public class AcceleratedRingBuffers extends LoopResetPool<AcceleratedRingBuffers
 		public static	final	int														VARYING_BUFFER_OUT_INDEX	= 4;
 		public static	final	int														ELEMENT_BUFFER_INDEX		= 6;
 
+		private			final	MappedBufferPool										meshInfoBufferPool;
 		private			final	MeshUploaderPool										meshUploaderPool;
 		private			final 	DrawContextPool											drawContextPool;
 		private			final 	ElementBufferPool										elementBufferPool;
@@ -102,6 +104,7 @@ public class AcceleratedRingBuffers extends LoopResetPool<AcceleratedRingBuffers
 
 		public Buffers(IBufferEnvironment bufferEnvironment) {
 			this.size				= CoreFeature.getPooledBatchingSize		();
+			this.meshInfoBufferPool	= new MappedBufferPool					();
 			this.meshUploaderPool	= new MeshUploaderPool					();
 			this.drawContextPool	= new DrawContextPool					(size);
 			this.elementBufferPool	= new ElementBufferPool					(size);
@@ -120,6 +123,7 @@ public class AcceleratedRingBuffers extends LoopResetPool<AcceleratedRingBuffers
 		}
 
 		public void reset() {
+			meshInfoBufferPool	.reset		();
 			meshUploaderPool	.reset		();
 			drawContextPool		.reset		();
 			elementBufferPool	.reset		();
@@ -177,6 +181,10 @@ public class AcceleratedRingBuffers extends LoopResetPool<AcceleratedRingBuffers
 
 		public void unbindVertexArray() {
 			vertexArray.unbind();
+		}
+
+		public MappedBuffer getMeshInfoBuffer() {
+			return meshInfoBufferPool.get();
 		}
 
 		public MeshUploaderPool.MeshUploader getMeshUploader() {

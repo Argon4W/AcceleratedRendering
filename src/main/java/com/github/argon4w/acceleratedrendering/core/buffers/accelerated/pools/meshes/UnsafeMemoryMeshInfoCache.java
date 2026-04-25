@@ -1,6 +1,7 @@
 package com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.meshes;
 
 import io.netty.util.internal.shaded.org.jctools.util.UnsafeAccess;
+import net.minecraft.util.FastColor;
 import sun.misc.Unsafe;
 
 public class UnsafeMemoryMeshInfoCache implements IMeshInfoCache {
@@ -74,7 +75,7 @@ public class UnsafeMemoryMeshInfoCache implements IMeshInfoCache {
 
 	@Override
 	public int getColor(int i) {
-		return UNSAFE.getInt(address + i * MESH_INFO_SIZE + COLOR_OFFSET);
+		return FastColor.ABGR32.fromArgb32(UNSAFE.getInt(address + i * MESH_INFO_SIZE + COLOR_OFFSET));
 	}
 
 	@Override

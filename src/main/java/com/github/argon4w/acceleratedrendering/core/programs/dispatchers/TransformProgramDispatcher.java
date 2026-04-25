@@ -76,7 +76,7 @@ public class TransformProgramDispatcher {
 		vertexBuffer	.bindBase(GL_SHADER_STORAGE_BUFFER, VERTEX_BUFFER_IN_INDEX);
 		varyingBuffer	.bindBase(GL_SHADER_STORAGE_BUFFER, VARYING_BUFFER_IN_INDEX);
 
-		return currentOverride	.dispatchTransform	(
+		return currentOverride.dispatchTransform(
 				(int) vertexCount,
 				(int) vertexOffset,
 				(int) varyingOffset

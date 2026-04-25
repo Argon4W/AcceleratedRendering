@@ -19,9 +19,9 @@ public abstract class MeshUploaderMixin {
 
 	@Shadow @Final private	IMeshInfoCache meshInfos;
 
-	@Unique private final	IMemoryInterface IRIS_INFO_ENTITY		= new SimpleDynamicMemoryInterface(5L * 4L + 0L * 2L, (MeshUploaderPool.MeshUploader) (Object) this);
-	@Unique private final	IMemoryInterface IRIS_INFO_BLOCK_ENTITY	= new SimpleDynamicMemoryInterface(5L * 4L + 1L * 2L, (MeshUploaderPool.MeshUploader) (Object) this);
-	@Unique private final	IMemoryInterface IRIS_INFO_ITEM			= new SimpleDynamicMemoryInterface(5L * 4L + 2L * 2L, (MeshUploaderPool.MeshUploader) (Object) this);
+	@Unique private final	IMemoryInterface IRIS_INFO_ENTITY		= new SimpleDynamicMemoryInterface(7L * 4L + 0L * 2L, (MeshUploaderPool.MeshUploader) (Object) this);
+	@Unique private final	IMemoryInterface IRIS_INFO_BLOCK_ENTITY	= new SimpleDynamicMemoryInterface(7L * 4L + 1L * 2L, (MeshUploaderPool.MeshUploader) (Object) this);
+	@Unique private final	IMemoryInterface IRIS_INFO_ITEM			= new SimpleDynamicMemoryInterface(7L * 4L + 2L * 2L, (MeshUploaderPool.MeshUploader) (Object) this);
 
 	@Inject(
 			method	= "upload",
@@ -33,9 +33,11 @@ public abstract class MeshUploaderMixin {
 			)
 	)
 	public void uploadIrisData(
-			CallbackInfo								ci,
-			@Local(name = "meshInfoAddress")	long	meshInfoAddress,
-			@Local(name = "i")					int		offset
+			long					meshInfoAddress,
+			int						vertexOffset,
+			int						varyingOffset,
+			CallbackInfo			ci,
+			@Local(name = "i") int	offset
 	) {
 		IRIS_INFO_ENTITY		.at(offset).putShort(meshInfoAddress, ((IIrisMeshInfoCache) meshInfos).getRenderedEntity		(offset));
 		IRIS_INFO_BLOCK_ENTITY	.at(offset).putShort(meshInfoAddress, ((IIrisMeshInfoCache) meshInfos).getRenderedBlockEntity	(offset));
