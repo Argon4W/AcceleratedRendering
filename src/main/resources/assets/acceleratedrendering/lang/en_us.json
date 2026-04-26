@@ -171,6 +171,8 @@
   "acceleratedrendering.configuration.mods_compatibility.tooltip": "Miscellaneous Mod Compatibility Settings allows Accelerated Rendering to prevent negative optimization on specific mods by controlling whether Accelerated Rendering should accelerate the rendering of the corresponding mod.",
   "acceleratedrendering.configuration.mods_compatibility.feature_status": "Enable Miscellaneous Mods Compatibility Settings",
   "acceleratedrendering.configuration.mods_compatibility.feature_status.tooltip": "- DISABLED: Accelerations of all mods listed in the miscellaneous mods compatibility settings will be disabled.\n- ENABLED: Accelerated Rendering will determine if a mod should be accelerated by the acceleration feature configuration item of this mod listed below.",
+  "acceleratedrendering.configuration.mods_compatibility.vanilla_feature_status": "Enable Vanilla Compatibility",
+  "acceleratedrendering.configuration.mods_compatibility.vanilla_feature_status.tooltip": "- DISABLED: Accelerations of ModelPart models of Vanilla Minecraft will be disabled.\n- ENABLED: Accelerations of ModelPart models of Vanilla Minecraft will be enabled.",
   "acceleratedrendering.configuration.mods_compatibility.emf_feature_status": "Enable Entity Model Feature Compatibility",
   "acceleratedrendering.configuration.mods_compatibility.emf_feature_status.tooltip": "- DISABLED: Accelerations of animated ModelPart variants in Entity Model Features will be disabled.\n- ENABLED: Accelerations of animated ModelPart variants in Entity Model Features will be enabled.",
   "acceleratedrendering.configuration.mods_compatibility.gecko_feature_status": "Enable GeckoLib Compatibility",

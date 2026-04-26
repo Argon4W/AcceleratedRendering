@@ -10,6 +10,7 @@ import com.github.argon4w.acceleratedrendering.core.meshes.collectors.CulledMesh
 import com.github.argon4w.acceleratedrendering.core.meshes.collectors.SimpleMeshCollector;
 import com.github.argon4w.acceleratedrendering.core.meshes.data.MeshData;
 import com.github.argon4w.acceleratedrendering.features.entities.AcceleratedEntityRenderingFeature;
+import com.github.argon4w.acceleratedrendering.features.mods.ModsFeature;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -54,6 +55,8 @@ public class ModelPartMixin implements IAcceleratedRenderer<Void> {
 
 		if (			AcceleratedEntityRenderingFeature	.isEnabled						()
 				&&		AcceleratedEntityRenderingFeature	.shouldUseAcceleratedPipeline	()
+				&&		ModsFeature							.isEnabled						()
+				&&		ModsFeature							.shouldAccelerateVanilla		()
 				&&	(	CoreFeature							.isRenderingLevel				()
 				||	(	CoreFeature							.isRenderingGui					()
 				&&		AcceleratedEntityRenderingFeature	.shouldAccelerateInGui			()))
@@ -89,6 +92,8 @@ public class ModelPartMixin implements IAcceleratedRenderer<Void> {
 
 		if (			AcceleratedEntityRenderingFeature	.isEnabled						()
 				&&		AcceleratedEntityRenderingFeature	.shouldUseAcceleratedPipeline	()
+				&&		ModsFeature							.isEnabled						()
+				&&		ModsFeature							.shouldAccelerateVanilla		()
 				&&	(	CoreFeature							.isRenderingLevel				()
 				||	(	CoreFeature							.isRenderingGui					()
 				&&		AcceleratedEntityRenderingFeature	.shouldAccelerateInGui			()))
