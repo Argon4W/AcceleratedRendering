@@ -8,6 +8,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.irisshaders.batchedentityrendering.impl.RenderBuffersExt;
 import net.irisshaders.iris.pathways.HandRenderer;
+import net.irisshaders.iris.shadows.ShadowRenderingState;
 import net.minecraft.client.renderer.RenderBuffers;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
@@ -24,8 +25,16 @@ public class CoreBuffersProviderMixin {
 					opcode	= Opcodes.GETSTATIC
 			)
 	)
-	private static AcceleratedBufferSources redirectHandBuffers(Operation<AcceleratedBufferSources> original) {
-		return HandRenderer.INSTANCE.isActive() ? IrisCompatBuffers.HAND : original.call();
+	private static AcceleratedBufferSources redirectMainBuffers(Operation<AcceleratedBufferSources> original) {
+		if (ShadowRenderingState.areShadowsCurrentlyBeingRendered()) {
+			return IrisCompatBuffers.SHADOW;
+		}
+
+		if (HandRenderer.INSTANCE.isActive()) {
+			return IrisCompatBuffers.HAND;
+		}
+
+		return original.call();
 	}
 
 	@WrapMethod(method = "bindAcceleratedBufferSources")
