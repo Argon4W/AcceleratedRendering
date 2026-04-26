@@ -22,7 +22,8 @@ public class CoreBuffersProviderMixin {
 					value	= "FIELD",
 					target	= "Lcom/github/argon4w/acceleratedrendering/core/CoreBuffers;CORE:Lcom/github/argon4w/acceleratedrendering/core/buffers/AcceleratedBufferSources;",
 					opcode	= Opcodes.GETSTATIC
-			)
+			),
+			remap	= false
 	)
 	private static AcceleratedBufferSources redirectHandBuffers(Operation<AcceleratedBufferSources> original) {
 		return HandRenderer.INSTANCE.isActive() ? IrisCompatBuffers.HAND : original.call();
