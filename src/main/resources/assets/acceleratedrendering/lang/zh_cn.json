@@ -171,6 +171,8 @@
   "acceleratedrendering.configuration.mods_compatibility.tooltip": "杂项MOD兼容性配置允许加速渲染通过控制是否对对应MOD启用加速以在对应MOD的环境下避免对其造成负优化",
   "acceleratedrendering.configuration.mods_compatibility.feature_status": "启用杂项MOD兼容性",
   "acceleratedrendering.configuration.mods_compatibility.feature_status.tooltip": "- DISABLED: 下列所有MOD的加速特性都将被禁用.\n- ENABLED: 加速渲染将根据这个MOD的加速特性配置项来决定是否为这个MOD启用加速.",
+  "acceleratedrendering.configuration.mods_compatibility.vanilla_feature_status": "启用原版兼容性",
+  "acceleratedrendering.configuration.mods_compatibility.vanilla_feature_status.tooltip": "- DISABLED: 禁止加速渲染对原版Minecraft的ModelPart模型进行加速.\n- ENABLED: 加速渲染将会对原版Minecraft的ModelPart模型进行加速.",
   "acceleratedrendering.configuration.mods_compatibility.emf_feature_status": "启用EMF兼容性",
   "acceleratedrendering.configuration.mods_compatibility.emf_feature_status.tooltip": "- DISABLED: 禁止加速渲染对EMF(Entity Model Feature)的动画ModelPart变体进行加速.\n- ENABLED: 加速渲染将会对EMF的动画ModelPart变体进行加速.",
   "acceleratedrendering.configuration.mods_compatibility.gecko_feature_status": "启用GeckoLib兼容性",

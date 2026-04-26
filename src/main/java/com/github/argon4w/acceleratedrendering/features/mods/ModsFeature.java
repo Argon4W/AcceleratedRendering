@@ -8,6 +8,7 @@ import java.util.Deque;
 
 public class ModsFeature {
 
+	private static final Deque<FeatureStatus> VANILLA_ACCELERATION_CONTROLLER_STACK	= new ArrayDeque<>();
 	private static final Deque<FeatureStatus> EMF_ACCELERATION_CONTROLLER_STACK		= new ArrayDeque<>();
 	private static final Deque<FeatureStatus> GECKO_ACCELERATION_CONTROLLER_STACK	= new ArrayDeque<>();
 	private static final Deque<FeatureStatus> TLM_ACCELERATION_CONTROLLER_STACK		= new ArrayDeque<>();
@@ -16,6 +17,10 @@ public class ModsFeature {
 
 	public static boolean isEnabled() {
 		return FeatureConfig.CONFIG.modsFeatureStatus.get() == FeatureStatus.ENABLED;
+	}
+
+	public static boolean shouldAccelerateVanilla() {
+		return getVanillaSetting() == FeatureStatus.ENABLED;
 	}
 
 	public static boolean shouldAccelerateEmf() {
@@ -36,6 +41,22 @@ public class ModsFeature {
 
 	public static boolean shouldAccelerateFtb() {
 		return getFtbSetting() == FeatureStatus.ENABLED;
+	}
+
+	public static void disableVanillaAcceleration() {
+		VANILLA_ACCELERATION_CONTROLLER_STACK.push(FeatureStatus.DISABLED);
+	}
+
+	public static void forceEnableVanillaAcceleration() {
+		VANILLA_ACCELERATION_CONTROLLER_STACK.push(FeatureStatus.ENABLED);
+	}
+
+	public static void forceSetVanillaAcceleration(FeatureStatus status) {
+		VANILLA_ACCELERATION_CONTROLLER_STACK.push(status);
+	}
+
+	public static void resetVanillaAcceleration() {
+		VANILLA_ACCELERATION_CONTROLLER_STACK.pop();
 	}
 
 	public static void disableEmfAcceleration() {
@@ -118,6 +139,10 @@ public class ModsFeature {
 		FTB_ACCELERATION_CONTROLLER_STACK.pop();
 	}
 
+	public static FeatureStatus getVanillaSetting() {
+		return VANILLA_ACCELERATION_CONTROLLER_STACK.isEmpty() ? getDefaultVanillaSetting() : VANILLA_ACCELERATION_CONTROLLER_STACK.peek();
+	}
+
 	public static FeatureStatus getEmfSetting() {
 		return EMF_ACCELERATION_CONTROLLER_STACK.isEmpty() ? getDefaultEmfSetting() : EMF_ACCELERATION_CONTROLLER_STACK.peek();
 	}
@@ -136,6 +161,10 @@ public class ModsFeature {
 
 	public static FeatureStatus getFtbSetting() {
 		return FTB_ACCELERATION_CONTROLLER_STACK.isEmpty() ? getDefaultFtbSetting() : FTB_ACCELERATION_CONTROLLER_STACK.peek();
+	}
+
+	public static FeatureStatus getDefaultVanillaSetting() {
+		return FeatureConfig.CONFIG.modsVanillaFeatureStatus.get();
 	}
 
 	public static FeatureStatus getDefaultEmfSetting() {

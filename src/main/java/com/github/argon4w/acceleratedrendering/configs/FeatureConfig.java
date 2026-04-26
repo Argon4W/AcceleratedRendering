@@ -99,6 +99,7 @@ public class FeatureConfig {
 	public			final	ForgeConfigSpec.ConfigValue<List<? extends String>>			curiosItemFilterValues;
 
 	public			final	ForgeConfigSpec.ConfigValue<FeatureStatus>					modsFeatureStatus;
+	public			final	ForgeConfigSpec.ConfigValue<FeatureStatus>					modsVanillaFeatureStatus;
 	public			final	ForgeConfigSpec.ConfigValue<FeatureStatus>					modsEmfFeatureStatus;
 	public			final	ForgeConfigSpec.ConfigValue<FeatureStatus>					modsGeckoFeatureStatus;
 	public			final	ForgeConfigSpec.ConfigValue<FeatureStatus>					modsTlmFeatureStatus;
@@ -621,6 +622,12 @@ public class FeatureConfig {
 				.comment				("- ENABLED: Accelerated Rendering will determine if a mod should be accelerated by the acceleration feature configuration item of this mod listed below.")
 				.translation			("acceleratedrendering.configuration.mods_compatibility.feature_status")
 				.defineEnum				("feature_status",						FeatureStatus.ENABLED);
+
+		modsVanillaFeatureStatus						= builder
+				.comment				("- DISABLED: Accelerations of ModelPart models of Vanilla Minecraft will be disabled.")
+				.comment				("- ENABLED: Accelerations of ModelPart models of Vanilla Minecraft will be enabled.")
+				.translation			("acceleratedrendering.configuration.mods_compatibility.vanilla_feature_status")
+				.defineEnum				("vanilla_feature_status",				FeatureStatus.ENABLED);
 
 		modsEmfFeatureStatus							= builder
 				.comment				("- DISABLED: Accelerations of animated ModelPart variants in Entity Model Features will be disabled.")
