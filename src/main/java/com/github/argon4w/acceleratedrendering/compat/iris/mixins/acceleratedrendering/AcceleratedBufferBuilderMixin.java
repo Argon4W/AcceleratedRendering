@@ -3,8 +3,9 @@ package com.github.argon4w.acceleratedrendering.compat.iris.mixins.acceleratedre
 import com.github.argon4w.acceleratedrendering.compat.iris.interfaces.IIrisAcceleratedBufferBuilder;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.AcceleratedRingBuffers;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.AcceleratedBufferBuilder;
+import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.draw.pools.IElementPool;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.layers.functions.ILayerFunction;
-import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.ElementBufferPool;
+import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.draw.indirect.IndirectElementBufferPool;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.StagingBufferPool;
 import com.github.argon4w.acceleratedrendering.core.buffers.memory.IMemoryInterface;
 import com.github.argon4w.acceleratedrendering.core.buffers.memory.VertexLayout;
@@ -37,13 +38,13 @@ public class AcceleratedBufferBuilderMixin implements IIrisAcceleratedBufferBuil
 			remap	= false
 	)
 	public void constructor(
-			StagingBufferPool		.StagingBuffer	vertexBuffer,
-			StagingBufferPool		.StagingBuffer	varyingBuffer,
-			ElementBufferPool		.ElementSegment	elementSegment,
-			AcceleratedRingBuffers	.Buffers		buffers,
-			ILayerFunction							layerFunction,
-			RenderType								renderType,
-			CallbackInfo							ci
+			StagingBufferPool			.StagingBuffer		vertexBuffer,
+			StagingBufferPool			.StagingBuffer		varyingBuffer,
+			IElementPool				.IElementSegment	elementSegment,
+			AcceleratedRingBuffers		.Buffers			buffer,
+			ILayerFunction									layerFunction,
+			RenderType										renderType,
+			CallbackInfo									ci
 	) {
 		entityIdOffset	= layout.getElement(IrisVertexFormats.ENTITY_ID_ELEMENT);
 		entityOffset	= layout.getElement(IrisVertexFormats.ENTITY_ELEMENT);

@@ -152,8 +152,8 @@ public class ModelPartMixin implements IAcceleratedRenderer<Void> {
 			return;
 		}
 
-		var culledMeshCollector	= new SimpleMeshCollector	(extension.getLayout());
-		var meshBuilder			= extension.decorate		(culledMeshCollector);
+		var meshCollector	= CoreFeature	.createMeshCollector(extension);
+		var meshBuilder		= extension		.decorate			(meshCollector);
 
 		for (var cube : cubes) {
 			for (var polygon : cube.polygons) {
@@ -182,11 +182,11 @@ public class ModelPartMixin implements IAcceleratedRenderer<Void> {
 			}
 		}
 
-		culledMeshCollector.flush();
+		meshCollector.flush();
 
-		var data	= culledMeshCollector	.getData	();
-		var buffer	= culledMeshCollector	.getBuffer	();
-		mesh		= merges				.get		(data);
+		var data	= meshCollector	.getData	();
+		var buffer	= meshCollector	.getBuffer	();
+		mesh		= merges		.get		(data);
 
 		if (mesh != null) {
 			buffer.close();
@@ -194,7 +194,7 @@ public class ModelPartMixin implements IAcceleratedRenderer<Void> {
 			mesh = AcceleratedEntityRenderingFeature
 					.getMeshType()
 					.getBuilder	()
-					.build		(culledMeshCollector);
+					.build		(meshCollector);
 		}
 
 		meshes	.put	(extension, mesh);

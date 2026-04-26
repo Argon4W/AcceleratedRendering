@@ -1,7 +1,7 @@
 package com.github.argon4w.acceleratedrendering.core.buffers.accelerated.layers.storage;
 
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.layers.LayerDrawType;
-import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.DrawContextPool;
+import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.draw.pools.IDrawContextPool.IDrawContext;
 import com.google.common.collect.Iterators;
 
 import java.util.Iterator;
@@ -36,7 +36,7 @@ public class SeparatedLayerStorage implements ILayerStorage {
 	public class AllContexts implements ILayerContexts {
 
 		@Override
-		public void add(DrawContextPool.DrawContext drawContext) {
+		public void add(IDrawContext drawContext) {
 			throw new UnsupportedOperationException("Unsupported Operation.");
 		}
 
@@ -58,7 +58,7 @@ public class SeparatedLayerStorage implements ILayerStorage {
 		}
 
 		@Override
-		public Iterator<DrawContextPool.DrawContext> iterator() {
+		public Iterator<IDrawContext> iterator() {
 			return Iterators.concat(
 					opaqueContexts		.iterator(),
 					translucentContexts	.iterator()

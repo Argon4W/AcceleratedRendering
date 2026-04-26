@@ -40,8 +40,8 @@ public class OrientationCullingProgramDispatcher implements ICullingProgramDispa
 		viewMatrixUniform	.uploadMatrix4f		(RenderSystem	.getModelViewMatrix	());
 		projectMatrixUniform.uploadMatrix4f		(RenderSystem	.getProjectionMatrix());
 		polygonCountUniform	.uploadUnsignedInt	(polygonCount);
-		vertexOffsetUniform	.uploadUnsignedInt	((int) (builder	.getVertexBuffer	().getOffset() / builder.getVertexSize	()));
-		varyingOffsetUniform.uploadUnsignedInt	((int) (builder	.getVaryingBuffer	().getOffset() / builder.getVaryingSize	()));
+		vertexOffsetUniform	.uploadUnsignedInt	((int) (builder.getVertexCountOffset	()));
+		varyingOffsetUniform.uploadUnsignedInt	((int) (builder.getVaryingCountOffset	()));
 
 		program.useProgram	();
 		program.dispatch	(

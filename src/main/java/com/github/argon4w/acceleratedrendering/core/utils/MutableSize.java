@@ -19,8 +19,9 @@ public class MutableSize {
 		}
 
 		beforeExpand();
-		onExpand	(bytes);
-		doExpand	(size, bytes);
+
+		onExpand(bytes);
+		doExpand(size, bytes);
 
 		resized	=	true;
 		size	+=	bytes;
@@ -52,7 +53,7 @@ public class MutableSize {
 		expand(newBufferSize - size);
 	}
 
-	public void resetResized() {
+	public void mark() {
 		resized = false;
 	}
 }
