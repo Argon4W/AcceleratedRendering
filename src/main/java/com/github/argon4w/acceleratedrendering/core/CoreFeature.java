@@ -8,10 +8,15 @@ import com.github.argon4w.acceleratedrendering.core.backends.states.buffers.Buff
 import com.github.argon4w.acceleratedrendering.core.backends.states.buffers.cache.BlockBufferBindingCacheType;
 import com.github.argon4w.acceleratedrendering.core.backends.states.scissors.ScissorBindingStateType;
 import com.github.argon4w.acceleratedrendering.core.backends.states.viewports.ViewportBindingStateType;
+import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.IAcceleratedVertexConsumer;
+import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.draw.DrawMethodType;
+import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.draw.IDrawMethod;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.layers.storage.ILayerStorage;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.layers.storage.LayerStorageType;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.meshes.IMeshInfoCache;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.meshes.MeshInfoCacheType;
+import com.github.argon4w.acceleratedrendering.core.meshes.collectors.IMeshCollector;
+import com.github.argon4w.acceleratedrendering.core.meshes.collectors.MeshCollectorType;
 import com.github.argon4w.acceleratedrendering.core.meshes.data.cache.IMeshDataCache;
 import com.github.argon4w.acceleratedrendering.core.meshes.data.cache.MeshDataCacheType;
 import com.github.argon4w.acceleratedrendering.core.programs.ComputeShaderProgramLoader;
@@ -44,6 +49,10 @@ public class CoreFeature {
 		return FeatureConfig.CONFIG.coreDebugContextEnabled.get() == FeatureStatus.ENABLED;
 	}
 
+	public static int getSparseThreshold() {
+		return FeatureConfig.CONFIG.coreSparseThreshold.get();
+	}
+
 	public static int getPooledRingBufferSize() {
 		return FeatureConfig.CONFIG.corePooledRingBufferSize.getAsInt();
 	}
@@ -66,6 +75,14 @@ public class CoreFeature {
 
 	public static boolean shouldCacheIdenticalPose() {
 		return getCacheIdenticalPoseSetting() == FeatureStatus.ENABLED;
+	}
+
+	public static DrawMethodType getDrawMethodType() {
+		return FeatureConfig.CONFIG.coreDrawMethodType.get();
+	}
+
+	public static MeshCollectorType getMeshCollectorType() {
+		return FeatureConfig.CONFIG.coreMeshCollectorType.get();
 	}
 
 	public static MeshInfoCacheType getMeshInfoCacheType() {
@@ -118,6 +135,14 @@ public class CoreFeature {
 
 	public static int getAtomicCounterRestoringRange() {
 		return FeatureConfig.CONFIG.restoringAtomicCounterRange.getAsInt();
+	}
+
+	public static IDrawMethod getDrawMethod() {
+		return getDrawMethodType().get();
+	}
+
+	public static IMeshCollector createMeshCollector(IAcceleratedVertexConsumer consumer) {
+		return getMeshCollectorType().create(consumer);
 	}
 
 	public static IMeshInfoCache createMeshInfoCache() {

@@ -1,22 +1,25 @@
-package com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools;
+package com.github.argon4w.acceleratedrendering.core.buffers.accelerated.draw.indirect;
 
 import com.github.argon4w.acceleratedrendering.core.backends.GLConstants;
+import com.github.argon4w.acceleratedrendering.core.backends.buffers.IServerBuffer;
 import com.github.argon4w.acceleratedrendering.core.backends.buffers.MutableBuffer;
+import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.draw.pools.IElementPool;
 import com.github.argon4w.acceleratedrendering.core.utils.MutableSize;
 import com.github.argon4w.acceleratedrendering.core.utils.SimpleResetPool;
 import lombok.Getter;
 import org.apache.commons.lang3.mutable.MutableLong;
 
+import static org.lwjgl.opengl.GL15.GL_ELEMENT_ARRAY_BUFFER;
 import static org.lwjgl.opengl.GL44.GL_DYNAMIC_STORAGE_BIT;
 
-public class ElementBufferPool extends SimpleResetPool<ElementBufferPool.ElementSegment, Void> {
+public class IndirectElementBufferPool extends SimpleResetPool<IndirectElementBufferPool.ElementSegment, Void> implements IElementPool {
 
-	@Getter private	final MutableBuffer elementBufferOut;
-	private			final MutableLong	elementBufferSegments;
-	private			final MutableLong	elementBufferOutSize;
-	private			final MutableLong	elementBufferOutUsedSize;
+	private final MutableBuffer	elementBufferOut;
+	private final MutableLong	elementBufferSegments;
+	private final MutableLong	elementBufferOutSize;
+	private final MutableLong	elementBufferOutUsedSize;
 
-	public ElementBufferPool(int size) {
+	public IndirectElementBufferPool(int size) {
 		super(size, null);
 
 		this.elementBufferOut			= new MutableBuffer	(64L * size, GL_DYNAMIC_STORAGE_BIT);
@@ -25,15 +28,23 @@ public class ElementBufferPool extends SimpleResetPool<ElementBufferPool.Element
 		this.elementBufferOutUsedSize	= new MutableLong	(64L * size);
 	}
 
-	public void prepare() {
-		elementBufferOut.resizeTo(elementBufferOutSize.getValue());
+	@Override
+	public void bindBuffer() {
+		elementBufferOut.bind(GL_ELEMENT_ARRAY_BUFFER);
+		elementBufferOut.mark();
 	}
 
 	@Override
 	public void reset() {
 		elementBufferOutUsedSize.setValue	(0L);
 		elementBufferSegments	.setValue	(0L);
-		super					.reset		();
+
+		super.reset();
+	}
+
+	@Override
+	public void prepare() {
+		elementBufferOut.resizeTo(elementBufferOutSize.getValue());
 	}
 
 	@Override
@@ -61,16 +72,33 @@ public class ElementBufferPool extends SimpleResetPool<ElementBufferPool.Element
 		return elementBufferOutUsedSize.addAndGet(elementSegment.getSize()) <= GLConstants.MAX_SHADER_STORAGE_BLOCK_SIZE;
 	}
 
-	@Getter
-	public class ElementSegment extends MutableSize {
+	@Override
+	public IServerBuffer getBuffer() {
+		return elementBufferOut;
+	}
 
+	@Override
+	public boolean isResized() {
+		return elementBufferOut.isResized();
+	}
+
+	@Getter
+	public class ElementSegment extends MutableSize implements IElementSegment {
+
+		private long count;
 		private long bytes;
 		private long offset;
 
 		public ElementSegment() {
 			super(64L);
+			this.count	= 0L;
 			this.bytes	= 0L;
 			this.offset	= -1L;
+		}
+
+		private void reset() {
+			count = 0L;
+			bytes = 0L;
 		}
 
 		@Override
@@ -79,16 +107,20 @@ public class ElementBufferPool extends SimpleResetPool<ElementBufferPool.Element
 			elementBufferOutUsedSize.add(bytes);
 		}
 
-		private void reset() {
-			bytes = 0L;
-		}
-
-		public void allocateOffset() {
+		@Override
+		public void setup() {
 			offset = elementBufferSegments.getAndAdd(size);
 		}
 
-		public void countElements(int count) {
-			bytes += count * 4L;
+		@Override
+		public long getCount() {
+			return count;
+		}
+
+		@Override
+		public void count(int count) {
+			this.count += count;
+			this.bytes += count * 4L;
 
 			if (bytes > size) {
 				resize(bytes);

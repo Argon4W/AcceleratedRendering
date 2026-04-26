@@ -154,8 +154,8 @@ public class EMFModelPartMixin extends ModelPartMixin implements IEMFModelVarian
 			return;
 		}
 
-		var culledMeshCollector	= new CulledMeshCollector	(extension);
-		var meshBuilder			= extension.decorate		(culledMeshCollector);
+		var meshCollector	= CoreFeature	.createMeshCollector(extension);
+		var meshBuilder		= extension		.decorate			(meshCollector);
 
 		for (var cube : cubes) {
 			for (var polygon : cube.polygons) {
@@ -181,11 +181,11 @@ public class EMFModelPartMixin extends ModelPartMixin implements IEMFModelVarian
 			}
 		}
 
-		culledMeshCollector.flush();
+		meshCollector.flush();
 
-		var data	= culledMeshCollector	.getData	();
-		var buffer	= culledMeshCollector	.getBuffer	();
-		mesh		= merges				.get		(data);
+		var data	= meshCollector	.getData	();
+		var buffer	= meshCollector	.getBuffer	();
+		mesh		= merges		.get		(data);
 
 		if (mesh != null) {
 			buffer.discard	();
@@ -194,7 +194,7 @@ public class EMFModelPartMixin extends ModelPartMixin implements IEMFModelVarian
 			mesh = AcceleratedEntityRenderingFeature
 					.getMeshType()
 					.getBuilder	()
-					.build		(culledMeshCollector);
+					.build		(meshCollector);
 		}
 
 		meshes	.put	(extension, mesh);

@@ -10,7 +10,7 @@ import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 
-public class CulledMeshCollector implements VertexConsumer, IMeshCollector {
+public class CulledMeshCollector implements IMeshCollector {
 
 	private final	int					polygonSize;
 	private final	NativeImage			texture;

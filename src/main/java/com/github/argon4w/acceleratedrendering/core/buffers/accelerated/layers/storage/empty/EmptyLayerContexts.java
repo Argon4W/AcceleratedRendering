@@ -1,7 +1,7 @@
 package com.github.argon4w.acceleratedrendering.core.buffers.accelerated.layers.storage.empty;
 
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.layers.storage.ILayerContexts;
-import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.DrawContextPool;
+import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.draw.pools.IDrawContextPool.IDrawContext;
 import com.github.argon4w.acceleratedrendering.core.utils.EmptyIterator;
 
 import java.util.Iterator;
@@ -11,7 +11,7 @@ public class EmptyLayerContexts implements ILayerContexts {
 	public static final EmptyLayerContexts INSTANCE = new EmptyLayerContexts();
 
 	@Override
-	public void add(DrawContextPool.DrawContext drawContext) {
+	public void add(IDrawContext drawContext) {
 
 	}
 
@@ -31,7 +31,7 @@ public class EmptyLayerContexts implements ILayerContexts {
 	}
 
 	@Override
-	public Iterator<DrawContextPool.DrawContext> iterator() {
+	public Iterator<IDrawContext> iterator() {
 		return EmptyIterator.of();
 	}
 }

@@ -47,8 +47,8 @@ public class TransformProgramDispatcher {
 				varyingBuffer					.bindBase			(GL_SHADER_STORAGE_BUFFER, VARYING_BUFFER_IN_INDEX);
 				lastBarriers |= currentOverride	.dispatchTransform	(
 						vertexCount,
-						(int) (vertexBuffer	.getOffset() / builder.getVertexSize	()),
-						(int) (varyingBuffer.getOffset() / builder.getVaryingSize	())
+						(int) (builder.getVertexCountOffset	()),
+						(int) (builder.getVaryingCountOffset())
 				);
 			}
 		}

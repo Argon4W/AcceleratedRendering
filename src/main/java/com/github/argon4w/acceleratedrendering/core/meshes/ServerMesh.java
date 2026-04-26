@@ -44,7 +44,7 @@ public record ServerMesh(
 	}
 
 	public boolean isDense(int count) {
-		return forceDense || count >= 128;
+		return forceDense || count >= CoreFeature.getSparseThreshold();
 	}
 
 	public static class Builder implements IMesh.Builder {

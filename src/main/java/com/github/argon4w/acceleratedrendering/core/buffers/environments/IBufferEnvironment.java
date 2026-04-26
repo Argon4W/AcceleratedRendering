@@ -1,6 +1,7 @@
 package com.github.argon4w.acceleratedrendering.core.buffers.environments;
 
 import com.github.argon4w.acceleratedrendering.core.backends.buffers.IServerBuffer;
+import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.draw.IDrawMethod;
 import com.github.argon4w.acceleratedrendering.core.buffers.memory.VertexLayout;
 import com.github.argon4w.acceleratedrendering.core.programs.ComputeShaderPrograms;
 import com.github.argon4w.acceleratedrendering.core.programs.culling.ICullingProgramDispatcher;
@@ -18,6 +19,7 @@ import java.util.Set;
 public interface IBufferEnvironment {
 
 	int									getVertexSize						();
+	IDrawMethod							getDrawMethod						();
 	Set<VertexFormat>					getVertexFormats					();
 	VertexLayout						getLayout							();
 	IServerBuffer						getImmediateMeshBuffer				();

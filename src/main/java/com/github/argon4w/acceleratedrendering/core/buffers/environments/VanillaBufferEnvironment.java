@@ -1,6 +1,9 @@
 package com.github.argon4w.acceleratedrendering.core.buffers.environments;
 
+import com.github.argon4w.acceleratedrendering.core.CoreFeature;
 import com.github.argon4w.acceleratedrendering.core.backends.buffers.IServerBuffer;
+import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.draw.DrawMethodType;
+import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.draw.IDrawMethod;
 import com.github.argon4w.acceleratedrendering.core.buffers.memory.VertexLayout;
 import com.github.argon4w.acceleratedrendering.core.meshes.ServerMesh;
 import com.github.argon4w.acceleratedrendering.core.programs.culling.ICullingProgramDispatcher;
@@ -26,6 +29,7 @@ public class VanillaBufferEnvironment implements IBufferEnvironment {
 
 	private final VertexFormat						vertexFormat;
 	private final VertexLayout						layout;
+	private final IDrawMethod						method;
 
 	private final IShaderProgramOverrides			shaderProgramOverrides;
 	private final MeshUploadingProgramDispatcher	meshUploadingProgramDispatcher;
@@ -43,10 +47,11 @@ public class VanillaBufferEnvironment implements IBufferEnvironment {
 
 		this.vertexFormat					= vertexFormat;
 		this.layout							= new VertexLayout(vertexFormat);
+		this.method							= CoreFeature.getDrawMethod();
 
-		this.shaderProgramOverrides			= ModLoader.postEventWithReturn(new LoadShaderProgramOverridesEvent	(this.vertexFormat)).getOverrides	(defaultTransformOverride, defaultUploadingOverride);
-		this.cullingProgramSelector			= ModLoader.postEventWithReturn(new LoadCullingProgramSelectorEvent	(this.vertexFormat)).getSelector	();
-		this.polygonProcessor				= ModLoader.postEventWithReturn(new LoadPolygonProcessorEvent		(this.vertexFormat)).getProcessor	();
+		this.shaderProgramOverrides			= ModLoader		.postEventWithReturn(new LoadShaderProgramOverridesEvent(this.vertexFormat)).getOverrides(defaultTransformOverride, defaultUploadingOverride);
+		this.polygonProcessor				= ModLoader		.postEventWithReturn(new LoadPolygonProcessorEvent		(this.vertexFormat)).getProcessor();
+		this.cullingProgramSelector			= this.method	.getCullingProgramSelector								(this.vertexFormat);
 
 		this.meshUploadingProgramDispatcher	= new MeshUploadingProgramDispatcher();
 		this.transformProgramDispatcher		= new TransformProgramDispatcher	();
@@ -105,6 +110,11 @@ public class VanillaBufferEnvironment implements IBufferEnvironment {
 	@Override
 	public boolean isAccelerated(VertexFormat vertexFormat) {
 		return this.vertexFormat == vertexFormat;
+	}
+
+	@Override
+	public IDrawMethod getDrawMethod() {
+		return method;
 	}
 
 	@Override

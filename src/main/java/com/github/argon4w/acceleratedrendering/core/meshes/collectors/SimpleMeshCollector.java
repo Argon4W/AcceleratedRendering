@@ -10,7 +10,7 @@ import com.mojang.blaze3d.vertex.VertexFormatElement;
 import lombok.Getter;
 import net.minecraft.util.FastColor;
 
-public class SimpleMeshCollector implements VertexConsumer, IMeshCollector {
+public class SimpleMeshCollector implements IMeshCollector {
 
 	@Getter private	final	VertexLayout		layout;
 	@Getter private	final	ByteBufferBuilder	buffer;

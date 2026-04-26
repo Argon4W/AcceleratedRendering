@@ -2,8 +2,8 @@ package com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builder
 
 import com.github.argon4w.acceleratedrendering.core.CoreFeature;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.AcceleratedRingBuffers;
+import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.draw.pools.IElementPool;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.layers.functions.ILayerFunction;
-import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.ElementBufferPool;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.StagingBufferPool;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.meshes.MeshUploaderPool;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.renderers.IAcceleratedRenderer;
@@ -45,7 +45,7 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
 	@Getter private								final	Map<ServerMesh, MeshUploaderPool.MeshUploader>	meshUploaders;
 	@Getter private								final	StagingBufferPool		.StagingBuffer			vertexBuffer;
 	@Getter private								final	StagingBufferPool		.StagingBuffer			varyingBuffer;
-	@Getter private								final	ElementBufferPool		.ElementSegment			elementSegment;
+	@Getter private								final	IElementPool			.IElementSegment		elementSegment;
 	@Getter private								final	AcceleratedRingBuffers	.Buffers				buffer;
 	@Getter private								final	ILayerFunction									function;
 
@@ -84,14 +84,14 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
 	private												Matrix3f										cachedNormal;
 
 	public AcceleratedBufferBuilder(
-			StagingBufferPool		.StagingBuffer	vertexBuffer,
-			StagingBufferPool		.StagingBuffer	varyingBuffer,
-			ElementBufferPool		.ElementSegment	elementSegment,
-			AcceleratedRingBuffers	.Buffers		buffer,
-			ILayerFunction							layerFunction,
-			RenderType								renderType
+			StagingBufferPool		.StagingBuffer		vertexBuffer,
+			StagingBufferPool		.StagingBuffer		varyingBuffer,
+			IElementPool			.IElementSegment	elementSegment,
+			AcceleratedRingBuffers	.Buffers			buffer,
+			ILayerFunction								layerFunction,
+			RenderType									renderType
 	) {
-		var environment					= buffer.getBufferEnvironment();
+		var environment					= buffer.getEnvironment();
 
 		this.varyingOffset				= new SimpleDynamicMemoryInterface						(0L * 4L, this);
 		this.varyingSharing				= new SimpleDynamicMemoryInterface						(1L * 4L, this);
@@ -183,9 +183,10 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
 		elementCount	++;
 
 		if (elementCount >= polygonSize) {
-			elementSegment.countElements(polygonElementCount);
 			elementCount	= 0;
 			activeSharing	= -1;
+
+			elementSegment.count(polygonElementCount);
 		}
 
 		return this;
@@ -331,9 +332,10 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
 		elementCount	++;
 
 		if (elementCount >= polygonSize) {
-			elementSegment.countElements(polygonElementCount);
 			elementCount	= 0;
 			activeSharing	= -1;
+
+			elementSegment.count(polygonElementCount);
 		}
 	}
 
@@ -397,7 +399,7 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
 			varyingOffset.at(i).putInt(varyingAddress, i);
 		}
 
-		elementSegment.countElements(mode.indexCount(size));
+		elementSegment.count(mode.indexCount(size));
 		vertexCount += size;
 	}
 
@@ -426,7 +428,7 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
 				varyingOffset.at(i).putInt(varyingAddress, i);
 			}
 
-			elementSegment.countElements(mode.indexCount(meshSize));
+			elementSegment.count(mode.indexCount(meshSize));
 			vertexCount += meshSize;
 
 			return;
@@ -443,7 +445,7 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
 			meshUploaders			.put					(serverMesh, meshUploader);
 		}
 
-		elementSegment.countElements(mode.indexCount(meshSize));
+		elementSegment.count(mode.indexCount(meshSize));
 		meshVertexCount += meshSize;
 
 		meshUploader.addUpload(
@@ -498,6 +500,14 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
 
 	public long getVaryingSize() {
 		return transformOverride.getVaryingSize();
+	}
+
+	public long getVertexCountOffset() {
+		return vertexBuffer.getOffset() / getVertexSize();
+	}
+
+	public long getVaryingCountOffset() {
+		return varyingBuffer.getOffset() / getVaryingSize();
 	}
 
 	public int getTotalVertexCount() {

@@ -4,9 +4,12 @@ import com.github.argon4w.acceleratedrendering.core.backends.states.buffers.Bloc
 import com.github.argon4w.acceleratedrendering.core.backends.states.buffers.cache.BlockBufferBindingCacheType;
 import com.github.argon4w.acceleratedrendering.core.backends.states.scissors.ScissorBindingStateType;
 import com.github.argon4w.acceleratedrendering.core.backends.states.viewports.ViewportBindingStateType;
+import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.draw.DrawMethodType;
+import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.draw.IDrawMethod;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.layers.storage.LayerStorageType;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.meshes.MeshInfoCacheType;
 import com.github.argon4w.acceleratedrendering.core.meshes.MeshType;
+import com.github.argon4w.acceleratedrendering.core.meshes.collectors.MeshCollectorType;
 import com.github.argon4w.acceleratedrendering.core.meshes.data.cache.MeshDataCacheType;
 import com.github.argon4w.acceleratedrendering.features.filter.FilterType;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -20,16 +23,19 @@ public class FeatureConfig {
 	public static	final	FeatureConfig											CONFIG;
 	public static	final	ModConfigSpec											SPEC;
 
+	public			final	ModConfigSpec.IntValue									coreSparseThreshold;
 	public			final	ModConfigSpec.IntValue									corePooledRingBufferSize;
 	public			final	ModConfigSpec.IntValue									corePooledBatchingSize;
 	public			final	ModConfigSpec.IntValue									coreCachedImageSize;
 	public			final	ModConfigSpec.IntValue									coreDynamicUVResolution;
+	public			final	ModConfigSpec.ConfigValue<DrawMethodType>				coreDrawMethodType;
+	public			final	ModConfigSpec.ConfigValue<MeshCollectorType>			coreMeshCollectorType;
 	public			final	ModConfigSpec.ConfigValue<FeatureStatus>				coreDebugContextEnabled;
 	public			final	ModConfigSpec.ConfigValue<FeatureStatus>				coreForceTranslucentAcceleration;
 	public			final	ModConfigSpec.ConfigValue<FeatureStatus>				coreCacheIdenticalPose;
 	public			final	ModConfigSpec.ConfigValue<MeshInfoCacheType>			coreMeshInfoCacheType;
 	public			final	ModConfigSpec.ConfigValue<LayerStorageType>				coreLayerStorageType;
-	public			final	ModConfigSpec.ConfigValue<MeshDataCacheType>				coreMeshMergeType;
+	public			final	ModConfigSpec.ConfigValue<MeshDataCacheType>			coreMeshMergeType;
 	public			final	ModConfigSpec.ConfigValue<FeatureStatus>				coreUploadMeshImmediately;
 	public			final	ModConfigSpec.ConfigValue<FeatureStatus>				coreCacheDynamicRenderType;
 	public			final	ModConfigSpec.ConfigValue<ViewportBindingStateType>		coreViewportBindingType;
@@ -112,6 +118,12 @@ public class FeatureConfig {
 				.translation			("acceleratedrendering.configuration.core_settings")
 				.push					("core_settings");
 
+		coreSparseThreshold								= builder
+				.comment				("Maximum amount of same meshes in a draw before it is switched to dense uploading method.")
+				.comment				("Changing this value may affects your FPS in certain situation. Smaller value means meshes will use dense mesh uploading with fewer occurrences, while larger values means meshes will use sparse mesh uploading even with higher occurrences.")
+				.translation			("acceleratedrendering.configuration.core_settings.sparse_threshold")
+				.defineInRange			("sparse_threshold",					64,	16,	128);
+
 		corePooledRingBufferSize						= builder
 				.gameRestart			()
 				.comment				("Count of buffer sets that holds data for in-flight frame rendering.")
@@ -137,6 +149,20 @@ public class FeatureConfig {
 				.comment				("Changing this value may affects your visual effects and VRAM usage. Smaller value means lower resolution in UV scrolling and less cached render types, while larger means higher resolution and more cached render types. Higher resolution means smoother animations on charged creepers and breezes but more VRAM usage.")
 				.translation			("acceleratedrendering.configuration.core_settings.dynamic_uv_resolution")
 				.defineInRange			("dynamic_uv_resolution",				64,	1,	Integer.MAX_VALUE);
+
+		coreDrawMethodType								= builder
+				.comment				("- INDIRECT: Indices of vertices will be generated automatically every draw call, which allows advanced orientation culling to be applied before the actual draw call. But it could be slightly slower when there are too many draw calls present in a frame.")
+				.comment				("- BASEVERTEX: Indices of vertices will be cached across the draw calls and frames, which will be faster when there are too many draw calls present in a frame. But orientation culling will be disabled when using this method.")
+				.translation			("acceleratedrendering.configuration.core_settings.draw_method_type")
+				.gameRestart			()
+				.defineEnum				("draw_method_type",					DrawMethodType.INDIRECT);
+
+		coreMeshCollectorType							= builder
+				.comment				("- SIMPLE: All faces including invisible faces of the model will be included in the final mesh of the model. It might be slower when rendering some models but it allows same models with different textures to be merged more effectively.")
+				.comment				("- CULLED: Invisible faces of the model will be excluded from the final mesh of the model. It will speed up the rendering of some specific models but it might break the merging of same models with different textures.")
+				.translation			("acceleratedrendering.configuration.core_settings.mesh_collector_type")
+				.gameRestart			()
+				.defineEnum				("mesh_collector_type",					MeshCollectorType.CULLED);
 
 		coreDebugContextEnabled							= builder
 				.comment				("- DISABLED: Debug context will be disabled, which may cause significant rendering glitches on some NVIDIA cards because of the \"theaded optimization\".")

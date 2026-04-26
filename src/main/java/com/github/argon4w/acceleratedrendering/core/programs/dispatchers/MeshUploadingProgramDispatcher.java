@@ -78,12 +78,12 @@ public class MeshUploadingProgramDispatcher {
 		}
 	}
 
-	public interface MeshStorage {
+	public interface IMeshStorage {
 
 		void add(MeshUploader uploader);
 	}
 
-	public static class SparseStorage implements MeshStorage {
+	public static class SparseStorage implements IMeshStorage {
 
 		private final Reference2ObjectMap<AcceleratedBufferBuilder, List<MeshUploader>>	sparseUploads;
 		private final Reference2ObjectMap<AcceleratedBufferBuilder, Offsets>			sparseOffsets;
@@ -141,11 +141,8 @@ public class MeshUploadingProgramDispatcher {
 			private final MutableLong varyingOffset;
 
 			public Offsets(AcceleratedBufferBuilder builder) {
-				var vertexBuffer	= builder.getVertexBuffer	();
-				var varyingBuffer	= builder.getVaryingBuffer	();
-
-				this.vertexOffset	= new MutableLong(vertexBuffer	.getOffset() / builder.getVertexSize	());
-				this.varyingOffset	= new MutableLong(varyingBuffer	.getOffset() / builder.getVaryingSize	());
+				this.vertexOffset	= new MutableLong(builder.getVertexCountOffset	());
+				this.varyingOffset	= new MutableLong(builder.getVaryingCountOffset	());
 			}
 
 			public void add(MeshUploader uploader) {
@@ -165,7 +162,7 @@ public class MeshUploadingProgramDispatcher {
 		}
 	}
 
-	public static class DenseStorage implements MeshStorage {
+	public static class DenseStorage implements IMeshStorage {
 
 		private final Reference2ObjectMap<ServerMesh, Map<IUploadingShaderProgramOverride, List<MeshUploader>>>	denseUploaders;
 		private final Reference2ObjectMap<ServerMesh, Map<IUploadingShaderProgramOverride, MutableInt>>			denseCounts;
@@ -217,7 +214,7 @@ public class MeshUploadingProgramDispatcher {
 		glMemoryBarrier(lastBarriers);
 
 		var transform = buffer
-				.getBufferEnvironment				()
+				.getEnvironment()
 				.selectTransformProgramDispatcher	();
 
 		for (var builder : builders) {
@@ -283,10 +280,10 @@ public class MeshUploadingProgramDispatcher {
 			var varyingBuffer	= builder.getVaryingBuffer	();
 			var vertexCount		= builder.getVertexCount	();
 
-			var vertexAddress	= vertexBuffer	.getCurrent	();
-			var varyingAddress	= varyingBuffer	.getCurrent	();
-			var vertexOffset	= vertexBuffer	.getOffset	() / builder.getVertexSize	();
-			var varyingOffset	= varyingBuffer	.getOffset	() / builder.getVaryingSize	();
+			var vertexAddress	= vertexBuffer	.getCurrent				();
+			var varyingAddress	= varyingBuffer	.getCurrent				();
+			var vertexOffset	= builder		.getVertexCountOffset	();
+			var varyingOffset	= builder		.getVaryingCountOffset	();
 
 			for (var meshBuffer : sparseStorages.keySet()) {
 				var storage = sparseStorages.get(meshBuffer);
@@ -360,9 +357,8 @@ public class MeshUploadingProgramDispatcher {
 					}
 
 					for (var uploader : overrideUploaders) {
-						var offsets		= sparse	.getOffsets		(uploader);
-						var vertexCount	= uploader	.getVertexCount	();
-
+						var vertexCount		= uploader	.getVertexCount		();
+						var offsets			= sparse	.getOffsets			(uploader);
 						var vertexOffset	= offsets	.getVertexOffset	(vertexCount);
 						var varyingOffset	= offsets	.getVaryingOffset	(vertexCount);
 						var address			= infoBuffer.reserve			(uploader.getMeshInfoSize());

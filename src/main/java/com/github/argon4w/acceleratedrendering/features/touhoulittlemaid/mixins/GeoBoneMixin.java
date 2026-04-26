@@ -1,5 +1,6 @@
 package com.github.argon4w.acceleratedrendering.features.touhoulittlemaid.mixins;
 
+import com.github.argon4w.acceleratedrendering.core.CoreFeature;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.IBufferGraph;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.VertexConsumerExtension;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.renderers.IAcceleratedRenderer;
@@ -58,8 +59,8 @@ public class GeoBoneMixin implements IAcceleratedRenderer<Void> {
 			return;
 		}
 
-		var culledMeshCollector	= new CulledMeshCollector	(extension);
-		var meshBuilder			= extension.decorate		(culledMeshCollector);
+		var meshCollector	= CoreFeature	.createMeshCollector(extension);
+		var meshBuilder		= extension		.decorate			(meshCollector);
 
 		for(int i = 0; i < cubes.getCubeCount(); ++i) {
 			var deltaX			= new Vector3f	(cubes.dx(i));
@@ -151,11 +152,11 @@ public class GeoBoneMixin implements IAcceleratedRenderer<Void> {
 			}
 		}
 
-		culledMeshCollector.flush();
+		meshCollector.flush();
 
-		var data	= culledMeshCollector	.getData	();
-		var buffer	= culledMeshCollector	.getBuffer	();
-		mesh		= merges				.get		(data);
+		var data	= meshCollector	.getData	();
+		var buffer	= meshCollector	.getBuffer	();
+		mesh		= merges		.get		(data);
 
 		if (mesh != null) {
 			buffer.discard	();
@@ -164,7 +165,7 @@ public class GeoBoneMixin implements IAcceleratedRenderer<Void> {
 			mesh = AcceleratedEntityRenderingFeature
 					.getMeshType()
 					.getBuilder	()
-					.build		(culledMeshCollector);
+					.build		(meshCollector);
 		}
 
 		meshes	.put	(extension, mesh);

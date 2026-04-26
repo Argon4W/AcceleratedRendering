@@ -11,7 +11,7 @@ import static org.lwjgl.opengl.GL44.GL_DYNAMIC_STORAGE_BIT;
 
 public class StagingBufferPool extends SimpleResetPool<StagingBufferPool.StagingBuffer, Void> {
 
-	@Getter private	final MutableBuffer	bufferOut;
+	@Getter private	final MutableBuffer buffer;
 	private			final MutableLong	bufferSegments;
 	private			final MutableLong	bufferOutSize;
 	private			final MutableLong	bufferOutUsedSize;
@@ -19,20 +19,20 @@ public class StagingBufferPool extends SimpleResetPool<StagingBufferPool.Staging
 	public StagingBufferPool(int size) {
 		super(size, null);
 
-		this.bufferOut			= new MutableBuffer	(64L * size, GL_DYNAMIC_STORAGE_BIT);
+		this.buffer				= new MutableBuffer	(64L * size, GL_DYNAMIC_STORAGE_BIT);
 		this.bufferSegments		= new MutableLong	(0L);
 		this.bufferOutSize		= new MutableLong	(64L * size);
 		this.bufferOutUsedSize	= new MutableLong	(0L);
 	}
 
 	public void prepare() {
-		bufferOut.resizeTo(bufferOutSize.getValue());
+		buffer.resizeTo(bufferOutSize.getValue());
 	}
 
 	@Override
 	public void delete() {
-		bufferOut	.delete();
-		super		.delete();
+		buffer	.delete();
+		super	.delete();
 	}
 
 	@Override

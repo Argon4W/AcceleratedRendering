@@ -30,7 +30,7 @@ public class FixedPolygonProgramDispatcher implements IPolygonProgramDispatcher 
 		var polygonCount	= vertexCount / mode.primitiveLength;
 
 		polygonCountUniform.uploadUnsignedInt(polygonCount);
-		vertexOffsetUniform.uploadUnsignedInt((int) (builder.getVertexBuffer().getOffset() / builder.getVertexSize()));
+		vertexOffsetUniform.uploadUnsignedInt((int) (builder.getVertexCountOffset()));
 
 		program.useProgram	();
 		program.dispatch	(

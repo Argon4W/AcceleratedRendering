@@ -168,8 +168,8 @@ public class BedrockPartMixin implements IAcceleratedRenderer<Void> {
 			return;
 		}
 
-		var culledMeshCollector	= new CulledMeshCollector	(extension);
-		var meshBuilder			= extension.decorate		(culledMeshCollector);
+		var meshCollector	= CoreFeature	.createMeshCollector(extension);
+		var meshBuilder		= extension		.decorate			(meshCollector);
 
 		for (var cube : cubes) {
 			cube.compile(
@@ -185,11 +185,11 @@ public class BedrockPartMixin implements IAcceleratedRenderer<Void> {
 			);
 		}
 
-		culledMeshCollector.flush();
+		meshCollector.flush();
 
-		var data	= culledMeshCollector	.getData	();
-		var buffer	= culledMeshCollector	.getBuffer	();
-		mesh		= merges				.get		(data);
+		var data	= meshCollector	.getData	();
+		var buffer	= meshCollector	.getBuffer	();
+		mesh		= merges		.get		(data);
 
 		if (mesh != null) {
 			buffer.discard	();
@@ -198,7 +198,7 @@ public class BedrockPartMixin implements IAcceleratedRenderer<Void> {
 			mesh = AcceleratedEntityRenderingFeature
 					.getMeshType()
 					.getBuilder	()
-					.build		(culledMeshCollector);
+					.build		(meshCollector);
 		}
 
 		meshes	.put	(extension, mesh);

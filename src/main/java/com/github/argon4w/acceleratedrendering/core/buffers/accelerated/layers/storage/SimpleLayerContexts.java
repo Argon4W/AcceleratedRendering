@@ -1,20 +1,20 @@
 package com.github.argon4w.acceleratedrendering.core.buffers.accelerated.layers.storage;
 
-import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.DrawContextPool;
+import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.draw.pools.IDrawContextPool.IDrawContext;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 
 import java.util.Iterator;
 
 public class SimpleLayerContexts implements ILayerContexts {
 
-	protected final ReferenceArrayList<DrawContextPool.DrawContext> contexts;
+	protected final ReferenceArrayList<IDrawContext> contexts;
 
 	public SimpleLayerContexts(int size) {
 		contexts = new ReferenceArrayList<>(size);
 	}
 
 	@Override
-	public void add(DrawContextPool.DrawContext drawContext) {
+	public void add(IDrawContext drawContext) {
 		contexts.add(drawContext);
 	}
 
@@ -34,7 +34,7 @@ public class SimpleLayerContexts implements ILayerContexts {
 	}
 
 	@Override
-	public Iterator<DrawContextPool.DrawContext> iterator() {
+	public Iterator<IDrawContext> iterator() {
 		return contexts.iterator();
 	}
 }
