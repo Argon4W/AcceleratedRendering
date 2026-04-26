@@ -15,7 +15,8 @@ import com.github.argon4w.acceleratedrendering.core.programs.overrides.ITransfor
 import com.github.argon4w.acceleratedrendering.core.programs.overrides.IUploadingShaderProgramOverride;
 import com.github.argon4w.acceleratedrendering.core.utils.FastColorUtils;
 import com.mojang.blaze3d.vertex.*;
-import it.unimi.dsi.fastutil.objects.Reference2ObjectLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import net.minecraft.client.renderer.RenderType;
@@ -25,7 +26,6 @@ import org.joml.Matrix4f;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
-import java.util.Map;
 import java.util.function.LongSupplier;
 
 @EqualsAndHashCode(
@@ -35,15 +35,15 @@ import java.util.function.LongSupplier;
 public class AcceleratedBufferBuilder extends DefaultedVertexConsumer implements IAcceleratedVertexConsumer, LongSupplier {
 
 	public static								final	long											SHARING_SIZE		= 4L * 4L * 4L + 4L * 3L * 4L;
-	public static								final	IMemoryInterface								SHARING_TRANSFORM	= new SimpleMemoryInterface			(0L,			SHARING_SIZE);
-	public static								final	IMemoryInterface								SHARING_NORMAL		= new SimpleMemoryInterface			(4L * 4L * 4L,	SHARING_SIZE);
+	public static								final	IMemoryInterface								SHARING_TRANSFORM	= new SimpleMemoryInterface(0L,				SHARING_SIZE);
+	public static								final	IMemoryInterface								SHARING_NORMAL		= new SimpleMemoryInterface(4L * 4L * 4L,	SHARING_SIZE);
 
 	@Getter public								final	IMemoryInterface								varyingOffset;
 	@Getter public								final	IMemoryInterface								varyingSharing;
 	@Getter public								final	IMemoryInterface								varyingMesh;
 	@Getter public								final	IMemoryInterface								varyingShouldCull;
 
-	@Getter private								final	Map<ServerMesh, MeshUploaderPool.MeshUploader>	meshUploaders;
+	@Getter private								final	Long2ObjectMap<MeshUploaderPool.MeshUploader>	meshUploaders;
 	@Getter private								final	StagingBufferPool		.StagingBuffer			vertexBuffer;
 	@Getter private								final	StagingBufferPool		.StagingBuffer			varyingBuffer;
 	@Getter private								final	IElementPool			.IElementSegment		elementSegment;
@@ -94,12 +94,12 @@ public class AcceleratedBufferBuilder extends DefaultedVertexConsumer implements
 	) {
 		var environment					= buffer.getEnvironment();
 
-		this.varyingOffset				= new SimpleDynamicMemoryInterface						(0L * 4L, this);
-		this.varyingSharing				= new SimpleDynamicMemoryInterface						(1L * 4L, this);
-		this.varyingMesh				= new SimpleDynamicMemoryInterface						(2L * 4L, this);
-		this.varyingShouldCull			= new SimpleDynamicMemoryInterface						(3L * 4L, this);
+		this.varyingOffset				= new SimpleDynamicMemoryInterface(0L * 4L, this);
+		this.varyingSharing				= new SimpleDynamicMemoryInterface(1L * 4L, this);
+		this.varyingMesh				= new SimpleDynamicMemoryInterface(2L * 4L, this);
+		this.varyingShouldCull			= new SimpleDynamicMemoryInterface(3L * 4L, this);
 
-		this.meshUploaders				= new Reference2ObjectLinkedOpenHashMap<>				();
+		this.meshUploaders				= new Long2ObjectOpenHashMap<>();
 		this.vertexBuffer				= vertexBuffer;
 		this.varyingBuffer				= varyingBuffer;
 		this.elementSegment				= elementSegment;
@@ -107,23 +107,23 @@ public class AcceleratedBufferBuilder extends DefaultedVertexConsumer implements
 		this.function					= layerFunction;
 
 		this.renderType					= renderType;
-		this.layout						= environment		.getLayout							();
-		this.polygonProgramDispatcher	= environment		.selectProcessingProgramDispatcher	(this.renderType.mode());
-		this.cullingProgramDispatcher	= environment		.selectCullingProgramDispatcher		(this.renderType);
-		this.transformOverride			= environment		.getTransformProgramOverride		(this.renderType);
-		this.uploadingOverride			= environment		.getUploadingProgramOverride		(this.renderType);
+		this.layout						= environment.getLayout							();
+		this.polygonProgramDispatcher	= environment.selectProcessingProgramDispatcher	(this.renderType.mode());
+		this.cullingProgramDispatcher	= environment.selectCullingProgramDispatcher	(this.renderType);
+		this.transformOverride			= environment.getTransformProgramOverride		(this.renderType);
+		this.uploadingOverride			= environment.getUploadingProgramOverride		(this.renderType);
 
 		this.mode						= this.renderType	.mode								();
 		this.polygonSize				= this.mode			.primitiveLength;
-		this.polygonElementCount		= this.mode			.indexCount							(this.polygonSize);
-		this.vertexSize					= this.buffer		.getVertexSize						();
+		this.polygonElementCount		= this.mode			.indexCount		(this.polygonSize);
+		this.vertexSize					= this.buffer		.getVertexSize	();
 
-		this.posOffset					= this.layout		.getElement							(DefaultVertexFormat.ELEMENT_POSITION);
-		this.colorOffset				= this.layout		.getElement							(DefaultVertexFormat.ELEMENT_COLOR);
-		this.uv0Offset					= this.layout		.getElement							(DefaultVertexFormat.ELEMENT_UV0);
-		this.uv1Offset					= this.layout		.getElement							(DefaultVertexFormat.ELEMENT_UV1);
-		this.uv2Offset					= this.layout		.getElement							(DefaultVertexFormat.ELEMENT_UV2);
-		this.normalOffset				= this.layout		.getElement							(DefaultVertexFormat.ELEMENT_NORMAL);
+		this.posOffset					= this.layout.getElement(DefaultVertexFormat.ELEMENT_POSITION);
+		this.colorOffset				= this.layout.getElement(DefaultVertexFormat.ELEMENT_COLOR);
+		this.uv0Offset					= this.layout.getElement(DefaultVertexFormat.ELEMENT_UV0);
+		this.uv1Offset					= this.layout.getElement(DefaultVertexFormat.ELEMENT_UV1);
+		this.uv2Offset					= this.layout.getElement(DefaultVertexFormat.ELEMENT_UV2);
+		this.normalOffset				= this.layout.getElement(DefaultVertexFormat.ELEMENT_NORMAL);
 
 		this.cachedTransformValue		= new Matrix4f();
 		this.cachedNormalValue			= new Matrix3f();
@@ -432,15 +432,16 @@ public class AcceleratedBufferBuilder extends DefaultedVertexConsumer implements
 			return;
 		}
 
+		var meshId			= serverMesh	.meshId	();
 		var meshSize		= serverMesh	.size	();
-		var meshUploader	= meshUploaders	.get	(serverMesh);
+		var meshUploader	= meshUploaders	.get	(meshId);
 
 		if (meshUploader == null) {
 			meshUploader = buffer	.getMeshUploader		();
 			meshUploader			.setBufferBuilder		(this);
 			meshUploader			.setServerMesh			(serverMesh);
 			meshUploader			.setUploadingOverride	(uploadingOverride);
-			meshUploaders			.put					(serverMesh, meshUploader);
+			meshUploaders			.put					(meshId, meshUploader);
 		}
 
 		elementSegment.count(mode.indexCount(meshSize));

@@ -23,6 +23,7 @@ import java.util.List;
 public record ServerMesh(
 		int				size,
 		long			offset,
+		long			meshId,
 		boolean			forceDense,
 		IServerBuffer	meshBuffer,
 		MeshData		meshData
@@ -51,6 +52,7 @@ public record ServerMesh(
 
 		public static final Builder													INSTANCE;
 		public static final Reference2ObjectMap<VertexLayout, List<IServerBuffer>>	BUFFERS;
+		public static		long													COUNTER;
 
 		static {
 			INSTANCE	= new Builder						();
@@ -137,6 +139,7 @@ public record ServerMesh(
 			mesh = new ServerMesh(
 					vertexCount,
 					position / layout.getSize(),
+					COUNTER ++,
 					forceDense,
 					meshBuffer,
 					data
