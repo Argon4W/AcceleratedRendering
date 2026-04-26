@@ -83,7 +83,8 @@ public class AcceleratedBufferBuilderMixin implements IIrisAcceleratedBufferBuil
 			double									pX,
 			double									pY,
 			double 									pZ,
-			CallbackInfoReturnable<VertexConsumer>	cir) {
+			CallbackInfoReturnable<VertexConsumer>	cir
+	) {
 		addIrisData(vertexAddress);
 	}
 
