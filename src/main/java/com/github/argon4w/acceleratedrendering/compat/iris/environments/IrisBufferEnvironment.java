@@ -48,7 +48,7 @@ public class IrisBufferEnvironment implements IBufferEnvironment {
 	}
 
 	private IBufferEnvironment getSubSet() {
-		return IrisApi.getInstance().isShaderPackInUse() && ImmediateState.isRenderingLevel ? irisSubSet : vanillaSubSet;
+		return useIris() ? irisSubSet : vanillaSubSet;
 	}
 
 	@Override
@@ -114,6 +114,10 @@ public class IrisBufferEnvironment implements IBufferEnvironment {
 	@Override
 	public int getVertexSize() {
 		return getSubSet().getVertexSize();
+	}
+
+	public boolean useIris() {
+		return IrisApi.getInstance().isShaderPackInUse() && ImmediateState.isRenderingLevel;
 	}
 
 	public static class IrisSubSet implements IBufferEnvironment {
