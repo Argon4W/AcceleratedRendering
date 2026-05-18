@@ -235,8 +235,8 @@ jar {
                     "${mod_id}.compat.immediatelyfast.mixins.json," +
                     "${mod_id}.compat.iris.mixins.json," +
                     "${mod_id}.compat.sodium.mixins.json," +
-                    "${mod_id}.compat.sophisticated.mixins.json" +
-                    "${mod_id}.compat.vanilla.mixins.json" +
+                    "${mod_id}.compat.sophisticated.mixins.json," +
+                    "${mod_id}.compat.vanilla.mixins.json," +
                     "${mod_id}.core.mixins.json," +
                     "${mod_id}.feature.entities.mixins.json," +
                     "${mod_id}.feature.entitymodelfeature.mixins.json," +
