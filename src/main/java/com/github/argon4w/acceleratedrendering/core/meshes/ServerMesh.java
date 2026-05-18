@@ -8,7 +8,6 @@ import com.github.argon4w.acceleratedrendering.core.backends.buffers.MappedBuffe
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.IAcceleratedVertexConsumer;
 import com.github.argon4w.acceleratedrendering.core.buffers.memory.VertexLayout;
 import com.github.argon4w.acceleratedrendering.core.meshes.collectors.IMeshCollector;
-import com.github.argon4w.acceleratedrendering.core.meshes.data.MeshData;
 import com.github.argon4w.acceleratedrendering.core.meshes.data.cache.MeshDataCaches;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
@@ -25,8 +24,7 @@ public record ServerMesh(
 		long			offset,
 		long			meshId,
 		boolean			forceDense,
-		IServerBuffer	meshBuffer,
-		MeshData		meshData
+		IServerBuffer	meshBuffer
 ) implements IMesh {
 
 	@Override
@@ -82,23 +80,24 @@ public record ServerMesh(
 				return mesh;
 			}
 
-			var builderResult = builder.build();
+			var result = builder.build();
 
-			if (builderResult == null) {
+			if (result == null) {
 				builder.close();
 				return EmptyMesh.INSTANCE;
 			}
 
-			var byteBuffer		= builderResult	.byteBuffer		();
-			var capacity		= byteBuffer	.capacity		();
-			var meshBuffers		= BUFFERS		.getOrDefault	(layout, null);
-			var meshBuffer		= (MappedBuffer) null;
+			var buffer		= result	.byteBuffer		();
+			var capacity	= buffer	.capacity		();
+			var meshBuffers	= BUFFERS	.getOrDefault	(layout, null);
+
+			var meshBuffer = (MappedBuffer) null;
 
 			if (meshBuffers == null) {
-				meshBuffers = new ReferenceArrayList<>	();
+				meshBuffers	= new ReferenceArrayList<>	();
 				meshBuffer	= new MappedBuffer			(64L);
 				meshBuffers	.add						(meshBuffer);
-				BUFFERS		.put 						(layout, meshBuffers);
+				BUFFERS		.put						(layout, meshBuffers);
 			} else {
 				meshBuffer	= (MappedBuffer) meshBuffers.get(meshBuffers.size() - 1);
 			}
@@ -125,7 +124,7 @@ public record ServerMesh(
 			}
 
 			var position	= meshBuffer.getPosition();
-			var srcAddress	= MemoryUtil.memAddress0(byteBuffer);
+			var srcAddress	= MemoryUtil.memAddress0(buffer);
 			var destAddress	= meshBuffer.reserve	(capacity);
 
 			MemoryUtil.memCopy(
@@ -141,8 +140,7 @@ public record ServerMesh(
 					position / layout.getSize(),
 					COUNTER ++,
 					forceDense,
-					meshBuffer,
-					data
+					meshBuffer
 			);
 
 			MeshDataCaches.SERVER.set(

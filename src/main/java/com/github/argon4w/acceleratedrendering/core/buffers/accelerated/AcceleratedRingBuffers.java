@@ -108,12 +108,12 @@ public class AcceleratedRingBuffers extends LoopResetPool<AcceleratedRingBuffers
 		public Buffers(IBufferEnvironment environment) {
 			this.size				= CoreFeature.getPooledBatchingSize				();
 			this.meshInfoBufferPool	= new MappedBufferPool							();
-			this.meshUploaderPool	= new MeshUploaderPool							();
-			this.drawContextPool	= environment.getDrawMethod().getDrawContextPool(size);
-			this.elementPool		= environment.getDrawMethod().getElementPool	(size);
+			this.meshUploaderPool	= new MeshUploaderPool							(this);
+			this.drawContextPool	= environment.getDrawMethod().getDrawContextPool(this.size);
+			this.elementPool		= environment.getDrawMethod().getElementPool	(this.size);
+			this.varyingBuffer		= new StagingBufferPool							(this.size);
+			this.vertexBuffer		= new StagingBufferPool							(this.size);
 			this.sharingBuffer		= new MappedBuffer								(64L);
-			this.varyingBuffer		= new StagingBufferPool							(size);
-			this.vertexBuffer		= new StagingBufferPool							(size);
 			this.vertexArray		= new VertexArray								();
 			this.sync				= new Sync										();
 			this.sharing			= new MutableInt								(0);
@@ -169,6 +169,10 @@ public class AcceleratedRingBuffers extends LoopResetPool<AcceleratedRingBuffers
 			vertexBuffer	.prepare();
 			varyingBuffer	.prepare();
 			elementPool		.prepare();
+		}
+
+		public int getOverrideCount() {
+			return environment.getOverrideCount();
 		}
 
 		public void unbindVertexArray() {
@@ -257,6 +261,7 @@ public class AcceleratedRingBuffers extends LoopResetPool<AcceleratedRingBuffers
 		}
 
 		public void delete() {
+			meshInfoBufferPool	.delete	();
 			meshUploaderPool	.delete	();
 			drawContextPool		.delete	();
 			elementPool			.delete	();

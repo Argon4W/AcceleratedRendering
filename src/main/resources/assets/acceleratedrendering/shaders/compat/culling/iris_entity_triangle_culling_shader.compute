@@ -21,7 +21,7 @@ struct VaryingData {
     int     offset;
     int     sharing;
     int     mesh;
-    int     noCull;
+    int     shouldCull;
 };
 
 struct SharingData {
@@ -69,11 +69,11 @@ void main() {
         return;
     }
 
-    uint    index0  = varyingOffset + base + 0u;
-    uint    index1  = vertexOffset  + base + 0u;
-    uint    index2  = vertexOffset  + base + 1u;
-    uint    index3  = vertexOffset  + base + 2u;
-    uint    noCull  = varyings[index0 - varyings[index0].offset].noCull;
+    uint    index0      = varyingOffset + base + 0u;
+    uint    index1      = vertexOffset  + base + 0u;
+    uint    index2      = vertexOffset  + base + 1u;
+    uint    index3      = vertexOffset  + base + 2u;
+    uint    shouldCull  = varyings[index0 - varyings[index0].offset].shouldCull;
 
     Vertex  vertex1 = vertices[index1];
     Vertex  vertex2 = vertices[index2];
@@ -86,7 +86,7 @@ void main() {
 
     float   det     = determinant(mat3(pos1.xyw, pos2.xyw, pos3.xyw));
 
-    if (noCull > 0u || det > 0.0) {
+    if (shouldCull == 0u || det > 0.0) {
         uint indexOut                       = atomicCounterAdd(indexCounter, 3u) / 3u;
 
         polygonsOut[indexOut + 0].vertex1   = index1;

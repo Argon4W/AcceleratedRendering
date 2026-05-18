@@ -9,12 +9,9 @@ import com.github.argon4w.acceleratedrendering.core.meshes.ServerMesh;
 import com.github.argon4w.acceleratedrendering.core.programs.culling.ICullingProgramDispatcher;
 import com.github.argon4w.acceleratedrendering.core.programs.culling.ICullingProgramSelector;
 import com.github.argon4w.acceleratedrendering.core.programs.dispatchers.IPolygonProgramDispatcher;
-import com.github.argon4w.acceleratedrendering.core.programs.dispatchers.MeshUploadingProgramDispatcher;
+import com.github.argon4w.acceleratedrendering.core.programs.dispatchers.meshes.MeshUploadingProgramDispatcher;
 import com.github.argon4w.acceleratedrendering.core.programs.dispatchers.TransformProgramDispatcher;
-import com.github.argon4w.acceleratedrendering.core.programs.overrides.IShaderProgramOverrides;
-import com.github.argon4w.acceleratedrendering.core.programs.overrides.ITransformShaderProgramOverride;
-import com.github.argon4w.acceleratedrendering.core.programs.overrides.IUploadingShaderProgramOverride;
-import com.github.argon4w.acceleratedrendering.core.programs.overrides.LoadShaderProgramOverridesEvent;
+import com.github.argon4w.acceleratedrendering.core.programs.overrides.*;
 import com.github.argon4w.acceleratedrendering.core.programs.processing.IPolygonProcessor;
 import com.github.argon4w.acceleratedrendering.core.programs.processing.LoadPolygonProcessorEvent;
 import com.mojang.blaze3d.vertex.VertexFormat;
@@ -57,6 +54,11 @@ public class IrisBufferEnvironment implements IBufferEnvironment {
 	}
 
 	@Override
+	public void clear() {
+		getSubSet().clear();
+	}
+
+	@Override
 	public Set<VertexFormat> getVertexFormats() {
 		return irisSubSet.getVertexFormats();
 	}
@@ -72,13 +74,13 @@ public class IrisBufferEnvironment implements IBufferEnvironment {
 	}
 
 	@Override
-	public ITransformShaderProgramOverride getTransformProgramOverride(RenderType renderType) {
-		return getSubSet().getTransformProgramOverride(renderType);
+	public ProgramOverride getProgramOverride(RenderType renderType) {
+		return getSubSet().getProgramOverride(renderType);
 	}
 
 	@Override
-	public IUploadingShaderProgramOverride getUploadingProgramOverride(RenderType renderType) {
-		return getSubSet().getUploadingProgramOverride(renderType);
+	public ProgramOverride getProgramOverride(int overrideId) {
+		return getSubSet().getProgramOverride(overrideId);
 	}
 
 	@Override
@@ -114,6 +116,11 @@ public class IrisBufferEnvironment implements IBufferEnvironment {
 	@Override
 	public int getVertexSize() {
 		return getSubSet().getVertexSize();
+	}
+
+	@Override
+	public int getOverrideCount() {
+		return getSubSet().getOverrideCount();
 	}
 
 	public boolean useIris() {
@@ -161,6 +168,11 @@ public class IrisBufferEnvironment implements IBufferEnvironment {
 		}
 
 		@Override
+		public void clear() {
+			meshUploadingProgramDispatcher.clear();
+		}
+
+		@Override
 		public boolean isAccelerated(VertexFormat vertexFormat) {
 			return this.vanillaVertexFormat == vertexFormat || this.irisVertexFormat == vertexFormat;
 		}
@@ -181,13 +193,13 @@ public class IrisBufferEnvironment implements IBufferEnvironment {
 		}
 
 		@Override
-		public ITransformShaderProgramOverride getTransformProgramOverride(RenderType renderType) {
-			return shaderProgramOverrides.getTransformOverrides().get(renderType);
+		public ProgramOverride getProgramOverride(RenderType renderType) {
+			return shaderProgramOverrides.getOverride(renderType);
 		}
 
 		@Override
-		public IUploadingShaderProgramOverride getUploadingProgramOverride(RenderType renderType) {
-			return shaderProgramOverrides.getUploadingOverrides().get(renderType);
+		public ProgramOverride getProgramOverride(int overrideId) {
+			return shaderProgramOverrides.getOverride(overrideId);
 		}
 
 		@Override
@@ -218,6 +230,11 @@ public class IrisBufferEnvironment implements IBufferEnvironment {
 		@Override
 		public int getVertexSize() {
 			return irisVertexFormat.getVertexSize();
+		}
+
+		@Override
+		public int getOverrideCount() {
+			return shaderProgramOverrides.getCount();
 		}
 	}
 }

@@ -45,9 +45,12 @@ public class CoreBuffersProviderMixin {
 	private static void bindAcceleratedBufferSourcesForIris(RenderBuffers renderBuffers, Operation<Void> original) {
 		var extension = (RenderBuffersExt) renderBuffers;
 
-		extension	.beginLevelRendering();
-		original	.call				(renderBuffers);
-		extension	.endLevelRendering	();
-		original	.call				(renderBuffers);
+		extension.beginLevelRendering();
+
+		original.call(renderBuffers);
+
+		extension.endLevelRendering();
+
+		original.call(renderBuffers);
 	}
 }

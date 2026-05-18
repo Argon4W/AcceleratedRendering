@@ -2,20 +2,15 @@ package com.github.argon4w.acceleratedrendering.core.buffers.environments;
 
 import com.github.argon4w.acceleratedrendering.core.CoreFeature;
 import com.github.argon4w.acceleratedrendering.core.backends.buffers.IServerBuffer;
-import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.draw.DrawMethodType;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.draw.IDrawMethod;
 import com.github.argon4w.acceleratedrendering.core.buffers.memory.VertexLayout;
 import com.github.argon4w.acceleratedrendering.core.meshes.ServerMesh;
 import com.github.argon4w.acceleratedrendering.core.programs.culling.ICullingProgramDispatcher;
 import com.github.argon4w.acceleratedrendering.core.programs.culling.ICullingProgramSelector;
-import com.github.argon4w.acceleratedrendering.core.programs.culling.LoadCullingProgramSelectorEvent;
 import com.github.argon4w.acceleratedrendering.core.programs.dispatchers.IPolygonProgramDispatcher;
-import com.github.argon4w.acceleratedrendering.core.programs.dispatchers.MeshUploadingProgramDispatcher;
+import com.github.argon4w.acceleratedrendering.core.programs.dispatchers.meshes.MeshUploadingProgramDispatcher;
 import com.github.argon4w.acceleratedrendering.core.programs.dispatchers.TransformProgramDispatcher;
-import com.github.argon4w.acceleratedrendering.core.programs.overrides.IShaderProgramOverrides;
-import com.github.argon4w.acceleratedrendering.core.programs.overrides.ITransformShaderProgramOverride;
-import com.github.argon4w.acceleratedrendering.core.programs.overrides.IUploadingShaderProgramOverride;
-import com.github.argon4w.acceleratedrendering.core.programs.overrides.LoadShaderProgramOverridesEvent;
+import com.github.argon4w.acceleratedrendering.core.programs.overrides.*;
 import com.github.argon4w.acceleratedrendering.core.programs.processing.IPolygonProcessor;
 import com.github.argon4w.acceleratedrendering.core.programs.processing.LoadPolygonProcessorEvent;
 import com.mojang.blaze3d.vertex.VertexFormat;
@@ -58,6 +53,11 @@ public class VanillaBufferEnvironment implements IBufferEnvironment {
 	}
 
 	@Override
+	public void clear() {
+		meshUploadingProgramDispatcher.clear();
+	}
+
+	@Override
 	public void setupBufferState() {
 		vertexFormat.setupBufferState();
 	}
@@ -78,13 +78,13 @@ public class VanillaBufferEnvironment implements IBufferEnvironment {
 	}
 
 	@Override
-	public ITransformShaderProgramOverride getTransformProgramOverride(RenderType renderType) {
-		return shaderProgramOverrides.getTransformOverrides().get(renderType);
+	public ProgramOverride getProgramOverride(RenderType renderType) {
+		return shaderProgramOverrides.getOverride(renderType);
 	}
 
 	@Override
-	public IUploadingShaderProgramOverride getUploadingProgramOverride(RenderType renderType) {
-		return shaderProgramOverrides.getUploadingOverrides().get(renderType);
+	public ProgramOverride getProgramOverride(int overrideId) {
+		return shaderProgramOverrides.getOverride(overrideId);
 	}
 
 	@Override
@@ -120,5 +120,10 @@ public class VanillaBufferEnvironment implements IBufferEnvironment {
 	@Override
 	public int getVertexSize() {
 		return vertexFormat.getVertexSize();
+	}
+
+	@Override
+	public int getOverrideCount() {
+		return shaderProgramOverrides.getCount();
 	}
 }

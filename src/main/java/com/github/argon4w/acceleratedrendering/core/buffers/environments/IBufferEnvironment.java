@@ -6,10 +6,9 @@ import com.github.argon4w.acceleratedrendering.core.buffers.memory.VertexLayout;
 import com.github.argon4w.acceleratedrendering.core.programs.ComputeShaderPrograms;
 import com.github.argon4w.acceleratedrendering.core.programs.culling.ICullingProgramDispatcher;
 import com.github.argon4w.acceleratedrendering.core.programs.dispatchers.IPolygonProgramDispatcher;
-import com.github.argon4w.acceleratedrendering.core.programs.dispatchers.MeshUploadingProgramDispatcher;
+import com.github.argon4w.acceleratedrendering.core.programs.dispatchers.meshes.MeshUploadingProgramDispatcher;
 import com.github.argon4w.acceleratedrendering.core.programs.dispatchers.TransformProgramDispatcher;
-import com.github.argon4w.acceleratedrendering.core.programs.overrides.ITransformShaderProgramOverride;
-import com.github.argon4w.acceleratedrendering.core.programs.overrides.IUploadingShaderProgramOverride;
+import com.github.argon4w.acceleratedrendering.core.programs.overrides.ProgramOverride;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.renderer.RenderType;
@@ -19,18 +18,20 @@ import java.util.Set;
 public interface IBufferEnvironment {
 
 	int									getVertexSize						();
+	int									getOverrideCount					();
 	IDrawMethod							getDrawMethod						();
 	Set<VertexFormat>					getVertexFormats					();
 	VertexLayout						getLayout							();
 	IServerBuffer						getImmediateMeshBuffer				();
 	MeshUploadingProgramDispatcher		selectMeshUploadingProgramDispatcher();
 	TransformProgramDispatcher			selectTransformProgramDispatcher	();
-	ITransformShaderProgramOverride		getTransformProgramOverride			(RenderType			renderType);
-	IUploadingShaderProgramOverride		getUploadingProgramOverride			(RenderType			renderType);
+	ProgramOverride						getProgramOverride					(int				overrideId);
+	ProgramOverride						getProgramOverride					(RenderType			renderType);
 	ICullingProgramDispatcher			selectCullingProgramDispatcher		(RenderType			renderType);
 	IPolygonProgramDispatcher			selectProcessingProgramDispatcher	(VertexFormat.Mode	mode);
 	boolean								isAccelerated						(VertexFormat		vertexFormat);
 	void								setupBufferState					();
+	void								clear								();
 
 	class Presets {
 

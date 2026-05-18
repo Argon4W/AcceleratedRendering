@@ -183,5 +183,7 @@
   "acceleratedrendering.configuration.mods_compatibility.sbm_feature_status.tooltip": "- DISABLED: Accelerations of bedrock models in Simple Bedrock Model will be disabled.\n- ENABLED: Accelerations of bedrock models in Simple Bedrock Model will be enabled.",
   "acceleratedrendering.configuration.mods_compatibility.ftb_feature_status": "Enable FTB Library Compatibility",
   "acceleratedrendering.configuration.mods_compatibility.ftb_feature_status.tooltip": "- DISABLED: Accelerations of UI driven by FTB Library will be disabled.\n- ENABLED: Accelerations of UI driven by FTB Library will be enabled.",
+  "acceleratedrendering.configuration.mods_compatibility.sophisticated_feature_status": "Enable Sophisticated Core Compatibility",
+  "acceleratedrendering.configuration.mods_compatibility.sophisticated_feature_status.tooltip": "- DISABLED: Accelerations of UI driven by Sophisticated Core will be disabled.\n- ENABLED: Accelerations of UI driven by Sophisticated Core will be enabled.",
   "acceleratedrendering.configuration.mods_compatibility.button": "Configure"
 }

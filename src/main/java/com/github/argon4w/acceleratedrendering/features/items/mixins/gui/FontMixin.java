@@ -1,16 +1,15 @@
 package com.github.argon4w.acceleratedrendering.features.items.mixins.gui;
 
 import com.github.argon4w.acceleratedrendering.core.CoreFeature;
+import com.github.argon4w.acceleratedrendering.features.items.gui.FontAdvanceEstimator;
 import com.github.argon4w.acceleratedrendering.features.items.gui.GuiBatchingController;
-import com.github.argon4w.acceleratedrendering.features.items.gui.contexts.string.ComponentStringDrawContext;
-import com.github.argon4w.acceleratedrendering.features.items.gui.contexts.string.FormattedStringDrawContext;
-import com.github.argon4w.acceleratedrendering.features.items.gui.contexts.string.Outline8StringDrawContext;
-import com.github.argon4w.acceleratedrendering.features.items.gui.contexts.string.RawStringDrawContext;
+import com.github.argon4w.acceleratedrendering.features.items.gui.contexts.string.*;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
 import net.minecraft.util.FormattedCharSequence;
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Mixin;
@@ -23,11 +22,11 @@ public abstract class FontMixin {
 
 	@WrapMethod(method = "drawInBatch(Ljava/lang/String;FFIZLorg/joml/Matrix4f;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/client/gui/Font$DisplayMode;II)I")
 	public int renderGuiStringFast1(
-			String				text,
+			String				textString,
 			float				textX,
 			float				textY,
 			int					textColor,
-			boolean				dropShadow,
+			boolean				textShadow,
 			Matrix4f			transform,
 			MultiBufferSource	bufferSource,
 			Font.DisplayMode	displayMode,
@@ -37,11 +36,11 @@ public abstract class FontMixin {
 	) {
 		if (!CoreFeature.isGuiBatching()) {
 			return original.call(
-					text,
+					textString,
 					textX,
 					textY,
 					textColor,
-					dropShadow,
+					textShadow,
 					transform,
 					bufferSource,
 					displayMode,
@@ -53,27 +52,32 @@ public abstract class FontMixin {
 		GuiBatchingController.INSTANCE.submitString(new RawStringDrawContext(
 				new Matrix4f(transform),
 				(Font) (Object) this,
-				text,
+				textString,
 				textX,
 				textY,
 				textColor,
-				dropShadow,
+				textShadow,
 				displayMode,
 				backgroundColor,
 				packedLight,
 				isBidirectional()
 		));
 
-		return 0;
+		return FontAdvanceEstimator.INSTANCE.getAdvance(
+				Style.EMPTY,
+				textString,
+				textShadow,
+				textX
+		);
 	}
 
 	@WrapMethod(method = "drawInBatch(Ljava/lang/String;FFIZLorg/joml/Matrix4f;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/client/gui/Font$DisplayMode;IIZ)I")
 	public int renderGuiStringFast2(
-			String				text,
+			String				textString,
 			float				textX,
 			float				textY,
 			int					textColor,
-			boolean				dropShadow,
+			boolean				textShadow,
 			Matrix4f			transform,
 			MultiBufferSource	bufferSource,
 			Font.DisplayMode	displayMode,
@@ -84,11 +88,11 @@ public abstract class FontMixin {
 	) {
 		if (!CoreFeature.isGuiBatching()) {
 			return original.call(
-					text,
+					textString,
 					textX,
 					textY,
 					textColor,
-					dropShadow,
+					textShadow,
 					transform,
 					bufferSource,
 					displayMode,
@@ -101,27 +105,32 @@ public abstract class FontMixin {
 		GuiBatchingController.INSTANCE.submitString(new RawStringDrawContext(
 				new Matrix4f(transform),
 				(Font) (Object) this,
-				text,
+				textString,
 				textX,
 				textY,
 				textColor,
-				dropShadow,
+				textShadow,
 				displayMode,
 				backgroundColor,
 				packedLight,
 				bidirectional
 		));
 
-		return 0;
+		return FontAdvanceEstimator.INSTANCE.getAdvance(
+				Style.EMPTY,
+				textString,
+				textShadow,
+				textX
+		);
 	}
 
 	@WrapMethod(method = "drawInBatch(Lnet/minecraft/network/chat/Component;FFIZLorg/joml/Matrix4f;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/client/gui/Font$DisplayMode;II)I")
 	public int renderGuiStringFast3(
-			Component			text,
+			Component			textComponent,
 			float				textX,
 			float				textY,
 			int					textColor,
-			boolean				dropShadow,
+			boolean				textShadow,
 			Matrix4f			transform,
 			MultiBufferSource	bufferSource,
 			Font.DisplayMode	displayMode,
@@ -131,11 +140,11 @@ public abstract class FontMixin {
 	) {
 		if (!CoreFeature.isGuiBatching()) {
 			return original.call(
-					text,
+					textComponent,
 					textX,
 					textY,
 					textColor,
-					dropShadow,
+					textShadow,
 					transform,
 					bufferSource,
 					displayMode,
@@ -147,26 +156,30 @@ public abstract class FontMixin {
 		GuiBatchingController.INSTANCE.submitString(new ComponentStringDrawContext(
 				new Matrix4f(transform),
 				(Font) (Object) this,
-				text,
+				textComponent,
 				textX,
 				textY,
 				textColor,
-				dropShadow,
+				textShadow,
 				displayMode,
 				backgroundColor,
 				packedLight
 		));
 
-		return 0;
+		return FontAdvanceEstimator.INSTANCE.getAdvance(
+				textComponent.getVisualOrderText(),
+				textShadow,
+				textX
+		);
 	}
 
 	@WrapMethod(method = "drawInBatch(Lnet/minecraft/util/FormattedCharSequence;FFIZLorg/joml/Matrix4f;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/client/gui/Font$DisplayMode;II)I")
 	public int renderGuiStringFast4(
-			FormattedCharSequence	text,
+			FormattedCharSequence	textSequence,
 			float					textX,
 			float					textY,
 			int						textColor,
-			boolean					dropShadow,
+			boolean					textShadow,
 			Matrix4f				transform,
 			MultiBufferSource		bufferSource,
 			Font.DisplayMode		displayMode,
@@ -176,11 +189,11 @@ public abstract class FontMixin {
 	) {
 		if (!CoreFeature.isGuiBatching()) {
 			return original.call(
-					text,
+					textSequence,
 					textX,
 					textY,
 					textColor,
-					dropShadow,
+					textShadow,
 					transform,
 					bufferSource,
 					displayMode,
@@ -192,17 +205,21 @@ public abstract class FontMixin {
 		GuiBatchingController.INSTANCE.submitString(new FormattedStringDrawContext(
 				new Matrix4f(transform),
 				(Font) (Object) this,
-				text,
+				textSequence,
 				textX,
 				textY,
 				textColor,
-				dropShadow,
+				textShadow,
 				displayMode,
 				backgroundColor,
 				packedLight
 		));
 
-		return 0;
+		return FontAdvanceEstimator.INSTANCE.getAdvance(
+				textSequence,
+				textShadow,
+				textX
+		);
 	}
 
 	@WrapMethod(method = "drawInBatch8xOutline")

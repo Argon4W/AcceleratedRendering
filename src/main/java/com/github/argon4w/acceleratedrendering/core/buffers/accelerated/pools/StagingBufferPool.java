@@ -44,7 +44,7 @@ public class StagingBufferPool extends SimpleResetPool<StagingBufferPool.Staging
 
 	@Override
 	protected StagingBuffer create(Void context, int i) {
-		return new StagingBuffer();
+		return new StagingBuffer(i);
 	}
 
 	@Override
@@ -65,11 +65,14 @@ public class StagingBufferPool extends SimpleResetPool<StagingBufferPool.Staging
 	@Getter
 	public class StagingBuffer extends MappedBuffer {
 
-		private long offset;
+		private final	int		index;
+		private			long	offset;
 
-		public StagingBuffer() {
+		public StagingBuffer(int index) {
 			super(64L);
-			this.offset = -1;
+
+			this.index	= index;
+			this.offset	= -1;
 		}
 
 		@Override

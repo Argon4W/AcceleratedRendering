@@ -176,6 +176,7 @@ dependencies {
     modImplementation "maven.modrinth:oculus:1.20.1-1.8.0"
     modImplementation "maven.modrinth:timeless-and-classics-zero:1.1.7-hotfix2"
 
+    modCompileOnly "maven.modrinth:sophisticated-core:1.20.1-1.3.35.1851"
     modCompileOnly "maven.modrinth:entity-model-features:3.0.1"
     modCompileOnly "maven.modrinth:touhou-little-maid:1.5.2-forge+mc1.20.1"
     modCompileOnly "maven.modrinth:geckolib:aVW7Z5da"
@@ -209,6 +210,8 @@ mixin {
     config "${mod_id}.compat.immediatelyfast.mixins.json"
     config "${mod_id}.compat.iris.mixins.json"
     config "${mod_id}.compat.sodium.mixins.json"
+    config "${mod_id}.compat.sophisticated.mixins.json"
+    config "${mod_id}.compat.vanilla.mixins.json"
     config "${mod_id}.core.mixins.json"
     config "${mod_id}.feature.entities.mixins.json"
     config "${mod_id}.feature.entitymodelfeature.mixins.json"
@@ -232,6 +235,8 @@ jar {
                     "${mod_id}.compat.immediatelyfast.mixins.json," +
                     "${mod_id}.compat.iris.mixins.json," +
                     "${mod_id}.compat.sodium.mixins.json," +
+                    "${mod_id}.compat.sophisticated.mixins.json" +
+                    "${mod_id}.compat.vanilla.mixins.json" +
                     "${mod_id}.core.mixins.json," +
                     "${mod_id}.feature.entities.mixins.json," +
                     "${mod_id}.feature.entitymodelfeature.mixins.json," +

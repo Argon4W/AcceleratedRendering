@@ -5,7 +5,7 @@ import com.github.argon4w.acceleratedrendering.core.backends.programs.Uniform;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.AcceleratedBufferBuilder;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.StagingBufferPool;
 import com.github.argon4w.acceleratedrendering.core.programs.ComputeShaderProgramLoader;
-import com.github.argon4w.acceleratedrendering.core.programs.overrides.ITransformShaderProgramOverride;
+import com.github.argon4w.acceleratedrendering.core.programs.overrides.ITransformOverride;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.Collection;
@@ -19,7 +19,7 @@ public class TransformProgramDispatcher {
 	private static	final	int								GROUP_SIZE					= 128;
 	private static	final	int								DISPATCH_COUNT_Y_Z			= 1;
 
-	private					ITransformShaderProgramOverride	lastOverride;
+	private					ITransformOverride				lastOverride;
 	private					int								lastBarriers;
 
 	public TransformProgramDispatcher() {
@@ -31,10 +31,11 @@ public class TransformProgramDispatcher {
 		glMemoryBarrier(lastBarriers);
 
 		for (var builder : builders) {
-			var currentOverride	= builder			.getTransformOverride	();
-			var vertexCount		= builder			.getVertexCount			();
-			var vertexBuffer	= builder			.getVertexBuffer		();
-			var varyingBuffer	= builder			.getVaryingBuffer		();
+			var programOverride	= builder			.getProgramOverride	();
+			var vertexCount		= builder			.getVertexCount		();
+			var vertexBuffer	= builder			.getVertexBuffer	();
+			var varyingBuffer	= builder			.getVaryingBuffer	();
+			var currentOverride	= programOverride	.transform			();
 
 			if (lastOverride != currentOverride) {
 				lastOverride = currentOverride;
@@ -65,7 +66,7 @@ public class TransformProgramDispatcher {
 			long							vertexOffset,
 			long							varyingOffset
 	) {
-		var currentOverride = builder.getTransformOverride();
+		var currentOverride = builder.getProgramOverride().transform();
 
 		if (lastOverride != currentOverride) {
 			lastOverride = currentOverride;
@@ -87,7 +88,7 @@ public class TransformProgramDispatcher {
 		lastOverride = null;
 	}
 
-	public static class Default implements ITransformShaderProgramOverride {
+	public static class Default implements ITransformOverride {
 
 		private final long				varyingSize;
 		private final ComputeProgram	program;

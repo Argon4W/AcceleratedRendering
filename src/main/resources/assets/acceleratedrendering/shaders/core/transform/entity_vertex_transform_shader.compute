@@ -16,7 +16,7 @@ struct VaryingData {
     int     offset;
     int     sharing;
     int     mesh;
-    int     noCull;
+    int     shouldCull;
 };
 
 struct SharingData {
@@ -114,6 +114,6 @@ void main() {
     verticesOut[vertexOut].uv2      = packSnorm2x16 (uintBitsToFloat(uv2Out));
     verticesOut[vertexOut].normal   = packSnorm4x8  (vec4           (normalize(normalOut), 0.0));
 
-    varyingsOut[varyingOut].offset  = offset;
-    varyingsOut[varyingOut].noCull  = varyingsIn[reference].noCull;
+    varyingsOut[varyingOut].offset      = offset;
+    varyingsOut[varyingOut].shouldCull  = varyingsIn[reference].shouldCull;
 }

@@ -1,6 +1,7 @@
 package com.github.argon4w.acceleratedrendering.compat.iris.mixins.acceleratedrendering;
 
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.AcceleratedBufferSource;
+import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.layers.LayerKey;
 import net.irisshaders.batchedentityrendering.impl.WrappableRenderType;
 import net.irisshaders.iris.vertices.ImmediateState;
 import net.minecraft.client.renderer.RenderType;
@@ -17,13 +18,13 @@ public class AcceleratedBufferSourceMixin {
 			method	= "getBuffer",
 			at		= @At(
 					value	= "INVOKE",
-					target	= "Lcom/github/argon4w/acceleratedrendering/core/buffers/accelerated/builders/AcceleratedBufferBuilder;<init>(Lcom/github/argon4w/acceleratedrendering/core/buffers/accelerated/pools/StagingBufferPool$StagingBuffer;Lcom/github/argon4w/acceleratedrendering/core/buffers/accelerated/pools/StagingBufferPool$StagingBuffer;Lcom/github/argon4w/acceleratedrendering/core/buffers/accelerated/draw/pools/IElementPool$IElementSegment;Lcom/github/argon4w/acceleratedrendering/core/buffers/accelerated/AcceleratedRingBuffers$Buffers;Lcom/github/argon4w/acceleratedrendering/core/buffers/accelerated/layers/functions/ILayerFunction;Lnet/minecraft/client/renderer/RenderType;)V"
+					target	= "Lcom/github/argon4w/acceleratedrendering/core/buffers/accelerated/builders/AcceleratedBufferBuilder;<init>(Lcom/github/argon4w/acceleratedrendering/core/buffers/accelerated/pools/StagingBufferPool$StagingBuffer;Lcom/github/argon4w/acceleratedrendering/core/buffers/accelerated/pools/StagingBufferPool$StagingBuffer;Lcom/github/argon4w/acceleratedrendering/core/buffers/accelerated/draw/pools/IElementPool$IElementSegment;Lcom/github/argon4w/acceleratedrendering/core/buffers/accelerated/AcceleratedRingBuffers$Buffers;Lcom/github/argon4w/acceleratedrendering/core/buffers/accelerated/layers/functions/ILayerFunction;Lcom/github/argon4w/acceleratedrendering/core/buffers/accelerated/layers/LayerKey;)V"
 			),
 			index	= 5,
 			remap	= false
 	)
-	public RenderType unwrapIrisRenderType(RenderType renderType) {
-		return renderType instanceof WrappableRenderType wrapped ? wrapped.unwrap() : renderType;
+	public LayerKey unwrapIrisRenderType(LayerKey layerKey) {
+		return layerKey.renderType() instanceof WrappableRenderType wrapped ? new LayerKey(layerKey.layer(), wrapped.unwrap()) : layerKey;
 	}
 
 	@Inject(

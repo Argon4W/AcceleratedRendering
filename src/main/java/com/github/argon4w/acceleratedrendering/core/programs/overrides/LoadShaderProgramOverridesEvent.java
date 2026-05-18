@@ -1,6 +1,9 @@
 package com.github.argon4w.acceleratedrendering.core.programs.overrides;
 
 import com.mojang.blaze3d.vertex.VertexFormat;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import lombok.Getter;
 import net.minecraft.client.renderer.RenderType;
@@ -9,54 +12,87 @@ import net.minecraftforge.fml.event.IModBusEvent;
 
 public class LoadShaderProgramOverridesEvent extends Event implements IModBusEvent {
 
-	private final VertexFormat															vertexFormat;
-	private final Object2ObjectOpenHashMap<RenderType, ITransformShaderProgramOverride> transformOverrides;
-	private final Object2ObjectOpenHashMap<RenderType, IUploadingShaderProgramOverride>	uploadingOverrides;
+	private final	VertexFormat										vertexFormat;
+	private final	Int2ObjectMap	<				ProgramOverride>	overridesById;
+	private final	Object2ObjectMap<RenderType,	ProgramOverride>	overridesByType;
+	private			int													overrideCounter;
 
 	public LoadShaderProgramOverridesEvent(VertexFormat vertexFormat) {
 		this.vertexFormat		= vertexFormat;
-		this.transformOverrides	= new Object2ObjectOpenHashMap<>();
-		this.uploadingOverrides	= new Object2ObjectOpenHashMap<>();
+		this.overridesById		= new Int2ObjectOpenHashMap		<>();
+		this.overridesByType	= new Object2ObjectOpenHashMap	<>();
+		this.overrideCounter	= 1;
 	}
 
 	public void loadFor(
-			VertexFormat			vertexFormat,
-			RenderType				renderType,
-			IShaderProgramOverride	override
+			VertexFormat		vertexFormat,
+			RenderType			renderType,
+			ITransformOverride	transform,
+			IUploadingOverride	uploading
 	) {
 		if (this.vertexFormat == vertexFormat) {
-					if (override instanceof ITransformShaderProgramOverride transform)	transformOverrides.put					(renderType, transform);
-			else	if (override instanceof IUploadingShaderProgramOverride uploading)	uploadingOverrides.put					(renderType, uploading);
-			else																		throw new UnsupportedOperationException	("Unsupported override type: " + override.getClass().getSimpleName());
+			var overrideId = overrideCounter ++;
+
+			var override = new ProgramOverride(
+					overrideId,
+					transform,
+					uploading
+			);
+
+			overridesById	.put(overrideId, override);
+			overridesByType	.put(renderType, override);
 		}
 	}
 
-	public IShaderProgramOverrides getOverrides(ITransformShaderProgramOverride defaultTransformOverride, IUploadingShaderProgramOverride defaultUploadingOverride) {
+	public IShaderProgramOverrides getOverrides(ITransformOverride defaultTransformOverride, IUploadingOverride defaultUploadingOverride) {
 		return new ProgramOverrides(
-				transformOverrides,
-				uploadingOverrides,
+				overrideCounter,
+				overridesById,
+				overridesByType,
 				defaultTransformOverride,
 				defaultUploadingOverride
 		);
 	}
 
-	@Getter
 	public static class ProgramOverrides implements IShaderProgramOverrides {
 
-		private final Object2ObjectOpenHashMap<RenderType, ITransformShaderProgramOverride> transformOverrides;
-		private final Object2ObjectOpenHashMap<RenderType, IUploadingShaderProgramOverride>	uploadingOverrides;
+		private final	Int2ObjectMap		<				ProgramOverride>	overridesById;
+		private final	Object2ObjectMap	<RenderType,	ProgramOverride>	overridesByType;
+		private final										ProgramOverride		overrideDefault;
+		private final										int					overrideCount;
 
 		public ProgramOverrides(
-				Object2ObjectOpenHashMap<RenderType, ITransformShaderProgramOverride>	transformOverrides,
-				Object2ObjectOpenHashMap<RenderType, IUploadingShaderProgramOverride>	uploadingOverrides,
-				ITransformShaderProgramOverride											defaultTransformOverride,
-				IUploadingShaderProgramOverride											defaultUploadingOverride
+				int													overrideCount,
+				Int2ObjectMap	<				ProgramOverride>	overridesById,
+				Object2ObjectMap<RenderType,	ProgramOverride>	overridesByType,
+				ITransformOverride									defaultTransformOverride,
+				IUploadingOverride									defaultUploadingOverride
 		) {
-			this.transformOverrides = transformOverrides;
-			this.uploadingOverrides = uploadingOverrides;
 
-			this.transformOverrides.defaultReturnValue(defaultTransformOverride);
-			this.uploadingOverrides.defaultReturnValue(defaultUploadingOverride);
+			this.overridesByType	= overridesByType;
+			this.overridesById		= overridesById;
+			this.overrideCount		= overrideCount;
+
+			this.overrideDefault = new ProgramOverride(
+					0,
+					defaultTransformOverride,
+					defaultUploadingOverride
+			);
+		}
+
+		@Override
+		public ProgramOverride getOverride(int overrideId) {
+			return overridesById.getOrDefault(overrideId, overrideDefault);
+		}
+
+		@Override
+		public ProgramOverride getOverride(RenderType renderType) {
+			return overridesByType.getOrDefault(renderType, overrideDefault);
+		}
+
+		@Override
+		public int getCount() {
+			return overrideCount;
 		}
 	}
 }

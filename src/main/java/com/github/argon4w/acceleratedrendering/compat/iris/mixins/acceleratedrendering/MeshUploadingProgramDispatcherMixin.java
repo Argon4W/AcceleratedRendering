@@ -5,7 +5,7 @@ import com.github.argon4w.acceleratedrendering.compat.iris.interfaces.IIrisMeshI
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.AcceleratedRingBuffers;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.AcceleratedBufferBuilder;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.meshes.IMeshInfoCache;
-import com.github.argon4w.acceleratedrendering.core.programs.dispatchers.MeshUploadingProgramDispatcher;
+import com.github.argon4w.acceleratedrendering.core.programs.dispatchers.meshes.MeshUploadingProgramDispatcher;
 import com.llamalad7.mixinextras.sugar.Local;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -38,7 +38,7 @@ public class MeshUploadingProgramDispatcherMixin {
 			@Local(name = "vertexAddress")	long						vertexAddress
 	) {
 		((IIrisAcceleratedBufferBuilder) builder).getEntityIdOffset()	.at(offset).putShort(vertexAddress + 0L, ((IIrisMeshInfoCache) meshInfos).getRenderedEntity		(i));
-		((IIrisAcceleratedBufferBuilder) builder).getEntityIdOffset()	.at(offset).putShort(vertexAddress + 2L, ((IIrisMeshInfoCache) meshInfos).getRenderedEntity		(i));
-		((IIrisAcceleratedBufferBuilder) builder).getEntityIdOffset()	.at(offset).putShort(vertexAddress + 4L, ((IIrisMeshInfoCache) meshInfos).getRenderedEntity		(i));
+		((IIrisAcceleratedBufferBuilder) builder).getEntityIdOffset()	.at(offset).putShort(vertexAddress + 2L, ((IIrisMeshInfoCache) meshInfos).getRenderedBlockEntity(i));
+		((IIrisAcceleratedBufferBuilder) builder).getEntityIdOffset()	.at(offset).putShort(vertexAddress + 4L, ((IIrisMeshInfoCache) meshInfos).getRenderedItem		(i));
 	}
 }

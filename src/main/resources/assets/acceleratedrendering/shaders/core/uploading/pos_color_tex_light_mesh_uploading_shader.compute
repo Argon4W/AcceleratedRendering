@@ -14,7 +14,7 @@ struct VaryingData {
     int     offset;
     int     sharing;
     int     mesh;
-    int     noCull;
+    int     shouldCull;
 };
 
 struct SharingData {
@@ -26,7 +26,7 @@ struct MeshInfo {
     uint    vertexOffset;
     uint    varyingOffset;
     int     sharing;
-    int     noCull;
+    int     shouldCull;
     uint    color;
     uint    uv1;
     uint    uv2;
@@ -97,7 +97,7 @@ void main() {
     vertices[vertexIndex].uv2       = packSnorm2x16 (uintBitsToFloat(uv2Out));
     // vertices[vertexIndex].normal    = packSnorm4x8  (vec4           (normalize(normalOut), 0.0));
 
-    varyings[varyingIndex].offset   = 0;
-    varyings[varyingIndex].sharing  = meshInfo.sharing;
-    varyings[varyingIndex].noCull   = meshInfo.noCull;
+    varyings[varyingIndex].offset       = 0;
+    varyings[varyingIndex].sharing      = meshInfo.sharing;
+    varyings[varyingIndex].shouldCull   = meshInfo.shouldCull;
 }

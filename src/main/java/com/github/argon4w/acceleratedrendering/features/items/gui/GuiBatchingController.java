@@ -19,6 +19,7 @@ import com.mojang.blaze3d.platform.Lighting;
 import it.unimi.dsi.fastutil.floats.Float2ReferenceAVLTreeMap;
 import it.unimi.dsi.fastutil.floats.Float2ReferenceSortedMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
+import lombok.Getter;
 import lombok.experimental.ExtensionMethod;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -43,19 +44,19 @@ import java.util.List;
 })
 public class GuiBatchingController {
 
-	public static	final	GuiBatchingController								INSTANCE = new GuiBatchingController();
+	public static	final	GuiBatchingController			INSTANCE = new GuiBatchingController();
 
-	private			final	IBindingState										scissorDraw;
-	private			final	IBindingState										scissorFlush;
-	private			final	List<BlitDrawContext>								blitDrawContexts;
-	private			final	List<IStringDrawContext>							stringDrawContexts;
-	private			final	List<DecoratorDrawContext>							decoratorDrawContexts;
-	private			final	List<FillDrawContext>								fillDrawContexts;
-	private			final	List<HighlightDrawContext>							highlightDrawContexts;
-	private			final	List<GradientDrawContext>							gradientDrawContexts;
-	private			final	List<ItemRenderContext>								flatItemDrawContexts;
-	private			final	List<ItemRenderContext>								blockItemDrawContexts;
-	private			final	Float2ReferenceSortedMap<List<IGuiElementContext>>	depthLayers;
+	private			final	IBindingState					scissorDraw;
+	private			final	IBindingState					scissorFlush;
+	private			final	List<BlitDrawContext>			blitDrawContexts;
+	private			final	List<IStringDrawContext>		stringDrawContexts;
+	private			final	List<DecoratorDrawContext>		decoratorDrawContexts;
+	private			final	List<FillDrawContext>			fillDrawContexts;
+	private			final	List<HighlightDrawContext>		highlightDrawContexts;
+	private			final	List<GradientDrawContext>		gradientDrawContexts;
+	private			final	List<ItemRenderContext>			flatItemDrawContexts;
+	private			final	List<ItemRenderContext>			blockItemDrawContexts;
+	private			final	Float2ReferenceSortedMap<Layer>	depthLayers;
 
 	private GuiBatchingController() {
 		this.scissorDraw			= CoreFeature.createScissorState	();
@@ -94,17 +95,18 @@ public class GuiBatchingController {
 			CoreFeature.resetGuiBatching();
 			CoreFeature.setRenderingGui	();
 
-			for (float layer : depthLayers.keySet()) {
-				var nextLayer	= depthLayers.tailMap	(layer);
-				var elements	= depthLayers.get		(layer);
-				var depth		= 0.0f;
-				var step		= 0.1f;
+			for (var layer : depthLayers.values()) {
+				var layerElements	= layer			.getLayerElements	();
+				var layerDepth		= layer			.getLayerDepth		();
+				var layerNext		= depthLayers	.tailMap			(layerDepth);
+				var depth			= 0.0f;
+				var step			= 0.1f;
 
-				if (!nextLayer.isEmpty()) {
-					step = 1.0f / nextLayer.get(nextLayer.firstFloatKey()).size();
+				if (!layerNext.isEmpty()) {
+					step = 1.0f / layerNext.get(layerNext.firstFloatKey()).getLayerElements().size();
 				}
 
-				for (var element : elements) {
+				for (var element : layerElements) {
 					element.transform().translateLocal(
 							0.0f,
 							0.0f,
@@ -112,16 +114,6 @@ public class GuiBatchingController {
 					);
 
 					depth += step;
-				}
-			}
-
-			for (float layer : depthLayers.keySet()) {
-				var elements = depthLayers.get(layer);
-
-				if (elements.isEmpty()) {
-					depthLayers.remove(layer);
-				} else {
-					elements.clear();
 				}
 			}
 
@@ -261,6 +253,7 @@ public class GuiBatchingController {
 				graphics.pose().popPose();
 			}
 
+			depthLayers				.clear	();
 			blitDrawContexts		.clear	();
 			stringDrawContexts		.clear	();
 			decoratorDrawContexts	.clear	();
@@ -276,28 +269,28 @@ public class GuiBatchingController {
 	public void flushBatching() {
 		CoreStates						.recordBuffers	();
 		CoreBuffers.POS					.prepareBuffers	();
-		CoreBuffers.POS_COLOR			.prepareBuffers	();
 		CoreBuffers.POS_TEX_COLOR		.prepareBuffers	();
 		CoreBuffers.POS_COLOR_TEX_LIGHT	.prepareBuffers	();
 		CoreBuffers.ENTITY				.prepareBuffers	();
 		CoreBuffers.BLOCK				.prepareBuffers	();
+		CoreBuffers.POS_COLOR			.prepareBuffers	();
 		CoreBuffers.POS_TEX				.prepareBuffers	();
 		CoreStates						.restoreBuffers	();
 
 		CoreBuffers.POS					.drawBuffers	(LayerDrawType.ALL);
-		CoreBuffers.POS_COLOR			.drawBuffers	(LayerDrawType.ALL);
 		CoreBuffers.POS_TEX_COLOR		.drawBuffers	(LayerDrawType.ALL);
 		CoreBuffers.POS_COLOR_TEX_LIGHT	.drawBuffers	(LayerDrawType.ALL);
 		CoreBuffers.ENTITY				.drawBuffers	(LayerDrawType.ALL);
 		CoreBuffers.BLOCK				.drawBuffers	(LayerDrawType.ALL);
+		CoreBuffers.POS_COLOR			.drawBuffers	(LayerDrawType.ALL);
 		CoreBuffers.POS_TEX				.drawBuffers	(LayerDrawType.ALL);
 
 		CoreBuffers.POS					.clearBuffers	();
-		CoreBuffers.POS_COLOR			.clearBuffers	();
 		CoreBuffers.POS_TEX_COLOR		.clearBuffers	();
 		CoreBuffers.POS_COLOR_TEX_LIGHT	.clearBuffers	();
 		CoreBuffers.ENTITY				.clearBuffers	();
 		CoreBuffers.BLOCK				.clearBuffers	();
+		CoreBuffers.POS_COLOR			.clearBuffers	();
 		CoreBuffers.POS_TEX				.clearBuffers	();
 	}
 
@@ -508,7 +501,7 @@ public class GuiBatchingController {
 		var layer = getLayer(getGlobalDepth(
 				transform.m22(),
 				transform.m32(),
-				100.0f
+				10.0f
 		));
 
 		var context = new DecoratorDrawContext(
@@ -563,12 +556,11 @@ public class GuiBatchingController {
 		layer				.add(context);
 	}
 
-	private List<IGuiElementContext> getLayer(float depth) {
+	private Layer getLayer(float depth) {
 		var layer = depthLayers.get(depth);
 
 		if (layer == null) {
-			layer = new ReferenceArrayList<>();
-			depthLayers.put(depth, layer);
+			layer = new Layer(depth);
 		}
 
 		return layer;
@@ -585,5 +577,23 @@ public class GuiBatchingController {
 	public void delete() {
 		scissorDraw	.delete();
 		scissorFlush.delete();
+	}
+
+	@Getter
+	public class Layer {
+
+		private final List<IGuiElementContext>	layerElements;
+		private final float						layerDepth;
+
+		public Layer(float depth) {
+			this.layerElements	= new ReferenceArrayList<>();
+			this.layerDepth		= depth;
+
+			depthLayers.put(depth, this);
+		}
+
+		public void add(IGuiElementContext context) {
+			layerElements.add(context);
+		}
 	}
 }

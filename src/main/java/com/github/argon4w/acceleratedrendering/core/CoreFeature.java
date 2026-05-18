@@ -24,6 +24,7 @@ import com.github.argon4w.acceleratedrendering.core.utils.PackedVector2i;
 import com.google.common.util.concurrent.Runnables;
 
 import java.util.ArrayDeque;
+import java.util.Deque;
 
 public class CoreFeature {
 
@@ -32,6 +33,7 @@ public class CoreFeature {
 	private static final	ArrayDeque<Integer>			DEFAULT_LAYER_CONTROLLER_STACK					= new ArrayDeque<>();
 	private static final	ArrayDeque<Runnable>		DEFAULT_LAYER_BEFORE_FUNCTION_CONTROLLER_STACK	= new ArrayDeque<>();
 	private static final	ArrayDeque<Runnable>		DEFAULT_LAYER_AFTER_FUNCTION_CONTROLLER_STACK	= new ArrayDeque<>();
+	private static final	Deque<FeatureStatus>		BYPASS_GUI_BATCHING_CONTROLLER_STACK			= new ArrayDeque<>();
 	private static 			boolean						RENDERING_LEVEL									= false;
 	private static			boolean						RENDERING_HAND									= false;
 	private static			boolean						RENDERING_GUI									= false;
@@ -75,6 +77,10 @@ public class CoreFeature {
 
 	public static boolean shouldCacheIdenticalPose() {
 		return getCacheIdenticalPoseSetting() == FeatureStatus.ENABLED;
+	}
+
+	public static boolean shouldByPassGuiBatching() {
+		return getBypassGuiBatchingSetting() == FeatureStatus.ENABLED;
 	}
 
 	public static DrawMethodType getDrawMethodType() {
@@ -193,12 +199,20 @@ public class CoreFeature {
 		CACHE_IDENTICAL_POSE_CONTROLLER_STACK.push(FeatureStatus.DISABLED);
 	}
 
+	public static void disableBypassGuiBatching() {
+		BYPASS_GUI_BATCHING_CONTROLLER_STACK.push(FeatureStatus.DISABLED);
+	}
+
 	public static void forceEnableForceTranslucentAcceleration() {
 		FORCE_TRANSLUCENT_ACCELERATION_CONTROLLER_STACK.push(FeatureStatus.ENABLED);
 	}
 
 	public static void forceEnableCacheIdenticalPose() {
 		CACHE_IDENTICAL_POSE_CONTROLLER_STACK.push(FeatureStatus.ENABLED);
+	}
+
+	public static void forceBypassGuiItemBatching() {
+		BYPASS_GUI_BATCHING_CONTROLLER_STACK.push(FeatureStatus.ENABLED);
 	}
 
 	public static void forceSetForceTranslucentAcceleration(FeatureStatus status) {
@@ -213,12 +227,20 @@ public class CoreFeature {
 		DEFAULT_LAYER_CONTROLLER_STACK.push(defaultLayer);
 	}
 
+	public static void forceIncrementDefaultLayer() {
+		DEFAULT_LAYER_CONTROLLER_STACK.push(getDefaultLayer() + 1);
+	}
+
 	public static void forceSetDefaultLayerBeforeFunction(Runnable runnable) {
 		DEFAULT_LAYER_BEFORE_FUNCTION_CONTROLLER_STACK.push(runnable);
 	}
 
 	public static void forceSetDefaultLayerAfterFunction(Runnable runnable) {
 		DEFAULT_LAYER_AFTER_FUNCTION_CONTROLLER_STACK.push(runnable);
+	}
+
+	public static void forceSetBypassGuiBatching(FeatureStatus status) {
+		BYPASS_GUI_BATCHING_CONTROLLER_STACK.push(status);
 	}
 
 	public static void resetForceTranslucentAcceleration() {
@@ -239,6 +261,10 @@ public class CoreFeature {
 
 	public static void resetDefaultLayerAfterFunction() {
 		DEFAULT_LAYER_AFTER_FUNCTION_CONTROLLER_STACK.pop();
+	}
+
+	public static void resetBypassGuiBatching() {
+		BYPASS_GUI_BATCHING_CONTROLLER_STACK.pop();
 	}
 
 	public static FeatureStatus getForceTranslucentAccelerationSetting() {
@@ -267,6 +293,10 @@ public class CoreFeature {
 
 	public static FeatureStatus getDefaultCacheIdenticalPoseSetting() {
 		return FeatureConfig.CONFIG.coreCacheIdenticalPose.get();
+	}
+
+	public static FeatureStatus getBypassGuiBatchingSetting() {
+		return BYPASS_GUI_BATCHING_CONTROLLER_STACK.isEmpty() ? FeatureStatus.DISABLED : BYPASS_GUI_BATCHING_CONTROLLER_STACK.peek();
 	}
 
 	public static void setRenderingLevel() {

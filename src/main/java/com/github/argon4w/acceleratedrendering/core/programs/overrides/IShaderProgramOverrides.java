@@ -6,6 +6,7 @@ import java.util.Map;
 
 public interface IShaderProgramOverrides {
 
-	Map<RenderType, ITransformShaderProgramOverride> getTransformOverrides();
-	Map<RenderType, IUploadingShaderProgramOverride> getUploadingOverrides();
+	ProgramOverride	getOverride	(RenderType	renderType);
+	ProgramOverride	getOverride	(int		overrideId);
+	int				getCount	();
 }

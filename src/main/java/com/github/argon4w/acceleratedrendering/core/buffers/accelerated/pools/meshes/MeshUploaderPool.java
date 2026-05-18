@@ -1,27 +1,26 @@
 package com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.meshes;
 
 import com.github.argon4w.acceleratedrendering.core.CoreFeature;
-import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.AcceleratedBufferBuilder;
+import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.AcceleratedRingBuffers.Buffers;
 import com.github.argon4w.acceleratedrendering.core.buffers.memory.IMemoryInterface;
 import com.github.argon4w.acceleratedrendering.core.buffers.memory.SimpleDynamicMemoryInterface;
 import com.github.argon4w.acceleratedrendering.core.meshes.ServerMesh;
-import com.github.argon4w.acceleratedrendering.core.programs.overrides.IUploadingShaderProgramOverride;
-import com.github.argon4w.acceleratedrendering.core.utils.FastColorUtils;
+import com.github.argon4w.acceleratedrendering.core.programs.overrides.ProgramOverride;
 import com.github.argon4w.acceleratedrendering.core.utils.SimpleResetPool;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.function.LongSupplier;
 
-public class MeshUploaderPool extends SimpleResetPool<MeshUploaderPool.MeshUploader, Void> {
+public class MeshUploaderPool extends SimpleResetPool<MeshUploaderPool.MeshUploader, Buffers> {
 
-	public MeshUploaderPool() {
-		super(128, null);
+	public MeshUploaderPool(Buffers buffers) {
+		super(128, buffers);
 	}
 
 	@Override
-	protected MeshUploader create(Void context, int i) {
-		return new MeshUploader();
+	protected MeshUploader create(Buffers context, int i) {
+		return new MeshUploader(context);
 	}
 
 	@Override
@@ -42,32 +41,34 @@ public class MeshUploaderPool extends SimpleResetPool<MeshUploaderPool.MeshUploa
 
 	public static class MeshUploader implements LongSupplier {
 
-		public			final	IMemoryInterface				meshInfoVertexOffset;
-		public			final	IMemoryInterface				meshInfoVaryingOffset;
-		public			final	IMemoryInterface				meshInfoSharing;
-		public			final	IMemoryInterface				meshInfoNoCull;
-		public			final	IMemoryInterface				meshInfoColor;
-		public			final	IMemoryInterface				meshInfoOverlay;
-		public			final	IMemoryInterface				meshInfoLight;
-		@Getter private	final	IMeshInfoCache					meshInfos;
+		private			final	IMemoryInterface	meshInfoVertexOffset;
+		private			final	IMemoryInterface	meshInfoVaryingOffset;
+		private			final	IMemoryInterface	meshInfoSharing;
+		private			final	IMemoryInterface	meshInfoShouldCull;
+		private			final	IMemoryInterface	meshInfoColor;
+		private			final	IMemoryInterface	meshInfoOverlay;
+		private			final	IMemoryInterface	meshInfoLight;
+		@Getter private	final	IMeshInfoCache		meshInfos;
+		@Getter private	final	Buffers				buffers;
 
-		@Getter	@Setter private	ServerMesh						serverMesh;
-		@Getter @Setter private AcceleratedBufferBuilder		bufferBuilder;
-		@Getter @Setter private IUploadingShaderProgramOverride	uploadingOverride;
+		@Getter	@Setter private	ServerMesh			serverMesh;
+		@Getter @Setter private ProgramOverride		override;
+		@Getter @Setter private int					index;
 
-		public MeshUploader() {
+		public MeshUploader(Buffers buffers) {
 			this.meshInfoVertexOffset	= new SimpleDynamicMemoryInterface	(0L * 4L, this);
 			this.meshInfoVaryingOffset	= new SimpleDynamicMemoryInterface	(1L * 4L, this);
 			this.meshInfoSharing		= new SimpleDynamicMemoryInterface	(2L * 4L, this);
-			this.meshInfoNoCull			= new SimpleDynamicMemoryInterface	(3L * 4L, this);
+			this.meshInfoShouldCull		= new SimpleDynamicMemoryInterface	(3L * 4L, this);
 			this.meshInfoColor			= new SimpleDynamicMemoryInterface	(4L * 4L, this);
 			this.meshInfoOverlay		= new SimpleDynamicMemoryInterface	(5L * 4L, this);
 			this.meshInfoLight			= new SimpleDynamicMemoryInterface	(6L * 4L, this);
 			this.meshInfos				= CoreFeature.createMeshInfoCache	();
+			this.buffers				= buffers;
 
-			this.serverMesh			= null;
-			this.bufferBuilder		= null;
-			this.uploadingOverride	= null;
+			this.index		= -1;
+			this.override	= null;
+			this.serverMesh	= null;
 		}
 
 		public void addUpload(
@@ -97,11 +98,11 @@ public class MeshUploaderPool extends SimpleResetPool<MeshUploaderPool.MeshUploa
 				meshInfoVertexOffset	.at(i)	.putInt			(meshInfoAddress, vertexOffset	+ i * serverMesh.size());
 				meshInfoVaryingOffset	.at(i)	.putInt			(meshInfoAddress, varyingOffset	+ i * serverMesh.size());
 				meshInfoSharing			.at(i)	.putInt			(meshInfoAddress, meshInfos.getSharing		(i));
-				meshInfoNoCull			.at(i)	.putInt			(meshInfoAddress, meshInfos.getShouldCull	(i));
+				meshInfoShouldCull		.at(i)	.putInt			(meshInfoAddress, meshInfos.getShouldCull	(i));
 				meshInfoColor			.at(i)	.putInt			(meshInfoAddress, meshInfos.getColor		(i));
 				meshInfoOverlay			.at(i)	.putInt			(meshInfoAddress, meshInfos.getOverlay		(i));
 				meshInfoLight			.at(i)	.putInt			(meshInfoAddress, meshInfos.getLight		(i));
-				uploadingOverride				.uploadMeshInfo	(meshInfoAddress, i);
+				override						.uploadMeshInfo	(meshInfoAddress, i);
 			}
 		}
 
@@ -127,7 +128,7 @@ public class MeshUploaderPool extends SimpleResetPool<MeshUploaderPool.MeshUploa
 
 		@Override
 		public long getAsLong() {
-			return uploadingOverride.getMeshInfoSize();
+			return override.getMeshInfoSize();
 		}
 	}
 }

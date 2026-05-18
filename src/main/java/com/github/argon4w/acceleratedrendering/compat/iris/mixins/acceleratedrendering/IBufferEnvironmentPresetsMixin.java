@@ -30,7 +30,7 @@ public class IBufferEnvironmentPresetsMixin {
 			),
 			remap	= false
 	)
-	private static void useIrisBloockEnvironment(IBufferEnvironment value, Operation<Void> original) {
+	private static void useIrisBlockEnvironment(IBufferEnvironment value, Operation<Void> original) {
 		original.call(new IrisBufferEnvironment(
 				value,
 				DefaultVertexFormat	.BLOCK,

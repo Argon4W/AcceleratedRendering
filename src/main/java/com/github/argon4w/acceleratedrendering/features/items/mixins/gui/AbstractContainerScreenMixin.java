@@ -99,7 +99,10 @@ public abstract class AbstractContainerScreenMixin {
 			int				color,
 			Operation<Void>	original
 	) {
-		if (!CoreFeature.isGuiBatching()) {
+		if (		!	CoreFeature.isLoaded				()
+				||	!	CoreFeature.isGuiBatching			()
+				||		CoreFeature.shouldByPassGuiBatching	()
+		) {
 			original.call(
 					guiGraphics,
 					highlightX,

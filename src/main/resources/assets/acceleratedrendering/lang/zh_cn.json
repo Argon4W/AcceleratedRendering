@@ -183,5 +183,7 @@
   "acceleratedrendering.configuration.mods_compatibility.sbm_feature_status.tooltip": "- DISABLED: 禁止加速渲染对SBM(简单基岩版模型, SimpleBedrockModel)的基岩版模型进行加速.\n- ENABLED: 加速渲染将会对SBM的基岩版模型进行加速.",
   "acceleratedrendering.configuration.mods_compatibility.ftb_feature_status": "启用FTB Library兼容性",
   "acceleratedrendering.configuration.mods_compatibility.ftb_feature_status.tooltip": "- DISABLED: 禁止加速渲染对FTB Library驱动的UI界面(如FTB Quests)进行加速.\n- ENABLED: 加速渲染将会对FTB Library驱动的UI界面进行加速.",
+  "acceleratedrendering.configuration.mods_compatibility.sophisticated_feature_status": "启用精妙核心兼容",
+  "acceleratedrendering.configuration.mods_compatibility.sophisticated_feature_status.tooltip": "- DISABLED: 禁止加速渲染对精妙核心驱动的UI界面(如精妙存储)进行加速.\n- ENABLED: 加速渲染将会对精妙核心驱动的UI界面进行加速.",
   "acceleratedrendering.configuration.mods_compatibility.button": "配置"
 }

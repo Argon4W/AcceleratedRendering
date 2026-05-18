@@ -20,7 +20,7 @@ struct VaryingData {
     int     offset;
     int     sharing;
     int     mesh;
-    int     noCull;
+    int     shouldCull;
 };
 
 struct SharingData {
@@ -121,5 +121,5 @@ void main() {
     verticesOut[vertexOut].iris_entity_1    = verticesIn[reference].iris_entity_1;
 
     varyingsOut[varyingOut].offset          = offset;
-    varyingsOut[varyingOut].noCull          = varyingsIn[reference].noCull;
+    varyingsOut[varyingOut].shouldCull      = varyingsIn[reference].shouldCull;
 }

@@ -4,8 +4,8 @@ import com.github.argon4w.acceleratedrendering.compat.iris.interfaces.IIrisAccel
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.AcceleratedRingBuffers;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.AcceleratedBufferBuilder;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.draw.pools.IElementPool;
+import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.layers.LayerKey;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.layers.functions.ILayerFunction;
-import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.draw.indirect.IndirectElementBufferPool;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.StagingBufferPool;
 import com.github.argon4w.acceleratedrendering.core.buffers.memory.IMemoryInterface;
 import com.github.argon4w.acceleratedrendering.core.buffers.memory.VertexLayout;
@@ -13,7 +13,6 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.irisshaders.iris.uniforms.CapturedRenderingState;
 import net.irisshaders.iris.vertices.IrisVertexFormats;
-import net.minecraft.client.renderer.RenderType;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -43,7 +42,7 @@ public class AcceleratedBufferBuilderMixin implements IIrisAcceleratedBufferBuil
 			IElementPool				.IElementSegment	elementSegment,
 			AcceleratedRingBuffers		.Buffers			buffer,
 			ILayerFunction									layerFunction,
-			RenderType										renderType,
+			LayerKey										layerKey,
 			CallbackInfo									ci
 	) {
 		entityIdOffset	= layout.getElement(IrisVertexFormats.ENTITY_ID_ELEMENT);

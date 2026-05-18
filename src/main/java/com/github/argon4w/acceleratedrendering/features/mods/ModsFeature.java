@@ -8,12 +8,13 @@ import java.util.Deque;
 
 public class ModsFeature {
 
-	private static final Deque<FeatureStatus> VANILLA_ACCELERATION_CONTROLLER_STACK	= new ArrayDeque<>();
-	private static final Deque<FeatureStatus> EMF_ACCELERATION_CONTROLLER_STACK		= new ArrayDeque<>();
-	private static final Deque<FeatureStatus> GECKO_ACCELERATION_CONTROLLER_STACK	= new ArrayDeque<>();
-	private static final Deque<FeatureStatus> TLM_ACCELERATION_CONTROLLER_STACK		= new ArrayDeque<>();
-	private static final Deque<FeatureStatus> SBM_ACCELERATION_CONTROLLER_STACK		= new ArrayDeque<>();
-	private static final Deque<FeatureStatus> FTB_ACCELERATION_CONTROLLER_STACK		= new ArrayDeque<>();
+	private static final Deque<FeatureStatus> VANILLA_ACCELERATION_CONTROLLER_STACK			= new ArrayDeque<>();
+	private static final Deque<FeatureStatus> EMF_ACCELERATION_CONTROLLER_STACK				= new ArrayDeque<>();
+	private static final Deque<FeatureStatus> GECKO_ACCELERATION_CONTROLLER_STACK			= new ArrayDeque<>();
+	private static final Deque<FeatureStatus> TLM_ACCELERATION_CONTROLLER_STACK				= new ArrayDeque<>();
+	private static final Deque<FeatureStatus> SBM_ACCELERATION_CONTROLLER_STACK				= new ArrayDeque<>();
+	private static final Deque<FeatureStatus> FTB_ACCELERATION_CONTROLLER_STACK				= new ArrayDeque<>();
+	private static final Deque<FeatureStatus> SOPHISTICATED_ACCELERATION_CONTROLLER_STACK	= new ArrayDeque<>();
 
 	public static boolean isEnabled() {
 		return FeatureConfig.CONFIG.modsFeatureStatus.get() == FeatureStatus.ENABLED;
@@ -41,6 +42,10 @@ public class ModsFeature {
 
 	public static boolean shouldAccelerateFtb() {
 		return getFtbSetting() == FeatureStatus.ENABLED;
+	}
+
+	public static boolean shouldAccelerateSophisticated() {
+		return getSophisticatedSetting() == FeatureStatus.ENABLED;
 	}
 
 	public static void disableVanillaAcceleration() {
@@ -139,6 +144,22 @@ public class ModsFeature {
 		FTB_ACCELERATION_CONTROLLER_STACK.pop();
 	}
 
+	public static void disableSophisticatedAcceleration() {
+		SOPHISTICATED_ACCELERATION_CONTROLLER_STACK.push(FeatureStatus.DISABLED);
+	}
+
+	public static void forceEnableSophisticatedAcceleration() {
+		SOPHISTICATED_ACCELERATION_CONTROLLER_STACK.push(FeatureStatus.ENABLED);
+	}
+
+	public static void forceSetSophisticatedAcceleration(FeatureStatus status) {
+		SOPHISTICATED_ACCELERATION_CONTROLLER_STACK.push(status);
+	}
+
+	public static void resetSophisticatedAcceleration() {
+		SOPHISTICATED_ACCELERATION_CONTROLLER_STACK.pop();
+	}
+
 	public static FeatureStatus getVanillaSetting() {
 		return VANILLA_ACCELERATION_CONTROLLER_STACK.isEmpty() ? getDefaultVanillaSetting() : VANILLA_ACCELERATION_CONTROLLER_STACK.peek();
 	}
@@ -163,6 +184,10 @@ public class ModsFeature {
 		return FTB_ACCELERATION_CONTROLLER_STACK.isEmpty() ? getDefaultFtbSetting() : FTB_ACCELERATION_CONTROLLER_STACK.peek();
 	}
 
+	public static FeatureStatus getSophisticatedSetting() {
+		return SOPHISTICATED_ACCELERATION_CONTROLLER_STACK.isEmpty() ? getDefaultSophisticatedSetting() : SOPHISTICATED_ACCELERATION_CONTROLLER_STACK.peek();
+	}
+
 	public static FeatureStatus getDefaultVanillaSetting() {
 		return FeatureConfig.CONFIG.modsVanillaFeatureStatus.get();
 	}
@@ -185,5 +210,9 @@ public class ModsFeature {
 
 	public static FeatureStatus getDefaultFtbSetting() {
 		return FeatureConfig.CONFIG.modsFtbFeatureStatus.get();
+	}
+
+	public static FeatureStatus getDefaultSophisticatedSetting() {
+		return FeatureConfig.CONFIG.modsSophisticatedFeatureStatus.get();
 	}
 }
