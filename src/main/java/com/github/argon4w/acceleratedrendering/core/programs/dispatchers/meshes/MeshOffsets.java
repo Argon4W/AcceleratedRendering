@@ -11,21 +11,12 @@ public class MeshOffsets {
 	public static final int VERTEX_OFFSET	= 0;
 	public static final int VARYING_OFFSET	= 1;
 
-	private long[]	cache;
-	private int		count;
+	private final long[]	cache;
+	private final int		count;
 
-	public MeshOffsets() {
-		this.cache = null;
-		this.count = 0;
-	}
-
-	public void setup(int count) {
-		if (this.count >= count) {
-			return;
-		}
-
-		this.count = count;
+	public MeshOffsets(int count) {
 		this.cache = new long[count * 2];
+		this.count = count;
 	}
 
 	public void setupOffsets(AcceleratedBufferBuilder builder) {

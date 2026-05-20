@@ -1,5 +1,6 @@
 package com.github.argon4w.acceleratedrendering.core.programs.dispatchers.meshes;
 
+import com.github.argon4w.acceleratedrendering.core.CoreFeature;
 import com.github.argon4w.acceleratedrendering.core.backends.buffers.IServerBuffer;
 import com.github.argon4w.acceleratedrendering.core.backends.programs.ComputeProgram;
 import com.github.argon4w.acceleratedrendering.core.backends.programs.Uniform;
@@ -31,7 +32,7 @@ public class MeshUploadingProgramDispatcher {
 	private					int							lastBarriers;
 
 	public MeshUploadingProgramDispatcher() {
-		this.offsets = new MeshOffsets							();
+		this.offsets = new MeshOffsets							(CoreFeature.getPooledBatchingSize());
 		this.buffers = new Reference2ObjectLinkedOpenHashMap<>	();
 
 		this.lastBarriers = GL_SHADER_STORAGE_BARRIER_BIT;
@@ -43,8 +44,6 @@ public class MeshUploadingProgramDispatcher {
 		var transform = ringBuffer
 				.getEnvironment						()
 				.selectTransformProgramDispatcher	();
-
-		offsets.setup(ringBuffer.getSize());
 
 		for (var builder : builders) {
 			var vertexBuffer	= builder.getVertexBuffer	();
@@ -222,7 +221,7 @@ public class MeshUploadingProgramDispatcher {
 
 	public void clear() {
 		for (var buffer : buffers.values()) {
-			buffer.remove();
+			buffer.endUpload();
 		}
 	}
 
@@ -309,10 +308,10 @@ public class MeshUploadingProgramDispatcher {
 			meshUploads		.clear();
 		}
 
-		public void remove() {
-			sparseUploads	.remove();
-			denseUploads	.remove();
-			meshUploads		.remove();
+		public void endUpload() {
+			sparseUploads	.endUpload();
+			denseUploads	.endUpload();
+			meshUploads		.endUpload();
 		}
 	}
 }

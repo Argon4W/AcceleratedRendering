@@ -17,8 +17,8 @@ import com.mojang.blaze3d.vertex.*;
 import com.github.argon4w.acceleratedrendering.core.programs.overrides.ProgramOverride;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import net.minecraft.client.renderer.RenderType;
@@ -45,7 +45,7 @@ public class AcceleratedBufferBuilder extends DefaultedVertexConsumer implements
 	@Getter public								final	IMemoryInterface								varyingMesh;
 	@Getter public								final	IMemoryInterface								varyingShouldCull;
 
-	@Getter private								final	Long2ObjectMap<MeshUploaderPool.MeshUploader>	meshUploaders;
+	@Getter private								final	Int2ObjectMap<MeshUploaderPool.MeshUploader>	meshUploaders;
 	@Getter private								final	StagingBufferPool		.StagingBuffer			vertexBuffer;
 	@Getter private								final	StagingBufferPool		.StagingBuffer			varyingBuffer;
 	@Getter private								final	IElementPool			.IElementSegment		elementSegment;
@@ -101,7 +101,7 @@ public class AcceleratedBufferBuilder extends DefaultedVertexConsumer implements
 		this.varyingMesh				= new SimpleDynamicMemoryInterface(2L * 4L, this);
 		this.varyingShouldCull			= new SimpleDynamicMemoryInterface(3L * 4L, this);
 
-		this.meshUploaders				= new Long2ObjectOpenHashMap<>();
+		this.meshUploaders				= new Int2ObjectOpenHashMap<>();
 		this.index						= vertexBuffer.getIndex();
 		this.vertexBuffer				= vertexBuffer;
 		this.varyingBuffer				= varyingBuffer;
@@ -442,11 +442,11 @@ public class AcceleratedBufferBuilder extends DefaultedVertexConsumer implements
 		var meshUploader	= meshUploaders	.get	(meshId);
 
 		if (meshUploader == null) {
-			meshUploader = buffer	.getMeshUploader		();
-			meshUploader			.setIndex				(index);
-			meshUploader			.setOverride			(programOverride);
-			meshUploader			.setServerMesh			(mesh);
-			meshUploaders			.put					(meshId, meshUploader);
+			meshUploader = buffer	.getMeshUploader();
+			meshUploader			.setIndex		(index);
+			meshUploader			.setOverride	(programOverride);
+			meshUploader			.setServerMesh	(mesh);
+			meshUploaders			.put			(meshId, meshUploader);
 		}
 
 		elementSegment.count(mode.indexCount(meshSize));

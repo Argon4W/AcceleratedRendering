@@ -20,9 +20,9 @@ import org.lwjgl.system.MemoryUtil;
 import java.util.List;
 
 public record ServerMesh(
+		int				meshId,
 		int				size,
 		long			offset,
-		long			meshId,
 		boolean			forceDense,
 		IServerBuffer	meshBuffer
 ) implements IMesh {
@@ -50,7 +50,7 @@ public record ServerMesh(
 
 		public static final Builder													INSTANCE;
 		public static final Reference2ObjectMap<VertexLayout, List<IServerBuffer>>	BUFFERS;
-		public static		long													COUNTER;
+		public static		int														COUNTER;
 
 		static {
 			INSTANCE	= new Builder						();
@@ -136,9 +136,9 @@ public record ServerMesh(
 			builder.close();
 
 			mesh = new ServerMesh(
+					COUNTER ++,
 					vertexCount,
 					position / layout.getSize(),
-					COUNTER ++,
 					forceDense,
 					meshBuffer
 			);

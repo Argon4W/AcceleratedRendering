@@ -4,26 +4,27 @@ import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.Accelera
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.meshes.MeshUploaderPool.MeshUploader;
 import com.github.argon4w.acceleratedrendering.core.meshes.ServerMesh;
 import com.github.argon4w.acceleratedrendering.core.programs.overrides.ProgramOverride;
-import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-import it.unimi.dsi.fastutil.longs.LongSet;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.*;
 import lombok.Getter;
 
+import java.util.BitSet;
 import java.util.List;
 
 public class DenseUploads implements IMeshUploads {
 
 	@Getter
-	private final Long2ObjectMap<Group> groups;
-	private final LongSet				usages;
+	private final Int2ObjectMap<Group>	groups;
+	private final IntSet				usages;
 	private final int					count;
 
 	public DenseUploads(Buffers buffers) {
 		this.count	= buffers.getOverrideCount		();
-		this.groups	= new Long2ObjectOpenHashMap<>	();
-		this.usages	= new LongOpenHashSet			();
+		this.groups	= new Int2ObjectOpenHashMap<>	();
+		this.usages	= new IntOpenHashSet			();
 	}
 
 	@Override
@@ -46,7 +47,7 @@ public class DenseUploads implements IMeshUploads {
 		}
 	}
 
-	public void remove() {
+	public void endUpload() {
 		var each = groups.values().iterator();
 
 		while (each.hasNext()) {
@@ -58,16 +59,20 @@ public class DenseUploads implements IMeshUploads {
 				val.remove();
 			}
 		}
+
+		usages.clear();
 	}
 
 	public class Group {
 
-		@Getter private	final	ServerMesh	mesh;
-		@Getter private final	Upload[]	uploads;
-		private			final	long		meshId;
+		@Getter private	final ServerMesh	mesh;
+		@Getter private final Upload[]		uploads;
+		private			final BitSet		usages;
+		private			final int			meshId;
 
-		public Group(ServerMesh mesh, long meshId) {
+		public Group(ServerMesh mesh, int meshId) {
 			this.uploads	= new Upload[count];
+			this.usages		= new BitSet(count);
 			this.meshId		= meshId;
 			this.mesh		= mesh;
 
@@ -75,8 +80,8 @@ public class DenseUploads implements IMeshUploads {
 		}
 
 		public void add(MeshUploader uploader) {
+			var meshCount	= uploader.getMeshCount	();
 			var override	= uploader.getOverride	();
-			var count		= uploader.getMeshCount	();
 			var id			= override.overrideId	();
 
 			var upload = uploads[id];
@@ -85,32 +90,28 @@ public class DenseUploads implements IMeshUploads {
 				upload = new Upload(override, id);
 			}
 
-			upload.meshUploads.add(uploader);
-			upload.meshCounter	+=	count;
-			upload.meshFree		=	false;
+			this	.usages		.set(id);
+			upload	.meshUploads.add(uploader);
+			upload	.meshCounter += meshCount;
 		}
 
 		public void clear() {
 			for (var upload : uploads) {
 				if (upload != null) {
 					upload.meshUploads.clear();
-					upload.meshCounter	= 0;
+					upload.meshCounter = 0;
 				}
 			}
 		}
 
 		public void remove() {
 			for (var i = 0; i < count; i++) {
-				var upload = uploads[i];
-
-				if (upload != null) {
-					if (upload.meshFree) {
-						uploads[i] = null;
-					} else {
-						upload.meshFree = true;
-					}
+				if (!usages.get(i)) {
+					uploads[i] = null;
 				}
 			}
+
+			usages.clear();
 		}
 
 		@Getter
@@ -119,13 +120,11 @@ public class DenseUploads implements IMeshUploads {
 			private final	ProgramOverride		override;
 			private final	List<MeshUploader>	meshUploads;
 			private			int					meshCounter;
-			private			boolean				meshFree;
 
 			public Upload(ProgramOverride override, int id) {
 				this.override		= override;
 				this.meshUploads	= new ReferenceArrayList<>();
 				this.meshCounter	= 0;
-				this.meshFree		= true;
 
 				uploads[id] = this;
 			}

@@ -2,10 +2,10 @@ package com.github.argon4w.acceleratedrendering.core.programs.dispatchers.meshes
 
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.meshes.MeshUploaderPool.MeshUploader;
 import com.github.argon4w.acceleratedrendering.core.meshes.ServerMesh;
-import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-import it.unimi.dsi.fastutil.longs.LongSet;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import lombok.Getter;
 
@@ -14,12 +14,12 @@ import java.util.List;
 public class MeshUploads {
 
 	@Getter
-	private final Long2ObjectMap<Upload>	uploads;
-	private final LongSet					usages;
+	private final Int2ObjectMap<Upload>	uploads;
+	private final IntSet				usages;
 
 	public MeshUploads() {
-		this.uploads	= new Long2ObjectOpenHashMap<>	();
-		this.usages		= new LongOpenHashSet			();
+		this.uploads	= new Int2ObjectOpenHashMap<>	();
+		this.usages		= new IntOpenHashSet			();
 	}
 
 	public void add(MeshUploader uploader) {
@@ -45,11 +45,11 @@ public class MeshUploads {
 		}
 	}
 
-	public void remove() {
+	public void endUpload() {
 		var each = uploads.keySet().iterator();
 
 		while (each.hasNext()) {
-			if (!usages.contains(each.nextLong())) {
+			if (!usages.contains(each.nextInt())) {
 				each.remove();
 			}
 		}
@@ -64,12 +64,12 @@ public class MeshUploads {
 		private final	List<MeshUploader>	meshUploads;
 		private			int					meshCounter;
 
-		public Upload(ServerMesh mesh, long meshId) {
+		public Upload(ServerMesh mesh, int id) {
 			this.meshUploads	= new ReferenceArrayList<>();
 			this.meshCounter	= 0;
 			this.mesh			= mesh;
 
-			uploads.put(meshId, this);
+			uploads.put(id, this);
 		}
 	}
 }

@@ -5,6 +5,7 @@ import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.me
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import lombok.Getter;
 
+import java.util.BitSet;
 import java.util.List;
 
 public class SparseUploads implements IMeshUploads {
@@ -12,11 +13,13 @@ public class SparseUploads implements IMeshUploads {
 	@Getter
 	private final Upload[]		uploads;
 	private final MeshOffsets	offsets;
+	private final BitSet		usages;
 	private final int			count;
 
 	public SparseUploads(Buffers buffers, MeshOffsets offsets) {
 		this.offsets	= offsets;
 		this.count		= buffers.getSize();
+		this.usages		= new BitSet(this.count);
 		this.uploads	= new Upload[this.count];
 	}
 
@@ -32,6 +35,7 @@ public class SparseUploads implements IMeshUploads {
 
 		offsets	.reserve(uploader);
 		upload	.add	(uploader);
+		usages	.set	(index);
 	}
 
 	public void clear() {
@@ -42,29 +46,23 @@ public class SparseUploads implements IMeshUploads {
 		}
 	}
 
-	public void remove() {
+	public void endUpload() {
 		for (var i = 0; i < count; i++) {
-			var upload = uploads[i];
-
-			if (upload != null) {
-				if (upload.uploadFree) {
-					uploads[i] = null;
-				} else {
-					upload.uploadFree = true;
-				}
+			if (!usages.get(i)) {
+				uploads[i] = null;
 			}
 		}
+
+		usages.clear();
 	}
 
 	@Getter
 	public class Upload {
 
-		private	final	List<MeshUploader>	uploaders;
-		private			boolean				uploadFree;
+		private	final List<MeshUploader> uploaders;
 
 		public Upload(int index) {
-			this.uploaders	= new ReferenceArrayList<>();
-			this.uploadFree	= true;
+			this.uploaders = new ReferenceArrayList<>();
 
 			uploads[index] = this;
 		}
