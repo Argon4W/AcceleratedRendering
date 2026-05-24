@@ -46,7 +46,7 @@ public class HumanoidArmorLayerMixin {
 					poseStack,
 					bufferSource,
 					packedLight,
-					trim,
+					armorTrim,
 					model,
 					innerTexture
 			);
