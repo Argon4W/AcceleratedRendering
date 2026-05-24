@@ -1,6 +1,7 @@
 package com.github.argon4w.acceleratedrendering.compat.vanilla.mixins;
 
 import com.github.argon4w.acceleratedrendering.core.CoreFeature;
+import com.github.argon4w.acceleratedrendering.features.mods.ModsFeature;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -36,6 +37,22 @@ public class HumanoidArmorLayerMixin {
 			boolean				innerTexture,
 			Operation<Void>		original
 	) {
+		if (		!ModsFeature.isEnabled			()
+				||	!ModsFeature.shouldFixVanilla	()
+		) {
+			original.call(
+					instance,
+					armorMaterial,
+					poseStack,
+					bufferSource,
+					packedLight,
+					trim,
+					model,
+					innerTexture
+			);
+			return;
+		}
+
 		CoreFeature.forceIncrementDefaultLayer();
 
 		original.call(

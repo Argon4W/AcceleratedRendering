@@ -8,6 +8,7 @@ import java.util.Deque;
 
 public class ModsFeature {
 
+	private static final Deque<FeatureStatus> VANILLA_FIX_CONTROLLER_STACK					= new ArrayDeque<>();
 	private static final Deque<FeatureStatus> VANILLA_ACCELERATION_CONTROLLER_STACK			= new ArrayDeque<>();
 	private static final Deque<FeatureStatus> EMF_ACCELERATION_CONTROLLER_STACK				= new ArrayDeque<>();
 	private static final Deque<FeatureStatus> GECKO_ACCELERATION_CONTROLLER_STACK			= new ArrayDeque<>();
@@ -18,6 +19,10 @@ public class ModsFeature {
 
 	public static boolean isEnabled() {
 		return FeatureConfig.CONFIG.modsFeatureStatus.get() == FeatureStatus.ENABLED;
+	}
+
+	public static boolean shouldFixVanilla() {
+		return getVanillaFixSetting() == FeatureStatus.ENABLED;
 	}
 
 	public static boolean shouldAccelerateVanilla() {
@@ -46,6 +51,22 @@ public class ModsFeature {
 
 	public static boolean shouldAccelerateSophisticated() {
 		return getSophisticatedSetting() == FeatureStatus.ENABLED;
+	}
+
+	public static void disableVanillaFix() {
+		VANILLA_FIX_CONTROLLER_STACK.push(FeatureStatus.DISABLED);
+	}
+
+	public static void forceEnableVanillaFix() {
+		VANILLA_FIX_CONTROLLER_STACK.push(FeatureStatus.ENABLED);
+	}
+
+	public static void forceSetVanillaFix(FeatureStatus status) {
+		VANILLA_FIX_CONTROLLER_STACK.push(status);
+	}
+
+	public static void resetVanillaFix() {
+		VANILLA_FIX_CONTROLLER_STACK.pop();
 	}
 
 	public static void disableVanillaAcceleration() {
@@ -160,6 +181,10 @@ public class ModsFeature {
 		SOPHISTICATED_ACCELERATION_CONTROLLER_STACK.pop();
 	}
 
+	public static FeatureStatus getVanillaFixSetting() {
+		return VANILLA_FIX_CONTROLLER_STACK.isEmpty() ? getDefaultVanillaFixSetting() : VANILLA_FIX_CONTROLLER_STACK.peek();
+	}
+
 	public static FeatureStatus getVanillaSetting() {
 		return VANILLA_ACCELERATION_CONTROLLER_STACK.isEmpty() ? getDefaultVanillaSetting() : VANILLA_ACCELERATION_CONTROLLER_STACK.peek();
 	}
@@ -186,6 +211,10 @@ public class ModsFeature {
 
 	public static FeatureStatus getSophisticatedSetting() {
 		return SOPHISTICATED_ACCELERATION_CONTROLLER_STACK.isEmpty() ? getDefaultSophisticatedSetting() : SOPHISTICATED_ACCELERATION_CONTROLLER_STACK.peek();
+	}
+
+	public static FeatureStatus getDefaultVanillaFixSetting() {
+		return FeatureConfig.CONFIG.modsVanillaFixFeatureStatus.get();
 	}
 
 	public static FeatureStatus getDefaultVanillaSetting() {

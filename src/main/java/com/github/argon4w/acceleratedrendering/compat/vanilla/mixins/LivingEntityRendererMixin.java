@@ -1,6 +1,7 @@
 package com.github.argon4w.acceleratedrendering.compat.vanilla.mixins;
 
 import com.github.argon4w.acceleratedrendering.core.CoreFeature;
+import com.github.argon4w.acceleratedrendering.features.mods.ModsFeature;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Share;
@@ -59,6 +60,25 @@ public class LivingEntityRendererMixin {
 			Operation<Void>				original,
 			@Share("layer") LocalIntRef	layer
 	) {
+		if (		!ModsFeature.isEnabled			()
+				||	!ModsFeature.shouldFixVanilla	()
+		) {
+			original.call(
+					instance,
+					poseStack,
+					bufferSource,
+					packedLight,
+					entity,
+					limbSwing,
+					limbSwingAmount,
+					partialTick,
+					ageInTicks,
+					netHeadYaw,
+					headPitch
+			);
+			return;
+		}
+
 		CoreFeature.forceSetDefaultLayer(layer.get());
 
 		original.call(

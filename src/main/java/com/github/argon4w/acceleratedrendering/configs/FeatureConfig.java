@@ -5,7 +5,6 @@ import com.github.argon4w.acceleratedrendering.core.backends.states.buffers.cach
 import com.github.argon4w.acceleratedrendering.core.backends.states.scissors.ScissorBindingStateType;
 import com.github.argon4w.acceleratedrendering.core.backends.states.viewports.ViewportBindingStateType;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.draw.DrawMethodType;
-import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.draw.IDrawMethod;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.layers.storage.LayerStorageType;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.meshes.MeshInfoCacheType;
 import com.github.argon4w.acceleratedrendering.core.meshes.MeshType;
@@ -99,6 +98,7 @@ public class FeatureConfig {
 	public			final	ForgeConfigSpec.ConfigValue<List<? extends String>>			curiosItemFilterValues;
 
 	public			final	ForgeConfigSpec.ConfigValue<FeatureStatus>					modsFeatureStatus;
+	public			final	ForgeConfigSpec.ConfigValue<FeatureStatus>					modsVanillaFixFeatureStatus;
 	public			final	ForgeConfigSpec.ConfigValue<FeatureStatus>					modsVanillaFeatureStatus;
 	public			final	ForgeConfigSpec.ConfigValue<FeatureStatus>					modsEmfFeatureStatus;
 	public			final	ForgeConfigSpec.ConfigValue<FeatureStatus>					modsGeckoFeatureStatus;
@@ -131,33 +131,33 @@ public class FeatureConfig {
 				.comment				("Count of buffer sets that holds data for in-flight frame rendering.")
 				.comment				("Changing this value may affects your FPS. Smaller value means less in-flight frames, while larger values means more in-flight frames. More in-flight frames means more FPS but more VRAM.")
 				.translation			("acceleratedrendering.configuration.core_settings.pooled_ring_buffer_size")
-				.defineInRange			("pooled_ring_buffer_size",				8,	1,	Integer.MAX_VALUE);
+				.defineInRange			("pooled_ring_buffer_size",				8,		1,	Integer.MAX_VALUE);
 
 		corePooledBatchingSize							= builder
 				.worldRestart			()
 				.comment				("Count of batches of RenderTypes that is allowed in a draw call.")
 				.comment				("Changing this value may affects your FPS. Smaller value means less batches allowed in a draw call, while larger values means more batches. More batches means more FPS but more VRAM and more CPU pressure on handling RenderTypes.")
 				.translation			("acceleratedrendering.configuration.core_settings.pooled_batching_size")
-				.defineInRange			("pooled_batching_size",				32,	1,	Integer.MAX_VALUE);
+				.defineInRange			("pooled_batching_size",				128,	1,	Integer.MAX_VALUE);
 
 		coreCachedImageSize								= builder
 				.comment				("Count of images that cached for static mesh culling.")
 				.comment				("Changing this value may affects your FPS. Smaller value means less images allowed to be cached, while larger means more cached images. More cached images means more FPS but more RAM pressure.")
 				.translation			("acceleratedrendering.configuration.core_settings.cached_image_size")
-				.defineInRange			("cached_image_size",					32,	1,	Integer.MAX_VALUE);
+				.defineInRange			("cached_image_size",					32,		1,	Integer.MAX_VALUE);
 
 		coreDynamicUVResolution							= builder
 				.comment				("Resolution of UV scrolling in caching dynamic render types.")
 				.comment				("Changing this value may affects your visual effects and VRAM usage. Smaller value means lower resolution in UV scrolling and less cached render types, while larger means higher resolution and more cached render types. Higher resolution means smoother animations on charged creepers and breezes but more VRAM usage.")
 				.translation			("acceleratedrendering.configuration.core_settings.dynamic_uv_resolution")
-				.defineInRange			("dynamic_uv_resolution",				64,	1,	Integer.MAX_VALUE);
+				.defineInRange			("dynamic_uv_resolution",				64,		1,	Integer.MAX_VALUE);
 
 		coreDrawMethodType								= builder
 				.comment				("- INDIRECT: Indices of vertices will be generated automatically every draw call, which allows advanced orientation culling to be applied before the actual draw call. But it could be slightly slower when there are too many draw calls present in a frame.")
 				.comment				("- BASEVERTEX: Indices of vertices will be cached across the draw calls and frames, which will be faster when there are too many draw calls present in a frame. But orientation culling will be disabled when using this method.")
 				.translation			("acceleratedrendering.configuration.core_settings.draw_method_type")
 				.worldRestart			()
-				.defineEnum				("draw_method_type",					DrawMethodType.INDIRECT);
+				.defineEnum				("draw_method_type",					DrawMethodType.BASEVERTEX);
 
 		coreMeshCollectorType							= builder
 				.comment				("- SIMPLE: All faces including invisible faces of the model will be included in the final mesh of the model. It might be slower when rendering some models but it allows same models with different textures to be merged more effectively.")
@@ -624,6 +624,12 @@ public class FeatureConfig {
 				.translation			("acceleratedrendering.configuration.mods_compatibility.feature_status")
 				.defineEnum				("feature_status",						FeatureStatus.ENABLED);
 
+		modsVanillaFixFeatureStatus						= builder
+				.comment				("- DISABLED: Fixes for rendering order of armor trims and render layers in Vanilla Minecraft will be disabled, which is faster but cause slight visual inconsistency when rendering those features.")
+				.comment				("- ENABLED: Fixes for rendering order of armor trims and render layers in Vanilla Minecraft will be enabled, which is slower but has consistent and correct rendering order when rendering those features.")
+				.translation			("acceleratedrendering.configuration.mods_compatibility.vanilla_fix_feature_status")
+				.defineEnum				("vanilla_fix_feature_status",			FeatureStatus.ENABLED);
+
 		modsVanillaFeatureStatus						= builder
 				.comment				("- DISABLED: Accelerations of ModelPart models of Vanilla Minecraft will be disabled.")
 				.comment				("- ENABLED: Accelerations of ModelPart models of Vanilla Minecraft will be enabled.")
@@ -664,7 +670,7 @@ public class FeatureConfig {
 				.comment				("- DISABLED: Accelerations of UI driven by Sophisticated Core will be disabled.")
 				.comment				("- ENABLED: Accelerations of UI driven by Sophisticated Core will be enabled.")
 				.translation			("acceleratedrendering.configuration.mods_compatibility.sophisticated_feature_status")
-				.defineEnum				("sophisticated_feature_status",					FeatureStatus.ENABLED);
+				.defineEnum				("sophisticated_feature_status",		FeatureStatus.ENABLED);
 
 		builder.pop();
 	}
