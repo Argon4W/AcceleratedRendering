@@ -3,7 +3,7 @@
 - 支持了使用Java 17进行启动.
 
 ## 注意事项
-- 1.20.1移植的游戏内配置节目需要安装Configured以启用.
+- 1.20.1移植的游戏内配置界面需要安装Configured以启用.
 - 1.20.1移植的GeckoLib加速需要安装MixinBooster以启用.
 - 1.20.1移植的车万女仆加速需要安装MixinBooster以启用.
 
