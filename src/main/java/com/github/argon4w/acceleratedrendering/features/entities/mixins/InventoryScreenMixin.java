@@ -32,7 +32,6 @@ public class InventoryScreenMixin {
 				||	!AcceleratedEntityRenderingFeature				.isEnabled						()
 				||	!AcceleratedEntityRenderingFeature				.shouldUseAcceleratedPipeline	()
 				||	!AcceleratedEntityRenderingFeature				.shouldAccelerateInGui			()
-				||	!CoreFeature									.isLoaded						()
 		) {
 			operation.call(
 					entityRenderDispatcher,
