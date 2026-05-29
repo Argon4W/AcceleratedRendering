@@ -37,7 +37,8 @@ public class HumanoidArmorLayerMixin {
 			boolean				innerTexture,
 			Operation<Void>		original
 	) {
-		if (		!ModsFeature.isEnabled			()
+		if (		!CoreFeature.isLoaded			()
+				||	!ModsFeature.isEnabled			()
 				||	!ModsFeature.shouldFixVanilla	()
 		) {
 			original.call(

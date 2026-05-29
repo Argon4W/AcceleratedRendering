@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.ModifyConstant;
 @Mixin(Window.class)
 public class WindowMixin {
 
-	@ModifyConstant(
+	/* @ModifyConstant(
 			method		= "<init>",
 			constant	= @Constant(
 					intValue	= 3,
@@ -28,5 +28,5 @@ public class WindowMixin {
 	)
 	public int modifyGlMinorVersion(int value) {
 		return 6;
-	}
+	} */
 }

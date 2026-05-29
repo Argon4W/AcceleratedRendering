@@ -47,7 +47,11 @@ public class GameRendererMixin {
 			float			partialTicks,
 			CallbackInfo	ci
 	) {
-		CoreFeature						.resetRenderingHand	();
+		CoreFeature.resetRenderingHand();
+
+		if (!CoreFeature.isLoaded()) {
+			return;
+		}
 
 		CoreStates						.recordBuffers		();
 		CoreBuffers.ENTITY				.prepareBuffers		();

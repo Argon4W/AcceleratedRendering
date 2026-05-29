@@ -102,7 +102,8 @@ public class ModelPartMixin implements IAcceleratedRenderer<Void> {
 	) {
 		var extension = pBuffer.getAccelerated();
 
-		if (			AcceleratedEntityRenderingFeature	.isEnabled						()
+		if (			CoreFeature							.isLoaded						()
+				&&		AcceleratedEntityRenderingFeature	.isEnabled						()
 				&&		AcceleratedEntityRenderingFeature	.shouldUseAcceleratedPipeline	()
 				&&		ModsFeature							.isEnabled						()
 				&&		ModsFeature							.shouldAccelerateVanilla		()

@@ -2,6 +2,7 @@ package com.github.argon4w.acceleratedrendering.core.programs;
 
 import com.github.argon4w.acceleratedrendering.core.backends.programs.ComputeProgram;
 import com.github.argon4w.acceleratedrendering.core.backends.programs.ComputeShader;
+import com.github.argon4w.acceleratedrendering.core.utils.AvailabilityUtils;
 import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.CrashReport;
@@ -61,6 +62,10 @@ public class ComputeShaderProgramLoader extends SimplePreparableReloadListener<M
 			ProfilerFiller						profiler
 	) {
 		RenderSystem.recordRenderCall(() -> {
+			if (!AvailabilityUtils.isAvailable()) {
+				return;
+			}
+
 			try {
 				for (var key : shaderSources.keySet()) {
 					var source			= shaderSources	.get(key);

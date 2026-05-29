@@ -27,7 +27,8 @@ public class InventoryScreenMixin {
 			GuiGraphics				guiGraphics,
 			Operation<Void>			operation
 	) {
-		if (		!guiGraphics.bufferSource().getAcceleratable()	.isBufferSourceAcceleratable	()
+		if (		!CoreFeature									.isLoaded						()
+				||	!guiGraphics.bufferSource().getAcceleratable()	.isBufferSourceAcceleratable	()
 				||	!AcceleratedEntityRenderingFeature				.isEnabled						()
 				||	!AcceleratedEntityRenderingFeature				.shouldUseAcceleratedPipeline	()
 				||	!AcceleratedEntityRenderingFeature				.shouldAccelerateInGui			()

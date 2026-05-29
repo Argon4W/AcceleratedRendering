@@ -64,7 +64,8 @@ public class BakedGlyphMixin implements IAcceleratedRenderer<BakedGlyph.Effect> 
 	) {
 		var extension = pBuffer.getAccelerated();
 
-		if (			AcceleratedTextRenderingFeature	.isEnabled						()
+		if (			CoreFeature						.isLoaded						()
+				&&		AcceleratedTextRenderingFeature	.isEnabled						()
 				&&		AcceleratedTextRenderingFeature	.shouldUseAcceleratedPipeline	()
 				&&	(	CoreFeature						.isRenderingLevel				()
 				||		CoreFeature						.isRenderingGui					())
@@ -104,7 +105,8 @@ public class BakedGlyphMixin implements IAcceleratedRenderer<BakedGlyph.Effect> 
 	) {
 		var extension = buffer.getAccelerated();
 
-		if (			AcceleratedTextRenderingFeature	.isEnabled						()
+		if (			CoreFeature						.isLoaded						()
+				&&		AcceleratedTextRenderingFeature	.isEnabled						()
 				&&		AcceleratedTextRenderingFeature	.shouldUseAcceleratedPipeline	()
 				&&	(	CoreFeature						.isRenderingLevel				()
 				||		CoreFeature						.isRenderingGui					())

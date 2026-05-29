@@ -1,5 +1,6 @@
 package com.github.argon4w.acceleratedrendering.features.items.mixins.compatibility;
 
+import com.github.argon4w.acceleratedrendering.core.CoreFeature;
 import com.github.argon4w.acceleratedrendering.features.entities.AcceleratedEntityRenderingFeature;
 import com.github.argon4w.acceleratedrendering.features.items.AcceleratedItemRenderingFeature;
 import com.github.argon4w.acceleratedrendering.features.text.AcceleratedTextRenderingFeature;
@@ -27,6 +28,10 @@ public class ClientHooksMixin {
 			Event				event,
 			Operation<Boolean>	original
 	) {
+		if (!CoreFeature.isLoaded()) {
+			return original.call(instance, event);
+		}
+
 		AcceleratedEntityRenderingFeature	.useVanillaPipeline	();
 		AcceleratedItemRenderingFeature		.useVanillaPipeline	();
 		AcceleratedTextRenderingFeature		.useVanillaPipeline	();

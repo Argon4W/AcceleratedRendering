@@ -1,5 +1,6 @@
 package com.github.argon4w.acceleratedrendering.compat.sophisticated.mixins;
 
+import com.github.argon4w.acceleratedrendering.core.CoreFeature;
 import com.github.argon4w.acceleratedrendering.features.items.AcceleratedItemRenderingFeature;
 import com.github.argon4w.acceleratedrendering.features.items.gui.GuiBatchingController;
 import com.github.argon4w.acceleratedrendering.features.mods.ModsFeature;
@@ -27,7 +28,8 @@ public class StorageScreenBaseMixin {
 			float			partialTick,
 			CallbackInfo	ci
 	) {
-		if (		ModsFeature.isEnabled						()
+		if (		CoreFeature.isLoaded						()
+				&&	ModsFeature.isEnabled						()
 				&&	ModsFeature.shouldAccelerateSophisticated	()
 		) {
 			GuiBatchingController.INSTANCE.startBatching(guiGraphics);
@@ -49,7 +51,8 @@ public class StorageScreenBaseMixin {
 			float			partialTick,
 			CallbackInfo	ci
 	) {
-		if (		ModsFeature						.isEnabled						()
+		if (		CoreFeature						.isLoaded						()
+				&&	ModsFeature						.isEnabled						()
 				&&	ModsFeature						.shouldAccelerateSophisticated	()
 				&& !AcceleratedItemRenderingFeature	.shouldMergeGuiItemBatches		()
 		) {
@@ -72,7 +75,8 @@ public class StorageScreenBaseMixin {
 			float			partialTick,
 			CallbackInfo	ci
 	) {
-		if (		ModsFeature						.isEnabled						()
+		if (		CoreFeature						.isLoaded						()
+				&&	ModsFeature						.isEnabled						()
 				&&	ModsFeature						.shouldAccelerateSophisticated	()
 				&& !AcceleratedItemRenderingFeature	.shouldMergeGuiItemBatches		()
 		) {
@@ -95,7 +99,8 @@ public class StorageScreenBaseMixin {
 			float			partialTick,
 			CallbackInfo	ci
 	) {
-		if (		ModsFeature.isEnabled						()
+		if (		CoreFeature.isLoaded						()
+				&&	ModsFeature.isEnabled						()
 				&&	ModsFeature.shouldAccelerateSophisticated	()
 		) {
 			GuiBatchingController.INSTANCE.flushBatching(guiGraphics);

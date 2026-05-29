@@ -82,6 +82,10 @@ public class LevelRendererMixin {
 			Matrix4f		projectionMatrix,
 			CallbackInfo	ci
 	) {
+		if (!CoreFeature.isLoaded()) {
+			return;
+		}
+
 		CoreStates							.recordBuffers	();
 		CoreBuffers.POS_TEX_COLOR_OUTLINE	.prepareBuffers	();
 		CoreStates							.restoreBuffers	();
@@ -98,6 +102,10 @@ public class LevelRendererMixin {
 			)
 	)
 	public void drawCoreBuffers(MultiBufferSource.BufferSource instance, Operation<Void> original) {
+		if (!CoreFeature.isLoaded()) {
+			return;
+		}
+
 		CoreStates						.recordBuffers	();
 		CoreBuffers.ENTITY				.prepareBuffers	();
 		CoreBuffers.BLOCK				.prepareBuffers	();
@@ -132,6 +140,10 @@ public class LevelRendererMixin {
 			at		= @At("TAIL")
 	)
 	public void deleteBuffers(CallbackInfo ci) {
+		if (!CoreFeature.isLoaded()) {
+			return;
+		}
+
 		CoreBuffers.ENTITY				.delete();
 		CoreBuffers.BLOCK				.delete();
 		CoreBuffers.POS					.delete();

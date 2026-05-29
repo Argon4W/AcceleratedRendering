@@ -5,7 +5,10 @@
   "compatibilityLevel": "JAVA_17",
   "client": [
     "EMFModelPartMixin",
-    "EMFModelPartWithStateMixin"
+    "EMFModelPartVanillaAccessor",
+    "EMFModelPartVanillaMixin",
+    "EMFModelPartWithStateMixin",
+    "ModelPartMixin"
   ],
   "injectors": {
     "defaultRequire": 1

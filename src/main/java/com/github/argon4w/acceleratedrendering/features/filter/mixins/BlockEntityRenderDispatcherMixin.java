@@ -1,5 +1,6 @@
 package com.github.argon4w.acceleratedrendering.features.filter.mixins;
 
+import com.github.argon4w.acceleratedrendering.core.CoreFeature;
 import com.github.argon4w.acceleratedrendering.features.entities.AcceleratedEntityRenderingFeature;
 import com.github.argon4w.acceleratedrendering.features.filter.FilterFeature;
 import com.github.argon4w.acceleratedrendering.features.items.AcceleratedItemRenderingFeature;
@@ -26,9 +27,10 @@ public class BlockEntityRenderDispatcherMixin {
 			Operation<Void>	original,
 			BlockEntity		blockEntity
 	) {
-		var pass =	!	FilterFeature.isEnabled					()
-				||	!	FilterFeature.shouldFilterBlockEntities	()
-				||		FilterFeature.testBlockEntity			(blockEntity);
+		var pass =	!	CoreFeature		.isLoaded					()
+				||	!	FilterFeature	.isEnabled					()
+				||	!	FilterFeature	.shouldFilterBlockEntities	()
+				||		FilterFeature	.testBlockEntity			(blockEntity);
 
 		if (!pass) {
 			AcceleratedEntityRenderingFeature	.useVanillaPipeline();

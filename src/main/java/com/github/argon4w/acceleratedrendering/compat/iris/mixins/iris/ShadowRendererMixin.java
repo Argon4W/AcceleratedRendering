@@ -2,6 +2,7 @@ package com.github.argon4w.acceleratedrendering.compat.iris.mixins.iris;
 
 import com.github.argon4w.acceleratedrendering.compat.iris.IrisCompatBuffers;
 import com.github.argon4w.acceleratedrendering.compat.iris.IrisCompatBuffersProvider;
+import com.github.argon4w.acceleratedrendering.core.CoreFeature;
 import com.github.argon4w.acceleratedrendering.core.CoreStates;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.BufferSourceExtension;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.layers.LayerDrawType;
@@ -68,6 +69,10 @@ public class ShadowRendererMixin {
 			Camera					playerCamera,
 			CallbackInfo			ci
 	) {
+		if (!CoreFeature.isLoaded()) {
+			return;
+		}
+
 		CoreStates								.recordBuffers	();
 		IrisCompatBuffers.BLOCK_SHADOW			.prepareBuffers	();
 		IrisCompatBuffers.ENTITY_SHADOW			.prepareBuffers	();

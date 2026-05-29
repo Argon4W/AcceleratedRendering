@@ -6,8 +6,8 @@ import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.VertexConsumerExtension;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.renderers.IAcceleratedRenderer;
 import com.github.argon4w.acceleratedrendering.core.meshes.IMesh;
-import com.github.argon4w.acceleratedrendering.core.meshes.collectors.CulledMeshCollector;
 import com.github.argon4w.acceleratedrendering.core.meshes.data.MeshData;
+import com.github.argon4w.acceleratedrendering.features.emf.IEMFHideable;
 import com.github.argon4w.acceleratedrendering.features.emf.IEMFModelVariant;
 import com.github.argon4w.acceleratedrendering.features.entities.AcceleratedEntityRenderingFeature;
 import com.github.argon4w.acceleratedrendering.features.modelparts.mixins.ModelPartMixin;
@@ -61,7 +61,8 @@ public class EMFModelPartMixin extends ModelPartMixin implements IEMFModelVarian
 	) {
 		var extension = buffer.getAccelerated();
 
-		if (			AcceleratedEntityRenderingFeature	.isEnabled						()
+		if (			CoreFeature							.isLoaded						()
+				&&		AcceleratedEntityRenderingFeature	.isEnabled						()
 				&&		AcceleratedEntityRenderingFeature	.shouldUseAcceleratedPipeline	()
 				&&		ModsFeature							.isEnabled						()
 				&&		ModsFeature							.shouldAccelerateEmf			()
@@ -106,7 +107,8 @@ public class EMFModelPartMixin extends ModelPartMixin implements IEMFModelVarian
 	) {
 		var extension = pBuffer.getAccelerated();
 
-		if (			AcceleratedEntityRenderingFeature	.isEnabled						()
+		if (			CoreFeature							.isLoaded						()
+				&&		AcceleratedEntityRenderingFeature	.isEnabled						()
 				&&		AcceleratedEntityRenderingFeature	.shouldUseAcceleratedPipeline	()
 				&&		ModsFeature							.isEnabled						()
 				&&		ModsFeature							.shouldAccelerateEmf			()
@@ -254,6 +256,10 @@ public class EMFModelPartMixin extends ModelPartMixin implements IEMFModelVarian
 		if (		modelPart.cubes		.isEmpty()
 				&&	modelPart.children	.isEmpty()
 		) {
+			return;
+		}
+
+		if (((IEMFHideable) (Object) modelPart).isHidden()) {
 			return;
 		}
 

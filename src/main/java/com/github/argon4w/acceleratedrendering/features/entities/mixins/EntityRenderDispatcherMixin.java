@@ -51,7 +51,8 @@ public class EntityRenderDispatcherMixin {
 	) {
 		var extension = pVertexConsumer.getAccelerated();
 
-		if (		CoreFeature							.isRenderingLevel				()
+		if (		CoreFeature							.isLoaded						()
+				&&	CoreFeature							.isRenderingLevel				()
 				&&	AcceleratedEntityRenderingFeature	.isEnabled						()
 				&&	AcceleratedEntityRenderingFeature	.shouldUseAcceleratedPipeline	()
 				&&	extension							.isAccelerated					()

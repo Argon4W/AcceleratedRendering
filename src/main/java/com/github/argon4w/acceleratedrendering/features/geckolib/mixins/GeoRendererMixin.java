@@ -47,7 +47,8 @@ public interface GeoRendererMixin {
 	) {
 		var extension = buffer.getAccelerated();
 
-		if (			AcceleratedEntityRenderingFeature	.isEnabled						()
+		if (			CoreFeature							.isLoaded						()
+				&&		AcceleratedEntityRenderingFeature	.isEnabled						()
 				&&		AcceleratedEntityRenderingFeature	.shouldUseAcceleratedPipeline	()
 				&&		ModsFeature							.isEnabled						()
 				&&		ModsFeature							.shouldAccelerateGecko			()

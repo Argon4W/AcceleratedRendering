@@ -34,7 +34,10 @@ public abstract class FontMixin {
 			int					packedLight,
 			Operation<Integer>	original
 	) {
-		if (!CoreFeature.isGuiBatching()) {
+		if (		!	CoreFeature.isLoaded				()
+				||	!	CoreFeature.isGuiBatching			()
+				||		CoreFeature.shouldByPassGuiBatching	()
+		) {
 			return original.call(
 					textString,
 					textX,
@@ -86,7 +89,10 @@ public abstract class FontMixin {
 			boolean				bidirectional,
 			Operation<Integer>	original
 	) {
-		if (!CoreFeature.isGuiBatching()) {
+		if (		!	CoreFeature.isLoaded				()
+				||	!	CoreFeature.isGuiBatching			()
+				||		CoreFeature.shouldByPassGuiBatching	()
+		) {
 			return original.call(
 					textString,
 					textX,
@@ -138,7 +144,10 @@ public abstract class FontMixin {
 			int					packedLight,
 			Operation<Integer>	original
 	) {
-		if (!CoreFeature.isGuiBatching()) {
+		if (		!	CoreFeature.isLoaded				()
+				||	!	CoreFeature.isGuiBatching			()
+				||		CoreFeature.shouldByPassGuiBatching	()
+		) {
 			return original.call(
 					textComponent,
 					textX,
@@ -187,7 +196,10 @@ public abstract class FontMixin {
 			int						packedLight,
 			Operation<Integer>		original
 	) {
-		if (!CoreFeature.isGuiBatching()) {
+		if (		!	CoreFeature.isLoaded				()
+				||	!	CoreFeature.isGuiBatching			()
+				||		CoreFeature.shouldByPassGuiBatching	()
+		) {
 			return original.call(
 					textSequence,
 					textX,
@@ -234,7 +246,10 @@ public abstract class FontMixin {
 			int						packedLight,
 			Operation<Integer>		original
 	) {
-		if (!CoreFeature.isGuiBatching()) {
+		if (		!	CoreFeature.isLoaded				()
+				||	!	CoreFeature.isGuiBatching			()
+				||		CoreFeature.shouldByPassGuiBatching	()
+		) {
 			original.call(
 					text,
 					textX,

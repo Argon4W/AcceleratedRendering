@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.github.argon4w.acceleratedrendering.features.create.mixins",
+  "compatibilityLevel": "JAVA_17",
+  "client": [
+    "PartialItemModelRendererMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

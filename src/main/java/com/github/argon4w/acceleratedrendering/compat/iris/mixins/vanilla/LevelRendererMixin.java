@@ -2,6 +2,7 @@ package com.github.argon4w.acceleratedrendering.compat.iris.mixins.vanilla;
 
 import com.github.argon4w.acceleratedrendering.compat.iris.IrisCompatBuffers;
 import com.github.argon4w.acceleratedrendering.core.CoreBuffers;
+import com.github.argon4w.acceleratedrendering.core.CoreFeature;
 import com.github.argon4w.acceleratedrendering.core.CoreStates;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.layers.LayerDrawType;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -43,6 +44,10 @@ public class LevelRendererMixin {
 			Matrix4f		projectionMatrix,
 			CallbackInfo	ci
 	) {
+		if (!CoreFeature.isLoaded()) {
+			return;
+		}
+
 		CoreStates						.recordBuffers	();
 		CoreBuffers.ENTITY				.prepareBuffers	();
 		CoreBuffers.BLOCK				.prepareBuffers	();
@@ -89,6 +94,10 @@ public class LevelRendererMixin {
 			Matrix4f		projectionMatrix,
 			CallbackInfo	ci
 	) {
+		if (!CoreFeature.isLoaded()) {
+			return;
+		}
+
 		CoreStates						.recordBuffers	();
 		CoreBuffers.ENTITY				.prepareBuffers	();
 		CoreBuffers.BLOCK				.prepareBuffers	();
@@ -128,6 +137,10 @@ public class LevelRendererMixin {
 			Matrix4f		projectionMatrix,
 			CallbackInfo	ci
 	) {
+		if (!CoreFeature.isLoaded()) {
+			return;
+		}
+
 		CoreBuffers.ENTITY				.drawBuffers	(LayerDrawType.TRANSLUCENT);
 		CoreBuffers.BLOCK				.drawBuffers	(LayerDrawType.TRANSLUCENT);
 		CoreBuffers.POS					.drawBuffers	(LayerDrawType.TRANSLUCENT);
@@ -161,6 +174,10 @@ public class LevelRendererMixin {
 			at		= @At("TAIL")
 	)
 	public void deleteIrisBuffers(CallbackInfo ci) {
+		if (!CoreFeature.isLoaded()) {
+			return;
+		}
+
 		IrisCompatBuffers.BLOCK_SHADOW				.delete();
 		IrisCompatBuffers.ENTITY_SHADOW				.delete();
 		IrisCompatBuffers.GLYPH_SHADOW				.delete();

@@ -1,5 +1,6 @@
 package com.github.argon4w.acceleratedrendering.core.mixins.compatibility;
 
+import com.github.argon4w.acceleratedrendering.core.CoreFeature;
 import com.github.argon4w.acceleratedrendering.features.entities.AcceleratedEntityRenderingFeature;
 import com.github.argon4w.acceleratedrendering.features.items.AcceleratedItemRenderingFeature;
 import com.github.argon4w.acceleratedrendering.features.text.AcceleratedTextRenderingFeature;
@@ -34,6 +35,10 @@ public class ParticleEngineMixin {
 			Frustum							clippingHelper,
 			CallbackInfo					ci
 	) {
+		if (!CoreFeature.isLoaded()) {
+			return;
+		}
+
 		AcceleratedEntityRenderingFeature	.useVanillaPipeline();
 		AcceleratedItemRenderingFeature		.useVanillaPipeline();
 		AcceleratedTextRenderingFeature		.useVanillaPipeline();
@@ -53,6 +58,10 @@ public class ParticleEngineMixin {
 			Frustum							clippingHelper,
 			CallbackInfo					ci
 	) {
+		if (!CoreFeature.isLoaded()) {
+			return;
+		}
+
 		AcceleratedEntityRenderingFeature	.resetPipeline();
 		AcceleratedItemRenderingFeature		.resetPipeline();
 		AcceleratedTextRenderingFeature		.resetPipeline();

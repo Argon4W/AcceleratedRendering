@@ -1,5 +1,6 @@
 package com.github.argon4w.acceleratedrendering.features.ftb.mixins;
 
+import com.github.argon4w.acceleratedrendering.core.CoreFeature;
 import com.github.argon4w.acceleratedrendering.features.entities.AcceleratedEntityRenderingFeature;
 import com.github.argon4w.acceleratedrendering.features.items.AcceleratedItemRenderingFeature;
 import com.github.argon4w.acceleratedrendering.features.items.gui.GuiBatchingController;
@@ -43,6 +44,10 @@ public class BaseScreenMixin {
 			int				h,
 			CallbackInfo	ci
 	) {
+		if (!CoreFeature.isLoaded()) {
+			return;
+		}
+
 		if (ModsFeature.shouldAccelerateFtb()) {
 			GuiBatchingController.INSTANCE.startBatching(graphics);
 		} else {
@@ -77,6 +82,10 @@ public class BaseScreenMixin {
 			int				h,
 			CallbackInfo	ci
 	) {
+		if (!CoreFeature.isLoaded()) {
+			return;
+		}
+
 		if (ModsFeature.shouldAccelerateFtb()) {
 			GuiBatchingController.INSTANCE.flushBatching(graphics);
 		} else {

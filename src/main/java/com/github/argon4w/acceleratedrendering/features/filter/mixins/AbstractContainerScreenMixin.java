@@ -1,5 +1,6 @@
 package com.github.argon4w.acceleratedrendering.features.filter.mixins;
 
+import com.github.argon4w.acceleratedrendering.core.CoreFeature;
 import com.github.argon4w.acceleratedrendering.features.entities.AcceleratedEntityRenderingFeature;
 import com.github.argon4w.acceleratedrendering.features.filter.FilterFeature;
 import com.github.argon4w.acceleratedrendering.features.items.AcceleratedItemRenderingFeature;
@@ -26,9 +27,10 @@ public class AbstractContainerScreenMixin {
 			float			partialTick,
 			Operation<Void>	original
 	) {
-		var pass =	!	FilterFeature.isEnabled			()
-				||	!	FilterFeature.shouldFilterMenus	()
-				||		FilterFeature.testMenu			(menu);
+		var pass =		!CoreFeature	.isLoaded			()
+				||	!	FilterFeature	.isEnabled			()
+				||	!	FilterFeature	.shouldFilterMenus	()
+				||		FilterFeature	.testMenu			(menu);
 
 		if (!pass) {
 			AcceleratedEntityRenderingFeature	.useVanillaPipeline();

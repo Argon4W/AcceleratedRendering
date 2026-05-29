@@ -74,7 +74,11 @@ public class HandRendererMixin {
 			WorldRenderingPipeline	pipeline,
 			CallbackInfo			ci
 	) {
-		CoreFeature									.resetRenderingHand	();
+		CoreFeature.resetRenderingHand();
+
+		if (!CoreFeature.isLoaded()) {
+			return;
+		}
 
 		CoreStates									.recordBuffers		();
 		IrisCompatBuffers.ENTITY_HAND				.prepareBuffers		();
@@ -138,7 +142,11 @@ public class HandRendererMixin {
 			WorldRenderingPipeline	pipeline,
 			CallbackInfo			ci
 	) {
-		CoreFeature									.resetRenderingHand	();
+		CoreFeature.resetRenderingHand();
+
+		if (!CoreFeature.isLoaded()) {
+			return;
+		}
 
 		CoreStates									.recordBuffers		();
 		IrisCompatBuffers.ENTITY_HAND				.prepareBuffers		();

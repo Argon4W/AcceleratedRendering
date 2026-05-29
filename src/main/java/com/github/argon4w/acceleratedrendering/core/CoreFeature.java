@@ -20,6 +20,7 @@ import com.github.argon4w.acceleratedrendering.core.meshes.collectors.MeshCollec
 import com.github.argon4w.acceleratedrendering.core.meshes.data.cache.IMeshDataCache;
 import com.github.argon4w.acceleratedrendering.core.meshes.data.cache.MeshDataCacheType;
 import com.github.argon4w.acceleratedrendering.core.programs.ComputeShaderProgramLoader;
+import com.github.argon4w.acceleratedrendering.core.utils.AvailabilityUtils;
 import com.github.argon4w.acceleratedrendering.core.utils.PackedVector2i;
 import com.google.common.util.concurrent.Runnables;
 
@@ -40,7 +41,7 @@ public class CoreFeature {
 	private static			boolean						GUI_BATCHING									= false;
 
 	public static boolean isLoaded() {
-		return ComputeShaderProgramLoader.isProgramsLoaded();
+		return isConfigLoaded() && AvailabilityUtils.isAvailable() && ComputeShaderProgramLoader.isProgramsLoaded();
 	}
 
 	public static boolean isConfigLoaded() {

@@ -45,7 +45,8 @@ public class ItemRendererMixin {
 		var extension1 = pBuffer.getAccelerated();
 		var extension2 = pModel	.getAccelerated();
 
-		if (			!		AcceleratedItemRenderingFeature	.isEnabled						()
+		if (			!		CoreFeature						.isLoaded						()
+				||		!		AcceleratedItemRenderingFeature	.isEnabled						()
 				||		!		AcceleratedItemRenderingFeature	.shouldUseAcceleratedPipeline	()
 				||	(	!		CoreFeature						.isRenderingLevel				()
 
@@ -70,11 +71,14 @@ public class ItemRendererMixin {
 			return;
 		}
 
+		var pose	= pPoseStack	.last	();
+		var random	= RandomSource	.create	(42L);
+
 		if (extension2.isAccelerated()) {
 			extension2.renderItemFast(
 					pStack,
-					RandomSource.create	(42L),
-					pPoseStack	.last	(),
+					random,
+					pose,
 					extension1,
 					pCombinedLight,
 					pCombinedOverlay
@@ -95,20 +99,19 @@ public class ItemRendererMixin {
 			return;
 		}
 
-		var pose			= pPoseStack	.last	();
-		var randomSource	= RandomSource	.create	();
+		var color = new ItemLayerColors(pStack);
 
 		for (var direction : DirectionUtils.FULL) {
-			randomSource.setSeed	(42L);
+			random		.setSeed	(42L);
 			extension1	.doRender	(
 					AcceleratedQuadsRenderer.INSTANCE,
 					new AcceleratedQuadsRenderContext(
 							pModel.getQuads(
 									null,
 									direction,
-									randomSource
+									random
 							),
-							new ItemLayerColors(pStack)
+							color
 					),
 					pose.pose	(),
 					pose.normal	(),

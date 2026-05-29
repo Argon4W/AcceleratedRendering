@@ -1,5 +1,6 @@
 package com.github.argon4w.acceleratedrendering.features.filter.mixins;
 
+import com.github.argon4w.acceleratedrendering.core.CoreFeature;
 import com.github.argon4w.acceleratedrendering.features.entities.AcceleratedEntityRenderingFeature;
 import com.github.argon4w.acceleratedrendering.features.filter.FilterFeature;
 import com.github.argon4w.acceleratedrendering.features.items.AcceleratedItemRenderingFeature;
@@ -37,9 +38,10 @@ public class ItemRendererMixin {
 			VertexConsumer	poseStack,
 			Operation<Void>	original
 	) {
-		var pass =	!	FilterFeature.isEnabled			()
-				||	!	FilterFeature.shouldFilterItems	()
-				||		FilterFeature.testItem			(model);
+		var pass =	!	CoreFeature		.isLoaded			()
+				||	!	FilterFeature	.isEnabled			()
+				||	!	FilterFeature	.shouldFilterItems	()
+				||		FilterFeature	.testItem			(model);
 
 		if (!pass) {
 			AcceleratedEntityRenderingFeature	.useVanillaPipeline();

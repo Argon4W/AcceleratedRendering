@@ -60,7 +60,8 @@ public class LivingEntityRendererMixin {
 			Operation<Void>				original,
 			@Share("layer") LocalIntRef	layer
 	) {
-		if (		!ModsFeature.isEnabled			()
+		if (		!CoreFeature.isLoaded			()
+				||	!ModsFeature.isEnabled			()
 				||	!ModsFeature.shouldFixVanilla	()
 		) {
 			original.call(

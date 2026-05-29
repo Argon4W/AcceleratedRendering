@@ -172,7 +172,6 @@ public class GuiBatchingController {
 			scissorFlush.record	(graphics);
 			scissorDraw	.restore();
 
-
 			Lighting	.setupForFlatItems					();
 			CoreFeature	.forceSetDefaultLayer				(1);
 			CoreFeature	.forceSetDefaultLayerBeforeFunction	(Lighting::setupForFlatItems);

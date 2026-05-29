@@ -1,6 +1,7 @@
 package com.github.argon4w.acceleratedrendering.compat.curios.mixins;
 
 import com.github.argon4w.acceleratedrendering.compat.curios.CuriosCompatFeature;
+import com.github.argon4w.acceleratedrendering.core.CoreFeature;
 import com.github.argon4w.acceleratedrendering.features.entities.AcceleratedEntityRenderingFeature;
 import com.github.argon4w.acceleratedrendering.features.filter.FilterFeature;
 import com.github.argon4w.acceleratedrendering.features.items.AcceleratedItemRenderingFeature;
@@ -43,8 +44,9 @@ public class CuriosLayerMixin {
 			float				headPitch,
 			CallbackInfo		ci
 	) {
-		if (			CuriosCompatFeature.isEnabled				()
-				&&	!	CuriosCompatFeature.shouldAccelerateCurios	()
+		if (			CoreFeature			.isLoaded				()
+				&&		CuriosCompatFeature	.isEnabled				()
+				&&	!	CuriosCompatFeature	.shouldAccelerateCurios	()
 		) {
 			AcceleratedEntityRenderingFeature	.useVanillaPipeline();
 			AcceleratedItemRenderingFeature		.useVanillaPipeline();
@@ -70,8 +72,9 @@ public class CuriosLayerMixin {
 			float				headPitch,
 			CallbackInfo		ci
 	) {
-		if (			CuriosCompatFeature.isEnabled				()
-				&&	!	CuriosCompatFeature.shouldAccelerateCurios	()
+		if (			CoreFeature			.isLoaded				()
+				&&		CuriosCompatFeature	.isEnabled				()
+				&&	!	CuriosCompatFeature	.shouldAccelerateCurios	()
 		) {
 			AcceleratedEntityRenderingFeature	.resetPipeline();
 			AcceleratedItemRenderingFeature		.resetPipeline();
@@ -103,7 +106,8 @@ public class CuriosLayerMixin {
 			float					headPitch,
 			Operation<Void>			original
 	) {
-		var pass =	!	FilterFeature		.isEnabled				()
+		var pass =	!	CoreFeature			.isLoaded				()
+				||	!	FilterFeature		.isEnabled				()
 				||	!	CuriosCompatFeature	.isEnabled				()
 				||	!	CuriosCompatFeature	.shouldFilterCuriosItems()
 				||		CuriosCompatFeature	.testCuriosItem			(itemStack);

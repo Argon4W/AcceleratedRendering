@@ -17,7 +17,7 @@ public class MinecraftMixin {
             at      = @At("TAIL")
     )
     public void setDebugContext(GameConfig gameConfig, CallbackInfo ci) {
-        if (		CoreFeature.isConfigLoaded			()
+        if (		CoreFeature.isLoaded				()
 				&&	CoreFeature.isDebugContextEnabled	()
 		) {
             DebugOutput.enable();
