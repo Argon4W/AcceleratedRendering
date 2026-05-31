@@ -4,10 +4,7 @@ import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.Accelera
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.meshes.MeshUploaderPool.MeshUploader;
 import com.github.argon4w.acceleratedrendering.core.meshes.ServerMesh;
 import com.github.argon4w.acceleratedrendering.core.programs.overrides.ProgramOverride;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
-import it.unimi.dsi.fastutil.ints.IntSet;
+import it.unimi.dsi.fastutil.ints.*;
 import it.unimi.dsi.fastutil.objects.*;
 import lombok.Getter;
 
@@ -22,9 +19,9 @@ public class DenseUploads implements IMeshUploads {
 	private final int					count;
 
 	public DenseUploads(Buffers buffers) {
-		this.count	= buffers.getOverrideCount		();
-		this.groups	= new Int2ObjectOpenHashMap<>	();
-		this.usages	= new IntOpenHashSet			();
+		this.count	= buffers.getOverrideCount	();
+		this.groups	= new Int2ObjectAVLTreeMap<>();
+		this.usages	= new IntOpenHashSet		();
 	}
 
 	@Override

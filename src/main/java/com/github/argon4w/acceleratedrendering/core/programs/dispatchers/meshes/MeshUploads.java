@@ -2,10 +2,7 @@ package com.github.argon4w.acceleratedrendering.core.programs.dispatchers.meshes
 
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.meshes.MeshUploaderPool.MeshUploader;
 import com.github.argon4w.acceleratedrendering.core.meshes.ServerMesh;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
-import it.unimi.dsi.fastutil.ints.IntSet;
+import it.unimi.dsi.fastutil.ints.*;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import lombok.Getter;
 
@@ -18,8 +15,8 @@ public class MeshUploads {
 	private final IntSet				usages;
 
 	public MeshUploads() {
-		this.uploads	= new Int2ObjectOpenHashMap<>	();
-		this.usages		= new IntOpenHashSet			();
+		this.uploads	= new Int2ObjectAVLTreeMap<>();
+		this.usages		= new IntOpenHashSet		();
 	}
 
 	public void add(MeshUploader uploader) {
