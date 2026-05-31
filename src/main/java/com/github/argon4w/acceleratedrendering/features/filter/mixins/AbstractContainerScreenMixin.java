@@ -27,7 +27,7 @@ public class AbstractContainerScreenMixin {
 			float			partialTick,
 			Operation<Void>	original
 	) {
-		var pass =		!CoreFeature	.isLoaded			()
+		var pass =	!	CoreFeature		.isLoaded			()
 				||	!	FilterFeature	.isEnabled			()
 				||	!	FilterFeature	.shouldFilterMenus	()
 				||		FilterFeature	.testMenu			(menu);

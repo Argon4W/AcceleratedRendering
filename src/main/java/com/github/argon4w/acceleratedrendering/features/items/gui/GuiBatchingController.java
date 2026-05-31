@@ -86,20 +86,20 @@ public class GuiBatchingController {
 	}
 
 	@SuppressWarnings("UnstableApiUsage")
-	public void flushBatching(GuiGraphics graphics) {
+	public float flushBatching(GuiGraphics graphics) {
 		if (CoreFeature.isGuiBatching()) {
 			var itemRenderer	= Minecraft.getInstance()	.getItemRenderer();
 			var bufferSource	= graphics					.bufferSource	();
 			var poseStack		= graphics					.pose			();
+			var depth			= 0.0f;
 
 			CoreFeature.resetGuiBatching();
 			CoreFeature.setRenderingGui	();
 
-			for (var layer : depthLayers.values()) {
-				var layerElements	= layer			.getLayerElements	();
-				var layerDepth		= layer			.getLayerDepth		();
+			for (var depthLayer : depthLayers.values()) {
+				var layerElements	= depthLayer	.getLayerElements	();
+				var layerDepth		= depthLayer	.getLayerDepth		();
 				var layerNext		= depthLayers	.tailMap			(layerDepth);
-				var depth			= 0.0f;
 				var step			= 0.1f;
 
 				if (!layerNext.isEmpty()) {
@@ -219,7 +219,8 @@ public class GuiBatchingController {
 				poseStack.popPose();
 			}
 
-			CoreFeature.resetRenderingGui	();
+			CoreFeature	.resetRenderingGui	();
+			graphics	.flush				();
 			flushBatching					();
 
 			for (var context : decoratorDrawContexts) {
@@ -262,7 +263,11 @@ public class GuiBatchingController {
 			flatItemDrawContexts	.clear	();
 			blockItemDrawContexts	.clear	();
 			scissorFlush			.restore();
+
+			return depth;
 		}
+
+		return 0.0f;
 	}
 
 	public void flushBatching() {
