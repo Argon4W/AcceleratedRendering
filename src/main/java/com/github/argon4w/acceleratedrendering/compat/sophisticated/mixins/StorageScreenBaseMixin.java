@@ -45,9 +45,9 @@ public class StorageScreenBaseMixin {
 			at		= @At(
 					value	= "INVOKE",
 					target	= "Lcom/mojang/blaze3d/vertex/PoseStack;translate(DDD)V",
-					shift	= At.Shift.BEFORE
-			),
-			remap	= false
+					shift	= At.Shift.BEFORE,
+					ordinal	= 0
+			)
 	)
 	public void flushBackgroundBatching(
 			GuiGraphics						guiGraphics,
@@ -71,9 +71,9 @@ public class StorageScreenBaseMixin {
 			at		= @At(
 					value	= "INVOKE",
 					target	= "Lcom/mojang/blaze3d/vertex/PoseStack;translate(DDD)V",
-					shift	= At.Shift.AFTER
-			),
-			remap	= false
+					shift	= At.Shift.AFTER,
+					ordinal	= 0
+			)
 	)
 	public void startItemBatching(
 			GuiGraphics		guiGraphics,
@@ -97,8 +97,7 @@ public class StorageScreenBaseMixin {
 					value	= "INVOKE",
 					target	= "Lnet/p3pp3rf1y/sophisticatedcore/client/gui/StorageScreenBase;renderLabels(Lnet/minecraft/client/gui/GuiGraphics;II)V",
 					shift	= At.Shift.AFTER
-			),
-			remap	= false
+			)
 	)
 	public void flushItemBatching(
 			GuiGraphics						guiGraphics,
