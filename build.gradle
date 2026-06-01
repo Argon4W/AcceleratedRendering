@@ -177,6 +177,9 @@ dependencies {
     modImplementation "maven.modrinth:timeless-and-classics-zero:1.1.7-hotfix2"
     modImplementation "maven.modrinth:create:mc1.20.1-6.0.8"
 
+    modImplementation "maven.modrinth:citadel:2.6.3"
+    modImplementation "maven.modrinth:alexs-caves:2.0.2"
+
     modCompileOnly "maven.modrinth:sophisticated-core:1.20.1-1.3.35.1851"
     modCompileOnly "maven.modrinth:entity-model-features:3.0.1"
     modCompileOnly "maven.modrinth:touhou-little-maid:1.5.2-forge+mc1.20.1"
