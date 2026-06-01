@@ -128,8 +128,8 @@ public abstract class SimpleBakedModelMixin implements IAcceleratedBakedModel, I
 			return;
 		}
 
-		var meshCollectors	= new Int2ObjectOpenHashMap	<IMeshCollector>	();
-		layers 				= new Int2ObjectAVLTreeMap	<>					();
+		var meshCollectors	= new Int2ObjectAVLTreeMap<IMeshCollector>	();
+		layers 				= new Int2ObjectAVLTreeMap<>				();
 
 		meshes.put(extension, layers);
 

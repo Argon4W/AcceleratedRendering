@@ -187,5 +187,6 @@
   "acceleratedrendering.configuration.mods_compatibility.ftb_feature_status.tooltip": "- DISABLED: Accelerations of UI driven by FTB Library will be disabled.\n- ENABLED: Accelerations of UI driven by FTB Library will be enabled.",
   "acceleratedrendering.configuration.mods_compatibility.sophisticated_feature_status": "Enable Sophisticated Core Compatibility",
   "acceleratedrendering.configuration.mods_compatibility.sophisticated_feature_status.tooltip": "- DISABLED: Accelerations of UI driven by Sophisticated Core will be disabled.\n- ENABLED: Accelerations of UI driven by Sophisticated Core will be enabled.",
-  "acceleratedrendering.configuration.mods_compatibility.button": "Configure"
+  "acceleratedrendering.configuration.mods_compatibility.button": "Configure",
+  "acceleratedrendering.component.not_available": "Accelerated Rendering is currently running in an unsupported environment. Accelerated Rendering will not take effect."
 }
