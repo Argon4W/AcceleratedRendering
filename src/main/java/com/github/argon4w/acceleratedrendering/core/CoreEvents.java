@@ -11,7 +11,7 @@ import net.minecraftforge.fml.common.Mod;
 
 @Mod.EventBusSubscriber(
 		modid	= AcceleratedRenderingModEntry	.MOD_ID,
-		bus		= Mod.EventBusSubscriber.Bus	.MOD,
+		bus		= Mod.EventBusSubscriber.Bus	.FORGE,
 		value	= Dist							.CLIENT
 )
 public class CoreEvents {
