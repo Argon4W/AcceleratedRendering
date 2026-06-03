@@ -1,5 +1,9 @@
 package com.github.argon4w.acceleratedrendering.features.ftb.mixins;
 
+import com.github.argon4w.acceleratedrendering.core.CoreFeature;
+import com.github.argon4w.acceleratedrendering.features.mods.ModsFeature;
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import dev.ftb.mods.ftblibrary.ui.GuiHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -10,26 +14,30 @@ import org.spongepowered.asm.mixin.Overwrite;
 @Mixin(GuiHelper.class)
 public class GuiHelperMixin {
 
-	/**
-	 * @author Argon4W
-	 * @reason Use modern rendering code
-	 */
-	@Overwrite(remap = false)
-	public static void drawItem(
+	@WrapMethod(
+			method	= "drawItem",
+			remap	= false
+	)
+	private static void drawItem(
 			GuiGraphics	graphics,
 			ItemStack	stack,
 			int			hash,
 			boolean		renderOverlay,
-			String		text
+			String		text,
+			Operation<Void> original
 	) {
-		if (!stack.isEmpty()) {
+		if (		!	stack		.isEmpty			()
+				&&		CoreFeature	.isLoaded			()
+				&&		ModsFeature	.isEnabled			()
+				&&		ModsFeature	.shouldAccelerateFtb()
+		) {
 			var pose = graphics.pose();
 
 			pose.pushPose	();
 			pose.translate	(
 					-8.0F,
 					-8.0F,
-					-8.0F
+					-150.0F
 			);
 
 			pose
@@ -50,6 +58,14 @@ public class GuiHelperMixin {
 			}
 
 			graphics.pose().popPose();
+		} else {
+			original.call(
+					graphics,
+					stack,
+					hash,
+					renderOverlay,
+					text
+			);
 		}
 	}
 }

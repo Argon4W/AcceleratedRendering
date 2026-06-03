@@ -415,10 +415,9 @@ public class GuiBatchingController {
 			fillDrawContexts.add(context);
 			layer			.add(context);
 		} else {
-			var highestEntry = depthLayers	.lastEntry	();
-			var highestDepth = highestEntry	.getKey		();
-			var highestLayer = highestEntry	.getValue	();
-			var elementLayer = getLayer					(highestDepth + highestLayer.getLayerThickness());
+			var highestDepth = depthLayers	.lastFloatKey	();
+			var highestLayer = depthLayers	.get			(highestDepth);
+			var elementLayer = getLayer						(highestDepth + highestLayer.getLayerThickness());
 
 			var originalDepth = getGlobalDepth(
 					transform.m22(),
@@ -482,10 +481,9 @@ public class GuiBatchingController {
 			gradientDrawContexts.add(context);
 			layer				.add(context);
 		} else {
-			var highestEntry = depthLayers	.lastEntry	();
-			var highestDepth = highestEntry	.getKey		();
-			var highestLayer = highestEntry	.getValue	();
-			var elementLayer = getLayer					(highestDepth + highestLayer.getLayerThickness());
+			var highestDepth = depthLayers	.lastFloatKey	();
+			var highestLayer = depthLayers	.get			(highestDepth);
+			var elementLayer = getLayer						(highestDepth + highestLayer.getLayerThickness());
 
 			var originalDepth = getGlobalDepth(
 					transform.m22(),
