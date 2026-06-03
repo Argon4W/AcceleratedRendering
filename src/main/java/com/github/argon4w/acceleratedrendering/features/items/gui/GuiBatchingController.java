@@ -426,7 +426,7 @@ public class GuiBatchingController {
 			);
 
 			var context = new FillDrawContext(
-					new Matrix4f				(transform).translateLocal(0.0f, 0.0f, highestDepth - originalDepth),
+					new Matrix4f				(transform).translateLocal(0.0f, 0.0f, elementLayer.getLayerDepth() - originalDepth),
 					new Matrix3f				(normal),
 					RenderTypeUtils.withDepth	(renderType),
 					minX,
