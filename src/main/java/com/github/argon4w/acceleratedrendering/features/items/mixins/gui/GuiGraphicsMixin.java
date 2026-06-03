@@ -62,7 +62,7 @@ public class GuiGraphicsMixin {
 				minY,
 				maxX,
 				maxY,
-				-1,
+				0,
 				color
 		);
 	}

@@ -4,7 +4,10 @@ import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.Accelera
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.meshes.MeshUploaderPool.MeshUploader;
 import com.github.argon4w.acceleratedrendering.core.meshes.ServerMesh;
 import com.github.argon4w.acceleratedrendering.core.programs.overrides.ProgramOverride;
-import it.unimi.dsi.fastutil.ints.*;
+import it.unimi.dsi.fastutil.longs.Long2ObjectAVLTreeMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import it.unimi.dsi.fastutil.longs.LongSet;
 import it.unimi.dsi.fastutil.objects.*;
 import lombok.Getter;
 
@@ -14,28 +17,28 @@ import java.util.List;
 public class DenseUploads implements IMeshUploads {
 
 	@Getter
-	private final Int2ObjectMap<Group>	groups;
-	private final IntSet				usages;
+	private final Long2ObjectMap<Group>	groups;
+	private final LongSet				usages;
 	private final int					count;
 
 	public DenseUploads(Buffers buffers) {
-		this.count	= buffers.getOverrideCount	();
-		this.groups	= new Int2ObjectAVLTreeMap<>();
-		this.usages	= new IntOpenHashSet		();
+		this.count	= buffers.getOverrideCount		();
+		this.groups	= new Long2ObjectAVLTreeMap<>	();
+		this.usages	= new LongOpenHashSet			();
 	}
 
 	@Override
 	public void add(MeshUploader uploader) {
 		var mesh	= uploader	.getServerMesh	();
-		var meshId	= mesh		.meshId			();
-		var group	= groups	.get			(meshId);
+		var meshKey	= mesh		.meshKey		();
+		var group	= groups	.get			(meshKey);
 
 		if (group == null) {
-			group = new Group(mesh, meshId);
+			group = new Group(mesh, meshKey);
 		}
 
 		group	.add(uploader);
-		usages	.add(meshId);
+		usages	.add(meshKey);
 	}
 
 	public void clear() {
@@ -50,7 +53,7 @@ public class DenseUploads implements IMeshUploads {
 		while (each.hasNext()) {
 			var val = each.next();
 
-			if (!usages.contains(val.meshId)) {
+			if (!usages.contains(val.meshKey)) {
 				each.remove();
 			} else {
 				val.remove();
@@ -65,15 +68,15 @@ public class DenseUploads implements IMeshUploads {
 		@Getter private	final ServerMesh	mesh;
 		@Getter private final Upload[]		uploads;
 		private			final BitSet		usages;
-		private			final int			meshId;
+		private			final long			meshKey;
 
-		public Group(ServerMesh mesh, int meshId) {
+		public Group(ServerMesh mesh, long meshKey) {
 			this.uploads	= new Upload[count];
 			this.usages		= new BitSet(count);
-			this.meshId		= meshId;
+			this.meshKey	= meshKey;
 			this.mesh		= mesh;
 
-			groups.put(meshId, this);
+			groups.put(meshKey, this);
 		}
 
 		public void add(MeshUploader uploader) {

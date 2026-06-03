@@ -263,13 +263,13 @@ public class MeshUploadingProgramDispatcher {
 
 		@Override
 		public int dispatchUploading(
-				int		meshCount,
-				int		meshSize,
-				long	meshOffset
+				int meshCount,
+				int meshSize,
+				int meshOffset
 		) {
 			meshCountUniform	.uploadUnsignedInt(meshCount);
 			meshSizeUniform		.uploadUnsignedInt(meshSize);
-			meshOffsetUniform	.uploadUnsignedInt((int) meshOffset);
+			meshOffsetUniform	.uploadUnsignedInt(meshOffset);
 
 			program.dispatch(
 					((meshCount * meshSize) + GROUP_SIZE - 1) / GROUP_SIZE,

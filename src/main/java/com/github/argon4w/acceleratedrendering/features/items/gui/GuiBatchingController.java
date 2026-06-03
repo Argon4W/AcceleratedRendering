@@ -44,7 +44,8 @@ import java.util.List;
 })
 public class GuiBatchingController {
 
-	public static	final	GuiBatchingController			INSTANCE = new GuiBatchingController();
+	public static	final	GuiBatchingController			INSTANCE	= new GuiBatchingController();
+	public static	final	float							DELTA		= 1e-6f;
 
 	private			final	IBindingState					scissorDraw;
 	private			final	IBindingState					scissorFlush;
@@ -73,12 +74,13 @@ public class GuiBatchingController {
 	}
 
 	public void startBatching(GuiGraphics graphics) {
-		if (		graphics.bufferSource().getAcceleratable()	.isBufferSourceAcceleratable	()
-				&&	AcceleratedItemRenderingFeature				.isEnabled						()
-				&&	AcceleratedItemRenderingFeature				.shouldUseAcceleratedPipeline	()
-				&&	AcceleratedItemRenderingFeature				.shouldAccelerateInGui			()
-				&&	AcceleratedItemRenderingFeature				.shouldUseGuiItemBatching		()
-				&&	CoreFeature									.isLoaded						()
+		if (		graphics.bufferSource().getAcceleratable()	.isBufferSourceAcceleratable		()
+				&&	AcceleratedItemRenderingFeature				.isEnabled							()
+				&&	AcceleratedItemRenderingFeature				.shouldUseAcceleratedPipeline		()
+				&&	AcceleratedItemRenderingFeature				.shouldAccelerateInGui				()
+				&&	AcceleratedItemRenderingFeature				.shouldUseGuiItemBatching			()
+				&&	CoreFeature									.isLoaded							()
+				&&	CoreFeature									.shouldForceAccelerateTranslucent	()
 		) {
 			CoreFeature.setGuiBatching	();
 			scissorDraw.record			(graphics);
@@ -91,7 +93,7 @@ public class GuiBatchingController {
 			var itemRenderer	= Minecraft.getInstance()	.getItemRenderer();
 			var bufferSource	= graphics					.bufferSource	();
 			var poseStack		= graphics					.pose			();
-			var depth			= 0.0f;
+			var offset			= 0.0f;
 
 			CoreFeature.resetGuiBatching();
 			CoreFeature.setRenderingGui	();
@@ -99,7 +101,8 @@ public class GuiBatchingController {
 			for (var depthLayer : depthLayers.values()) {
 				var layerElements	= depthLayer	.getLayerElements	();
 				var layerDepth		= depthLayer	.getLayerDepth		();
-				var layerNext		= depthLayers	.tailMap			(layerDepth);
+				var layerNext		= depthLayers	.tailMap			(layerDepth + DELTA);
+				var depth			= 0.0f;
 				var step			= 0.1f;
 
 				if (!layerNext.isEmpty()) {
@@ -115,6 +118,8 @@ public class GuiBatchingController {
 
 					depth += step;
 				}
+
+				offset = depth;
 			}
 
 			for (var context : blitDrawContexts) {
@@ -264,7 +269,7 @@ public class GuiBatchingController {
 			blockItemDrawContexts	.clear	();
 			scissorFlush			.restore();
 
-			return depth;
+			return offset;
 		}
 
 		return 0.0f;
@@ -410,11 +415,19 @@ public class GuiBatchingController {
 			fillDrawContexts.add(context);
 			layer			.add(context);
 		} else {
-			var depth = depthLayers.lastFloatKey();
-			var layer = depthLayers.get			(depth);
+			var highestEntry = depthLayers	.lastEntry	();
+			var highestDepth = highestEntry	.getKey		();
+			var highestLayer = highestEntry	.getValue	();
+			var elementLayer = getLayer					(highestDepth + highestLayer.getLayerThickness());
+
+			var originalDepth = getGlobalDepth(
+					transform.m22(),
+					transform.m32(),
+					blitOffset
+			);
 
 			var context = new FillDrawContext(
-					new Matrix4f				(transform).translate(0.0f, 0.0f, depth),
+					new Matrix4f				(transform).translateLocal(0.0f, 0.0f, highestDepth - originalDepth),
 					new Matrix3f				(normal),
 					RenderTypeUtils.withDepth	(renderType),
 					minX,
@@ -428,7 +441,7 @@ public class GuiBatchingController {
 			);
 
 			fillDrawContexts.add(context);
-			layer			.add(context);
+			elementLayer	.add(context);
 		}
 	}
 
@@ -469,11 +482,19 @@ public class GuiBatchingController {
 			gradientDrawContexts.add(context);
 			layer				.add(context);
 		} else {
-			var depth = depthLayers.lastFloatKey();
-			var layer = depthLayers.get			(depth);
+			var highestEntry = depthLayers	.lastEntry	();
+			var highestDepth = highestEntry	.getKey		();
+			var highestLayer = highestEntry	.getValue	();
+			var elementLayer = getLayer					(highestDepth + highestLayer.getLayerThickness());
+
+			var originalDepth = getGlobalDepth(
+					transform.m22(),
+					transform.m32(),
+					blitOffset
+			);
 
 			var context = new GradientDrawContext(
-					new Matrix4f				(transform).translate(0.0f, 0.0f, depth),
+					new Matrix4f				(transform).translateLocal(0.0f, 0.0f, elementLayer.getLayerDepth() - originalDepth),
 					new Matrix3f				(normal),
 					RenderTypeUtils.withDepth	(renderType),
 					minX,
@@ -488,7 +509,7 @@ public class GuiBatchingController {
 			);
 
 			gradientDrawContexts.add(context);
-			layer				.add(context);
+			elementLayer		.add(context);
 		}
 	}
 
@@ -586,18 +607,21 @@ public class GuiBatchingController {
 	@Getter
 	public class Layer {
 
-		private final List<IGuiElementContext>	layerElements;
-		private final float						layerDepth;
+		private final	List<IGuiElementContext>	layerElements;
+		private final	float						layerDepth;
+		private			float						layerThickness;
 
 		public Layer(float depth) {
 			this.layerElements	= new ReferenceArrayList<>();
 			this.layerDepth		= depth;
+			this.layerThickness	= 0.0f;
 
 			depthLayers.put(depth, this);
 		}
 
 		public void add(IGuiElementContext context) {
 			layerElements.add(context);
+			layerThickness = Math.max(layerThickness, context.thickness());
 		}
 	}
 }

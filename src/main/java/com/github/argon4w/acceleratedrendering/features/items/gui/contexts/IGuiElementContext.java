@@ -8,4 +8,5 @@ public interface IGuiElementContext {
 	Matrix4f	transform	();
 	Matrix3f	normal		();
 	float		depth		();
+	float		thickness	();
 }

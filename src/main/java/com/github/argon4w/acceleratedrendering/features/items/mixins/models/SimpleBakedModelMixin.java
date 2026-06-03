@@ -128,26 +128,32 @@ public abstract class SimpleBakedModelMixin implements IAcceleratedBakedModel, I
 			return;
 		}
 
+		var meshMinLayer	= 0;
 		var meshCollectors	= new Int2ObjectAVLTreeMap<IMeshCollector>	();
 		layers 				= new Int2ObjectAVLTreeMap<>				();
 
 		meshes.put(extension, layers);
 
 		for (var direction : DirectionUtils.FULL) {
-			for (var quad : getQuads(
+			for (var bakedQuad : getQuads(
 					null,
 					direction,
 					randomSource
 			)) {
-				var meshCollector = meshCollectors.get(quad.getTintIndex());
+				var meshLayer		= bakedQuad		.getTintIndex	();
+				var meshCollector	= meshCollectors.get			(meshLayer);
+
+				if (meshMinLayer > meshLayer) {
+					meshMinLayer = meshLayer;
+				}
 
 				if (meshCollector == null) {
 					meshCollector = CoreFeature.createMeshCollector	(extension);
-					meshCollectors.put								(quad.getTintIndex(), meshCollector);
+					meshCollectors.put								(meshLayer, meshCollector);
 				}
 
 				var meshBuilder = extension	.decorate	(meshCollector);
-				var data		= quad		.getVertices();
+				var data		= bakedQuad	.getVertices();
 
 				for (int i = 0; i < data.length / 8; i++) {
 					var vertexOffset	= i				* IQuadTransformer.STRIDE;
@@ -179,6 +185,12 @@ public abstract class SimpleBakedModelMixin implements IAcceleratedBakedModel, I
 			}
 		}
 
+		var base = 0;
+
+		if (meshMinLayer < 0) {
+			base = -meshMinLayer;
+		}
+
 		for (int layer : meshCollectors.keySet()) {
 			var meshCollector = meshCollectors.get(layer);
 
@@ -194,7 +206,11 @@ public abstract class SimpleBakedModelMixin implements IAcceleratedBakedModel, I
 				mesh = AcceleratedEntityRenderingFeature
 						.getMeshType()
 						.getBuilder	()
-						.build		(meshCollector);
+						.build		(
+								meshCollector,
+								false,
+								base + layer
+						);
 			}
 
 			layers	.put	(layer, mesh);

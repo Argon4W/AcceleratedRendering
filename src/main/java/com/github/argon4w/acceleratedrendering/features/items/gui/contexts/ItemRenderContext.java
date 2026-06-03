@@ -21,4 +21,9 @@ public record ItemRenderContext(
 	public float depth() {
 		return 0.0f;
 	}
+
+	@Override
+	public float thickness() {
+		return 16.0f;
+	}
 }

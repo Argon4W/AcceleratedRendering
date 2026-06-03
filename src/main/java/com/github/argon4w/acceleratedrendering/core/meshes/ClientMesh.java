@@ -86,6 +86,15 @@ public class ClientMesh implements IMesh {
 		}
 
 		@Override
+		public IMesh build(
+				IMeshCollector	collector,
+				boolean			forceDense,
+				int				meshLayer
+		) {
+			return build(collector);
+		}
+
+		@Override
 		public void delete() {
 			for (var builder : builders) {
 				builder.close();
