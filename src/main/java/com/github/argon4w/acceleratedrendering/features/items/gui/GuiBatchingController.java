@@ -12,9 +12,9 @@ import com.github.argon4w.acceleratedrendering.core.utils.RenderTypeUtils;
 import com.github.argon4w.acceleratedrendering.features.items.AcceleratedItemRenderingFeature;
 import com.github.argon4w.acceleratedrendering.features.items.gui.contexts.*;
 import com.github.argon4w.acceleratedrendering.features.items.gui.contexts.string.IStringDrawContext;
-import com.github.argon4w.acceleratedrendering.features.items.gui.renderer.AcceleratedBlitRenderer;
-import com.github.argon4w.acceleratedrendering.features.items.gui.renderer.AcceleratedFillRenderer;
-import com.github.argon4w.acceleratedrendering.features.items.gui.renderer.AcceleratedGradientRenderer;
+import com.github.argon4w.acceleratedrendering.features.items.gui.renderers.AcceleratedBlitRenderer;
+import com.github.argon4w.acceleratedrendering.features.items.gui.renderers.AcceleratedFillRenderer;
+import com.github.argon4w.acceleratedrendering.features.items.gui.renderers.AcceleratedGradientRenderer;
 import com.mojang.blaze3d.platform.Lighting;
 import it.unimi.dsi.fastutil.floats.Float2ReferenceAVLTreeMap;
 import it.unimi.dsi.fastutil.floats.Float2ReferenceSortedMap;
@@ -119,7 +119,7 @@ public class GuiBatchingController {
 					depth += step;
 				}
 
-				offset = depth;
+				offset = layerDepth + depth;
 			}
 
 			for (var context : blitDrawContexts) {

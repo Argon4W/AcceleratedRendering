@@ -30,7 +30,6 @@ import java.util.Deque;
 public class CoreFeature {
 
 	private static final	ArrayDeque<FeatureStatus>	FORCE_TRANSLUCENT_ACCELERATION_CONTROLLER_STACK	= new ArrayDeque<>();
-	private static final	ArrayDeque<FeatureStatus>	CACHE_IDENTICAL_POSE_CONTROLLER_STACK			= new ArrayDeque<>();
 	private static final	ArrayDeque<Integer>			DEFAULT_LAYER_CONTROLLER_STACK					= new ArrayDeque<>();
 	private static final	ArrayDeque<Runnable>		DEFAULT_LAYER_BEFORE_FUNCTION_CONTROLLER_STACK	= new ArrayDeque<>();
 	private static final	ArrayDeque<Runnable>		DEFAULT_LAYER_AFTER_FUNCTION_CONTROLLER_STACK	= new ArrayDeque<>();
@@ -74,10 +73,6 @@ public class CoreFeature {
 
 	public static boolean shouldForceAccelerateTranslucent() {
 		return getForceTranslucentAccelerationSetting() == FeatureStatus.ENABLED;
-	}
-
-	public static boolean shouldCacheIdenticalPose() {
-		return getCacheIdenticalPoseSetting() == FeatureStatus.ENABLED;
 	}
 
 	public static boolean shouldByPassGuiBatching() {
@@ -196,10 +191,6 @@ public class CoreFeature {
 		FORCE_TRANSLUCENT_ACCELERATION_CONTROLLER_STACK.push(FeatureStatus.DISABLED);
 	}
 
-	public static void disableCacheIdenticalPose() {
-		CACHE_IDENTICAL_POSE_CONTROLLER_STACK.push(FeatureStatus.DISABLED);
-	}
-
 	public static void disableBypassGuiBatching() {
 		BYPASS_GUI_BATCHING_CONTROLLER_STACK.push(FeatureStatus.DISABLED);
 	}
@@ -208,20 +199,12 @@ public class CoreFeature {
 		FORCE_TRANSLUCENT_ACCELERATION_CONTROLLER_STACK.push(FeatureStatus.ENABLED);
 	}
 
-	public static void forceEnableCacheIdenticalPose() {
-		CACHE_IDENTICAL_POSE_CONTROLLER_STACK.push(FeatureStatus.ENABLED);
-	}
-
 	public static void forceBypassGuiItemBatching() {
 		BYPASS_GUI_BATCHING_CONTROLLER_STACK.push(FeatureStatus.ENABLED);
 	}
 
 	public static void forceSetForceTranslucentAcceleration(FeatureStatus status) {
 		FORCE_TRANSLUCENT_ACCELERATION_CONTROLLER_STACK.push(status);
-	}
-
-	public static void forceSetCacheIdenticalPose(FeatureStatus status) {
-		CACHE_IDENTICAL_POSE_CONTROLLER_STACK.push(status);
 	}
 
 	public static void forceSetDefaultLayer(int defaultLayer) {
@@ -248,10 +231,6 @@ public class CoreFeature {
 		FORCE_TRANSLUCENT_ACCELERATION_CONTROLLER_STACK.pop();
 	}
 
-	public static void resetCacheIdenticalPose() {
-		CACHE_IDENTICAL_POSE_CONTROLLER_STACK.pop();
-	}
-
 	public static void resetDefaultLayer() {
 		DEFAULT_LAYER_CONTROLLER_STACK.pop();
 	}
@@ -272,10 +251,6 @@ public class CoreFeature {
 		return FORCE_TRANSLUCENT_ACCELERATION_CONTROLLER_STACK.isEmpty() ? getDefaultForceTranslucentAccelerationSetting() : FORCE_TRANSLUCENT_ACCELERATION_CONTROLLER_STACK.peek();
 	}
 
-	public static FeatureStatus getCacheIdenticalPoseSetting() {
-		return CACHE_IDENTICAL_POSE_CONTROLLER_STACK.isEmpty() ? getDefaultCacheIdenticalPoseSetting() : CACHE_IDENTICAL_POSE_CONTROLLER_STACK.peek();
-	}
-
 	public static int getDefaultLayer() {
 		return DEFAULT_LAYER_CONTROLLER_STACK.isEmpty() ? 0 : DEFAULT_LAYER_CONTROLLER_STACK.peek();
 	}
@@ -290,10 +265,6 @@ public class CoreFeature {
 
 	public static FeatureStatus getDefaultForceTranslucentAccelerationSetting() {
 		return FeatureConfig.CONFIG.coreForceTranslucentAcceleration.get();
-	}
-
-	public static FeatureStatus getDefaultCacheIdenticalPoseSetting() {
-		return FeatureConfig.CONFIG.coreCacheIdenticalPose.get();
 	}
 
 	public static FeatureStatus getBypassGuiBatchingSetting() {

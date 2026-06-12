@@ -122,21 +122,19 @@ public class MeshUploadingProgramDispatcher {
 					var meshSize	= mesh		.size			();
 
 					for (var i = 0; i < meshCount; i ++) {
-						builder.getColorOffset		().at(offset)	.putInt			(vertexAddress, meshInfos	.getColor		(i));
-						builder.getUv1Offset		().at(offset)	.putInt			(vertexAddress, meshInfos	.getOverlay		(i));
-						builder.getUv2Offset		().at(offset)	.putInt			(vertexAddress, meshInfos	.getLight		(i));
+						builder.getColorOffset		()	.putIntAt		(vertexAddress, offset, meshInfos	.getColor		(i));
+						builder.getUv1Offset		()	.putIntAt		(vertexAddress, offset, meshInfos	.getOverlay		(i));
+						builder.getUv2Offset		()	.putIntAt		(vertexAddress, offset, meshInfos	.getLight		(i));
 
-						builder.getVaryingSharing	().at(offset)	.putInt			(varyingAddress, meshInfos	.getSharing		(i));
-						builder.getVaryingMesh		().at(offset)	.putInt			(varyingAddress, mesh		.offset			());
-						builder.getVaryingShouldCull().at(offset)	.putInt			(varyingAddress, meshInfos	.getShouldCull	(i));
-						builder.getProgramOverride	()				.uploadVarying	(varyingAddress, offset);
+						builder.getVaryingSharing	()	.putIntAt		(varyingAddress, offset, meshInfos	.getSharing		(i));
+						builder.getVaryingMesh		()	.putIntAt		(varyingAddress, offset, mesh		.offset			());
+						builder.getVaryingShouldCull()	.putIntAt		(varyingAddress, offset, meshInfos	.getShouldCull	(i));
+						builder.getProgramOverride	()	.uploadVarying	(varyingAddress, offset);
 
 						for (var offsetValue = 0; offsetValue < meshSize; offsetValue ++) {
 							builder
 									.getVaryingOffset	()
-									.at					(offset)
-									.at					(offsetValue)
-									.putInt				(varyingAddress, offsetValue);
+									.putIntAt			(varyingAddress, offset + offsetValue, offsetValue);
 						}
 
 						offset += meshSize;

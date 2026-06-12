@@ -21,9 +21,7 @@
   "acceleratedrendering.configuration.core_settings.debug_context": "启用调试上下文",
   "acceleratedrendering.configuration.core_settings.debug_context.tooltip": "- DISABLED: 调试上下文将会被禁用, 可能会在部分启用\"theaded optimization\"的NVIDIA显卡上有严重视觉错误.\n- ENABLED: 调试上下文将会被启用, 以阻止会NVIDIA显卡驱动应用会导致严重视觉错误的\"threaded optimization\".",
   "acceleratedrendering.configuration.core_settings.force_translucent_acceleration": "启用强制加速半透明",
-  "acceleratedrendering.configuration.core_settings.force_translucent_acceleration.tooltip": "- DISABLED: 除非其他MOD在渲染其模型时显示声明加速半透明, 否则被标记为半透明的RenderType将会在加速管线不支持半透明排序时使用原版渲染管线.\n- ENABLED: 除非其他MOD在渲染其模型时显式声明关闭强制半透明加速, 否则即使加速管线不支持半透明排序, 被标记为半透明的RenderType依然会使用加速管线进行渲染.",
-  "acceleratedrendering.configuration.core_settings.cache_identical_pose": "启用相同变换缓存",
-  "acceleratedrendering.configuration.core_settings.cache_identical_pose.tooltip": "- DISABLED: 除非其他MOD在渲染其模型时显示声明开启相同变换缓存, 否则具有相同变换矩阵和法线矩阵的变化将不会缓存, 部分降低CPU计算压力但是占用更多显存.\n- ENABLED: 除非其他MOD在渲染其模型时显式声明关闭相同变换缓存, 否则具有相同变换矩阵和法线矩阵的变化将会使用缓存中已有的数据, 小幅提升CPU计算压力但是占用更少显存.",
+  "acceleratedrendering.configuration.core_settings.force_translucent_acceleration.tooltip": "- DISABLED: 除非其他MOD在渲染其面片时显示声明加速半透明, 否则被标记为半透明的RenderType将会在加速管线不支持半透明排序时使用原版渲染管线.\n- ENABLED: 除非其他MOD在渲染其面片时显式声明关闭强制半透明加速, 否则即使加速管线不支持半透明排序, 被标记为半透明的RenderType依然会使用加速管线进行渲染.",
   "acceleratedrendering.configuration.core_settings.mesh_info_cache_type": "模型实例缓存类型",
   "acceleratedrendering.configuration.core_settings.mesh_info_cache_type.tooltip": "- SIMPLE: 最基础的缓存实现, 通常用来检测其他缓存类型是否正常工作.\n- HANDLE: 更快的缓存实现, 使用VarHandle和扁平化数据来提高读写性能.\n- UNSAFE: 最快的缓存实现, 使用了不安全的内存操作来跳过多项检查进行读写.",
   "acceleratedrendering.configuration.core_settings.layer_storage_type": "合批层储存类型",
@@ -187,6 +185,8 @@
   "acceleratedrendering.configuration.mods_compatibility.ftb_feature_status.tooltip": "- DISABLED: 禁止加速渲染对FTB Library驱动的UI界面(如FTB Quests)进行加速.\n- ENABLED: 加速渲染将会对FTB Library驱动的UI界面进行加速.",
   "acceleratedrendering.configuration.mods_compatibility.sophisticated_feature_status": "启用精妙核心兼容",
   "acceleratedrendering.configuration.mods_compatibility.sophisticated_feature_status.tooltip": "- DISABLED: 禁止加速渲染对精妙核心驱动的UI界面(如精妙存储)进行加速.\n- ENABLED: 加速渲染将会对精妙核心驱动的UI界面进行加速.",
+  "acceleratedrendering.configuration.mods_compatibility.modernui_feature_status": "启用现代化UI兼容",
+  "acceleratedrendering.configuration.mods_compatibility.modernui_feature_status.tooltip": "- DISABLED: 禁止加速渲染对现代化UI的现代化文字引擎所驱动的文字渲染进行加速.\n- ENABLED: 加速渲染将会对现代化UI的现代化文字引擎所驱动的文字渲染进行加速.",
   "acceleratedrendering.configuration.mods_compatibility.button": "配置",
   "acceleratedrendering.component.not_available": "加速渲染正运行在不受支持的环境中, 加速渲染将不会生效."
 }

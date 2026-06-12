@@ -1,12 +1,13 @@
-package com.github.argon4w.acceleratedrendering.features.text;
+package com.github.argon4w.acceleratedrendering.features.text.renderers;
 
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.IBufferGraph;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.VertexConsumerExtension;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.renderers.IAcceleratedRenderer;
 import com.github.argon4w.acceleratedrendering.core.meshes.IMesh;
 import com.github.argon4w.acceleratedrendering.core.meshes.collectors.SimpleMeshCollector;
+import com.github.argon4w.acceleratedrendering.features.text.AcceleratedTextRenderingFeature;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import lombok.experimental.ExtensionMethod;
 import net.minecraft.client.gui.font.glyphs.BakedGlyph;
 import org.joml.Matrix3f;
@@ -17,17 +18,14 @@ import org.joml.Vector3f;
 import java.util.Map;
 
 @ExtensionMethod(VertexConsumerExtension.class)
-public class AcceleratedBakedGlyphRenderer implements IAcceleratedRenderer<Vector2f> {
-
-	private static final Matrix4f TRANSFORM	= new Matrix4f();
-	private static final Matrix3f NORMAL	= new Matrix3f();
+public class AcceleratedBakedGlyphRenderer implements IAcceleratedRenderer<Void> {
 
 	private final Map<IBufferGraph, IMesh>	meshes;
 	private final BakedGlyph				bakedGlyph;
 	private final boolean					italic;
 
 	public AcceleratedBakedGlyphRenderer(BakedGlyph bakedGlyph, boolean italic) {
-		this.meshes		= new Object2ObjectOpenHashMap<>();
+		this.meshes		= new Object2ObjectArrayMap<>();
 		this.bakedGlyph	= bakedGlyph;
 		this.italic		= italic;
 	}
@@ -35,7 +33,7 @@ public class AcceleratedBakedGlyphRenderer implements IAcceleratedRenderer<Vecto
 	@Override
 	public void render(
 			VertexConsumer	vertexConsumer,
-			Vector2f		context,
+			Void			context,
 			Matrix4f		transform,
 			Matrix3f		normal,
 			int				light,
@@ -45,14 +43,7 @@ public class AcceleratedBakedGlyphRenderer implements IAcceleratedRenderer<Vecto
 		var extension	= vertexConsumer.getAccelerated	();
 		var mesh		= meshes		.get			(extension);
 
-		TRANSFORM.set		(transform);
-		TRANSFORM.translate	(
-				context.x,
-				context.y,
-				0.0f
-		);
-
-		extension.beginTransform(TRANSFORM, NORMAL);
+		extension.beginTransform(transform, normal);
 
 		if (mesh != null) {
 			mesh.write(

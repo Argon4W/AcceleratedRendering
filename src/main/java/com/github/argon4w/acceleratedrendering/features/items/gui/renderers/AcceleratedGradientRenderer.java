@@ -1,8 +1,7 @@
-package com.github.argon4w.acceleratedrendering.features.items.gui.renderer;
+package com.github.argon4w.acceleratedrendering.features.items.gui.renderers;
 
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.VertexConsumerExtension;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.renderers.IAcceleratedRenderer;
-import com.github.argon4w.acceleratedrendering.features.items.gui.contexts.FillDrawContext;
 import com.github.argon4w.acceleratedrendering.features.items.gui.contexts.GradientDrawContext;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import lombok.experimental.ExtensionMethod;

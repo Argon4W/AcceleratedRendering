@@ -55,7 +55,37 @@ public class SimpleDynamicMemoryInterface implements IMemoryInterface {
 	}
 
 	@Override
-	public IMemoryInterface at(int index) {
-		return new SimpleDynamicMemoryInterface(index * size.getAsLong() + offset, size);
+	public void putByteAt(long address, int at, byte value) {
+		MemoryUtil.memPutByte(address + offset + at * size.getAsLong(), value);
+	}
+
+	@Override
+	public void putShortAt(long address, int at, short value) {
+		MemoryUtil.memPutShort(address + offset + at * size.getAsLong(), value);
+	}
+
+	@Override
+	public void putIntAt(long address, int at, int value) {
+		MemoryUtil.memPutInt(address + offset + at * size.getAsLong(), value);
+	}
+
+	@Override
+	public void putFloatAt(long address, int at, float value) {
+		MemoryUtil.memPutFloat(address + offset + at * size.getAsLong(), value);
+	}
+
+	@Override
+	public void putNormalAt(long address, int at, float value) {
+		MemUtils.putNormal(address + offset + at * size.getAsLong(), value);
+	}
+
+	@Override
+	public void putMatrix4fAt(long address, int at, Matrix4f value) {
+		MemUtils.putMatrix4f(address + offset + at * size.getAsLong(), value);
+	}
+
+	@Override
+	public void putMatrix3fAt(long address, int at, Matrix3f value) {
+		MemUtils.putMatrix3f(address + offset + at * size.getAsLong(), value);
 	}
 }

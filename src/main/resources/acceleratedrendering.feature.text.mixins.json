@@ -5,7 +5,14 @@
   "compatibilityLevel": "JAVA_17",
   "client": [
     "BakedGlyphEffectMixin",
-    "BakedGlyphMixin"
+    "BakedGlyphMixin",
+    "ClientLanguageMixin",
+    "FontMixin",
+    "FormattedText$2Mixin",
+    "FormattedText$3Mixin",
+    "LineComponentMixin",
+    "MutableComponentMixin",
+    "StringRenderOutputMixin"
   ],
   "injectors": {
     "defaultRequire": 1

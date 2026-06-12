@@ -16,6 +16,7 @@ public class ModsFeature {
 	private static final Deque<FeatureStatus> SBM_ACCELERATION_CONTROLLER_STACK				= new ArrayDeque<>();
 	private static final Deque<FeatureStatus> FTB_ACCELERATION_CONTROLLER_STACK				= new ArrayDeque<>();
 	private static final Deque<FeatureStatus> SOPHISTICATED_ACCELERATION_CONTROLLER_STACK	= new ArrayDeque<>();
+	private static final Deque<FeatureStatus> MODERNUI_ACCELERATION_CONTROLLER_STACK		= new ArrayDeque<>();
 
 	public static boolean isEnabled() {
 		return FeatureConfig.CONFIG.modsFeatureStatus.get() == FeatureStatus.ENABLED;
@@ -51,6 +52,10 @@ public class ModsFeature {
 
 	public static boolean shouldAccelerateSophisticated() {
 		return getSophisticatedSetting() == FeatureStatus.ENABLED;
+	}
+
+	public static boolean shouldAccelerateModernUI() {
+		return getModernUISetting() == FeatureStatus.ENABLED;
 	}
 
 	public static void disableVanillaFix() {
@@ -181,6 +186,22 @@ public class ModsFeature {
 		SOPHISTICATED_ACCELERATION_CONTROLLER_STACK.pop();
 	}
 
+	public static void disableModernUIAcceleration() {
+		MODERNUI_ACCELERATION_CONTROLLER_STACK.push(FeatureStatus.DISABLED);
+	}
+
+	public static void forceEnableModernUIAcceleration() {
+		MODERNUI_ACCELERATION_CONTROLLER_STACK.push(FeatureStatus.ENABLED);
+	}
+
+	public static void forceSetModernUIAcceleration(FeatureStatus status) {
+		MODERNUI_ACCELERATION_CONTROLLER_STACK.push(status);
+	}
+
+	public static void resetModernUIAcceleration() {
+		MODERNUI_ACCELERATION_CONTROLLER_STACK.pop();
+	}
+
 	public static FeatureStatus getVanillaFixSetting() {
 		return VANILLA_FIX_CONTROLLER_STACK.isEmpty() ? getDefaultVanillaFixSetting() : VANILLA_FIX_CONTROLLER_STACK.peek();
 	}
@@ -213,6 +234,10 @@ public class ModsFeature {
 		return SOPHISTICATED_ACCELERATION_CONTROLLER_STACK.isEmpty() ? getDefaultSophisticatedSetting() : SOPHISTICATED_ACCELERATION_CONTROLLER_STACK.peek();
 	}
 
+	public static FeatureStatus getModernUISetting() {
+		return MODERNUI_ACCELERATION_CONTROLLER_STACK.isEmpty() ? getDefaultModernUISetting() : MODERNUI_ACCELERATION_CONTROLLER_STACK.peek();
+	}
+
 	public static FeatureStatus getDefaultVanillaFixSetting() {
 		return FeatureConfig.CONFIG.modsVanillaFixFeatureStatus.get();
 	}
@@ -243,5 +268,9 @@ public class ModsFeature {
 
 	public static FeatureStatus getDefaultSophisticatedSetting() {
 		return FeatureConfig.CONFIG.modsSophisticatedFeatureStatus.get();
+	}
+
+	public static FeatureStatus getDefaultModernUISetting() {
+		return FeatureConfig.CONFIG.modsModernUIFeatureStatus.get();
 	}
 }

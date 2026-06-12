@@ -28,8 +28,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 )
 public class EntityRenderDispatcherMixin {
 
-	@Unique private static final Matrix3f							SHADOW_NORMAL_MATRIX	= new Matrix3f().identity				();
-	@Unique private static final AcceleratedEntityShadowRenderer	SHADOW_RENDERER			= new AcceleratedEntityShadowRenderer	();
+	@Unique private static final Matrix3f SHADOW_NORMAL_MATRIX = new Matrix3f().identity();
 
 	@Inject(
 			method		= "renderBlockShadow",
@@ -59,8 +58,8 @@ public class EntityRenderDispatcherMixin {
 		) {
 			ci			.cancel		();
 			extension	.doRender	(
-					SHADOW_RENDERER,
-					new AcceleratedEntityShadowRenderer.Context(
+					AcceleratedEntityShadowRenderer.INSTANCE,
+					AcceleratedEntityShadowRenderer.context(
 							pLevel,
 							pChunk,
 							pPos,

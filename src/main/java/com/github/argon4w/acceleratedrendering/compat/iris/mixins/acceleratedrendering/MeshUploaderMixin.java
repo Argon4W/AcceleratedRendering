@@ -30,7 +30,7 @@ public abstract class MeshUploaderMixin {
 			method	= "upload",
 			at		= @At(
 					value	= "INVOKE",
-					target	= "Lcom/github/argon4w/acceleratedrendering/core/buffers/memory/IMemoryInterface;putInt(JI)V",
+					target	= "Lcom/github/argon4w/acceleratedrendering/core/buffers/memory/IMemoryInterface;putIntAt(JII)V",
 					ordinal	= 4,
 					shift	= At.Shift.AFTER
 			),
@@ -44,9 +44,9 @@ public abstract class MeshUploaderMixin {
 			@Local(name = "i") int	offset
 	) {
 		if (buffers.getEnvironment() instanceof IrisBufferEnvironment iris && iris.useIris()) {
-			IRIS_INFO_ENTITY		.at(offset).putShort(meshInfoAddress, ((IIrisMeshInfoCache) meshInfos).getRenderedEntity		(offset));
-			IRIS_INFO_BLOCK_ENTITY	.at(offset).putShort(meshInfoAddress, ((IIrisMeshInfoCache) meshInfos).getRenderedBlockEntity	(offset));
-			IRIS_INFO_ITEM			.at(offset).putShort(meshInfoAddress, ((IIrisMeshInfoCache) meshInfos).getRenderedItem			(offset));
+			IRIS_INFO_ENTITY		.putShortAt(meshInfoAddress, offset, ((IIrisMeshInfoCache) meshInfos).getRenderedEntity		(offset));
+			IRIS_INFO_BLOCK_ENTITY	.putShortAt(meshInfoAddress, offset, ((IIrisMeshInfoCache) meshInfos).getRenderedBlockEntity(offset));
+			IRIS_INFO_ITEM			.putShortAt(meshInfoAddress, offset, ((IIrisMeshInfoCache) meshInfos).getRenderedItem		(offset));
 		}
 	}
 }

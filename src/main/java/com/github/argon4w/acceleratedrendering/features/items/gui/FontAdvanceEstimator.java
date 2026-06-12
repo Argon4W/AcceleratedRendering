@@ -1,5 +1,7 @@
 package com.github.argon4w.acceleratedrendering.features.items.gui;
 
+import it.unimi.dsi.fastutil.ints.IntList;
+import it.unimi.dsi.fastutil.longs.LongList;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -35,12 +37,20 @@ public class FontAdvanceEstimator implements FormattedCharSink {
 		return true;
 	}
 
+	public void add(int codePoint, Style style) {
+		accept(
+				0,
+				style,
+				codePoint
+		);
+	}
+
 	public FontAdvanceEstimator reset() {
 		advance = 0.0f;
 		return this;
 	}
 
-	public int getAdvance(
+	public float getAdvance(
 			Style	textStyle,
 			String	textString,
 			boolean	textShadow,
@@ -52,16 +62,16 @@ public class FontAdvanceEstimator implements FormattedCharSink {
 				reset()
 		);
 
-		return (int) (textX + getAdvance()) + (textShadow ? 1 : 0);
+		return textX + getAdvance() + (textShadow ? 1.0f : 0.0f);
 	}
 
-	public int getAdvance(
+	public float getAdvance(
 			FormattedCharSequence	textSequence,
 			boolean					textShadow,
 			float					textX
 	) {
 		textSequence.accept(reset());
 
-		return (int) (textX + getAdvance()) + (textShadow ? 1 : 0);
+		return textX + getAdvance() + (textShadow ? 1.0f : 0.0f);
 	}
 }

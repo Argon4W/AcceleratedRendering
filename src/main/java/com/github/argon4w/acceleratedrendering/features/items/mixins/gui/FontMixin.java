@@ -66,7 +66,7 @@ public abstract class FontMixin {
 				isBidirectional()
 		));
 
-		return FontAdvanceEstimator.INSTANCE.getAdvance(
+		return (int) FontAdvanceEstimator.INSTANCE.getAdvance(
 				Style.EMPTY,
 				textString,
 				textShadow,
@@ -122,7 +122,7 @@ public abstract class FontMixin {
 				bidirectional
 		));
 
-		return FontAdvanceEstimator.INSTANCE.getAdvance(
+		return (int) FontAdvanceEstimator.INSTANCE.getAdvance(
 				Style.EMPTY,
 				textString,
 				textShadow,
@@ -175,7 +175,7 @@ public abstract class FontMixin {
 				packedLight
 		));
 
-		return FontAdvanceEstimator.INSTANCE.getAdvance(
+		return (int) FontAdvanceEstimator.INSTANCE.getAdvance(
 				textComponent.getVisualOrderText(),
 				textShadow,
 				textX
@@ -227,7 +227,7 @@ public abstract class FontMixin {
 				packedLight
 		));
 
-		return FontAdvanceEstimator.INSTANCE.getAdvance(
+		return (int) FontAdvanceEstimator.INSTANCE.getAdvance(
 				textSequence,
 				textShadow,
 				textX

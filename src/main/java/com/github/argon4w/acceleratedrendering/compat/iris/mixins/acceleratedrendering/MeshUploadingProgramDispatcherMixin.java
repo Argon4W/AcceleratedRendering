@@ -21,7 +21,7 @@ public class MeshUploadingProgramDispatcherMixin {
 			method	= "dispatch",
 			at		= @At(
 					value	= "INVOKE",
-					target	= "Lcom/github/argon4w/acceleratedrendering/core/buffers/memory/IMemoryInterface;putInt(JI)V",
+					target	= "Lcom/github/argon4w/acceleratedrendering/core/buffers/memory/IMemoryInterface;putIntAt(JII)V",
 					ordinal	= 2,
 					shift	= At.Shift.AFTER
 			),
@@ -37,8 +37,8 @@ public class MeshUploadingProgramDispatcherMixin {
 			@Local(name = "i")				int							i,
 			@Local(name = "vertexAddress")	long						vertexAddress
 	) {
-		((IIrisAcceleratedBufferBuilder) builder).getEntityIdOffset()	.at(offset).putShort(vertexAddress + 0L, ((IIrisMeshInfoCache) meshInfos).getRenderedEntity		(i));
-		((IIrisAcceleratedBufferBuilder) builder).getEntityIdOffset()	.at(offset).putShort(vertexAddress + 2L, ((IIrisMeshInfoCache) meshInfos).getRenderedBlockEntity(i));
-		((IIrisAcceleratedBufferBuilder) builder).getEntityIdOffset()	.at(offset).putShort(vertexAddress + 4L, ((IIrisMeshInfoCache) meshInfos).getRenderedItem		(i));
+		((IIrisAcceleratedBufferBuilder) builder).getEntityIdOffset().putShortAt(vertexAddress + 0L, offset, ((IIrisMeshInfoCache) meshInfos).getRenderedEntity		(i));
+		((IIrisAcceleratedBufferBuilder) builder).getEntityIdOffset().putShortAt(vertexAddress + 2L, offset, ((IIrisMeshInfoCache) meshInfos).getRenderedBlockEntity(i));
+		((IIrisAcceleratedBufferBuilder) builder).getEntityIdOffset().putShortAt(vertexAddress + 4L, offset, ((IIrisMeshInfoCache) meshInfos).getRenderedItem		(i));
 	}
 }

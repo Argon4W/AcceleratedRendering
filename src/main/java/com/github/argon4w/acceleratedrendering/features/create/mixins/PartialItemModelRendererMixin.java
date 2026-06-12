@@ -7,7 +7,6 @@ import com.github.argon4w.acceleratedrendering.features.items.AcceleratedItemRen
 import com.github.argon4w.acceleratedrendering.features.items.AcceleratedQuadsRenderer;
 import com.github.argon4w.acceleratedrendering.features.items.BakedModelExtension;
 import com.github.argon4w.acceleratedrendering.features.items.colors.FixedColors;
-import com.github.argon4w.acceleratedrendering.features.items.contexts.AcceleratedQuadsRenderContext;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -95,7 +94,7 @@ public class PartialItemModelRendererMixin {
 			random		.setSeed	(42L);
 			extension1	.doRender	(
 					AcceleratedQuadsRenderer.INSTANCE,
-					new AcceleratedQuadsRenderContext(
+					AcceleratedQuadsRenderer.context(
 							bakedModel.getQuads(
 									null,
 									direction,

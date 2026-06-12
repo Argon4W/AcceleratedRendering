@@ -63,6 +63,16 @@ public class StorageScreenBaseMixin {
 				&& !AcceleratedItemRenderingFeature	.shouldMergeGuiItemBatches		()
 		) {
 			depth.set(depth.get() + GuiBatchingController.INSTANCE.flushBatching(guiGraphics));
+
+			guiGraphics
+					.pose			()
+					.last			()
+					.pose			()
+					.translateLocal	(
+							0.0f,
+							0.0f,
+							depth.get()
+					);
 		}
 	}
 
@@ -128,10 +138,14 @@ public class StorageScreenBaseMixin {
 			CallbackInfo					ci,
 			@Share("depth") LocalFloatRef	depth
 	) {
-		guiGraphics.pose().last().pose().translateLocal(
-				0.0f,
-				0.0f,
-				depth.get()
-		);
+		guiGraphics
+				.pose			()
+				.last			()
+				.pose			()
+				.translateLocal	(
+						0.0f,
+						0.0f,
+						depth.get()
+				);
 	}
 }

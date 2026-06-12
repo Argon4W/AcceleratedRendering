@@ -70,11 +70,11 @@ public class IndirectDrawContextPool extends SimpleResetPool<IndirectDrawContext
 
 			var address = context.reserve(20L);
 
-			INDIRECT_INDEX_COUNT	.putInt	(address, 0);
-			INDIRECT_INSTANCE_COUNT	.putInt	(address, 1);
-			INDIRECT_FIRST_INDEX	.putInt	(address, 0);
-			INDIRECT_BASE_INDEX		.putInt	(address, 0);
-			INDIRECT_BASE_INSTANCE	.putInt	(address, 0);
+			INDIRECT_INDEX_COUNT	.putInt(address, 0);
+			INDIRECT_INSTANCE_COUNT	.putInt(address, 1);
+			INDIRECT_FIRST_INDEX	.putInt(address, 0);
+			INDIRECT_BASE_INDEX		.putInt(address, 0);
+			INDIRECT_BASE_INSTANCE	.putInt(address, 0);
 		}
 
 		@Override

@@ -48,7 +48,37 @@ public class NullMemoryInterface implements IMemoryInterface {
 	}
 
 	@Override
-	public IMemoryInterface at(int index) {
-		return INSTANCE;
+	public void putByteAt(long address, int at, byte value) {
+
+	}
+
+	@Override
+	public void putShortAt(long address, int at, short value) {
+
+	}
+
+	@Override
+	public void putIntAt(long address, int at, int value) {
+
+	}
+
+	@Override
+	public void putFloatAt(long address, int at, float value) {
+
+	}
+
+	@Override
+	public void putNormalAt(long address, int at, float value) {
+
+	}
+
+	@Override
+	public void putMatrix4fAt(long address, int at, Matrix4f value) {
+
+	}
+
+	@Override
+	public void putMatrix3fAt(long address, int at, Matrix3f value) {
+
 	}
 }

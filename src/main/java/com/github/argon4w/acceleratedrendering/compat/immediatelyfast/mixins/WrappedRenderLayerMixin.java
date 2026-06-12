@@ -15,7 +15,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(BatchingRenderLayers.WrappedRenderLayer.class)
 public class WrappedRenderLayerMixin {
 
-	@Unique private RenderType original;
+	@Unique private RenderType	original;
+	@Unique private Runnable	startAction;
+	@Unique private Runnable	endAction;
 
 	@Inject(
 			method	= "<init>",
@@ -28,6 +30,8 @@ public class WrappedRenderLayerMixin {
 			Runnable		additionalEndAction,
 			CallbackInfo	ci
 	) {
-		this.original = renderLayer;
+		this.original		= renderLayer;
+		this.startAction	= additionalStartAction;
+		this.endAction		= additionalEndAction;
 	}
 }

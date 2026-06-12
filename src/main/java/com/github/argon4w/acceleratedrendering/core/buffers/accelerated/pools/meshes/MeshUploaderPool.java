@@ -95,14 +95,14 @@ public class MeshUploaderPool extends SimpleResetPool<MeshUploaderPool.MeshUploa
 			var meshCount = meshInfos.getMeshCount();
 
 			for (var i = 0; i < meshCount; i ++) {
-				meshInfoVertexOffset	.at(i)	.putInt			(meshInfoAddress, vertexOffset	+ i * serverMesh.size());
-				meshInfoVaryingOffset	.at(i)	.putInt			(meshInfoAddress, varyingOffset	+ i * serverMesh.size());
-				meshInfoSharing			.at(i)	.putInt			(meshInfoAddress, meshInfos.getSharing		(i));
-				meshInfoShouldCull		.at(i)	.putInt			(meshInfoAddress, meshInfos.getShouldCull	(i));
-				meshInfoColor			.at(i)	.putInt			(meshInfoAddress, meshInfos.getColor		(i));
-				meshInfoOverlay			.at(i)	.putInt			(meshInfoAddress, meshInfos.getOverlay		(i));
-				meshInfoLight			.at(i)	.putInt			(meshInfoAddress, meshInfos.getLight		(i));
-				override						.uploadMeshInfo	(meshInfoAddress, i);
+				meshInfoVertexOffset	.putIntAt			(meshInfoAddress, i, vertexOffset	+ i * serverMesh.size());
+				meshInfoVaryingOffset	.putIntAt			(meshInfoAddress, i, varyingOffset	+ i * serverMesh.size());
+				meshInfoSharing			.putIntAt			(meshInfoAddress, i, meshInfos.getSharing	(i));
+				meshInfoShouldCull		.putIntAt			(meshInfoAddress, i, meshInfos.getShouldCull(i));
+				meshInfoColor			.putIntAt			(meshInfoAddress, i, meshInfos.getColor		(i));
+				meshInfoOverlay			.putIntAt			(meshInfoAddress, i, meshInfos.getOverlay	(i));
+				meshInfoLight			.putIntAt			(meshInfoAddress, i, meshInfos.getLight		(i));
+				override				.uploadMeshInfo		(meshInfoAddress, i);
 			}
 		}
 

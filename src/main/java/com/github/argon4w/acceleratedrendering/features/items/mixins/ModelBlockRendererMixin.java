@@ -7,7 +7,6 @@ import com.github.argon4w.acceleratedrendering.features.items.AcceleratedItemRen
 import com.github.argon4w.acceleratedrendering.features.items.AcceleratedQuadsRenderer;
 import com.github.argon4w.acceleratedrendering.features.items.BakedModelExtension;
 import com.github.argon4w.acceleratedrendering.features.items.colors.FixedColors;
-import com.github.argon4w.acceleratedrendering.features.items.contexts.AcceleratedQuadsRenderContext;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import lombok.experimental.ExtensionMethod;
@@ -101,7 +100,7 @@ public class ModelBlockRendererMixin {
 			randomSource.setSeed	(42L);
 			extension1	.doRender	(
 					AcceleratedQuadsRenderer.INSTANCE,
-					new AcceleratedQuadsRenderContext(
+					AcceleratedQuadsRenderer.context(
 							model.getQuads(
 									state,
 									direction,

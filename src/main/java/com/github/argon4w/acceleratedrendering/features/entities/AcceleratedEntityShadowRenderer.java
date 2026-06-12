@@ -18,6 +18,8 @@ import org.joml.Vector3f;
 @ExtensionMethod(VertexConsumerExtension.class)
 public class AcceleratedEntityShadowRenderer implements IAcceleratedRenderer<AcceleratedEntityShadowRenderer.Context> {
 
+	public static final AcceleratedEntityShadowRenderer INSTANCE = new AcceleratedEntityShadowRenderer();
+
 	@Override
 	public void render(
 			VertexConsumer	vertexConsumer,
@@ -127,6 +129,24 @@ public class AcceleratedEntityShadowRenderer implements IAcceleratedRenderer<Acc
 		}
 
 		extension.endTransform();
+	}
+
+	public static Context context(
+			LevelReader	levelReader,
+			ChunkAccess	chunkAccess,
+			BlockPos	blockPos,
+			Vector3f	center,
+			float		size,
+			float		weight
+	) {
+		return new Context(
+				levelReader,
+				chunkAccess,
+				blockPos,
+				center,
+				size,
+				weight
+		);
 	}
 
 	public record Context(

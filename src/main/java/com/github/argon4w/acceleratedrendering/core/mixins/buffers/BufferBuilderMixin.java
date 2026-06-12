@@ -9,11 +9,15 @@ import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.renderers.IAcceleratedRenderer;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.renderer.RenderType;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.function.Supplier;
 
@@ -23,14 +27,34 @@ public class BufferBuilderMixin implements IAccelerationHolder, IAcceleratedVert
 	@Unique private IAcceleratedBufferSource	bufferSources = EmptyAcceleratedBufferSources.INSTANCE;
 	@Unique private RenderType					renderType;
 	@Unique private AcceleratedBufferBuilder	acceleration;
+	@Unique private boolean						init = false;
+
+
+	@Inject(
+			method = "begin",
+			at = @At(
+					value	= "INVOKE",
+					target	= "Lcom/mojang/blaze3d/vertex/BufferBuilder;switchFormat(Lcom/mojang/blaze3d/vertex/VertexFormat;)V",
+					shift	= At.Shift.AFTER
+			)
+	)
+	public void onBegin(
+			VertexFormat.Mode	mode,
+			VertexFormat		format,
+			CallbackInfo		ci
+	) {
+		this.acceleration	= null;
+		this.init			= false;
+	}
 
 	@Unique
 	@Override
 	public VertexConsumer initAcceleration(RenderType renderType, Supplier<IAcceleratedBufferSource> bufferSource) {
-		if (CoreFeature.isLoaded()) {
+		if (CoreFeature.isLoaded() && !init) {
 			this.bufferSources	= bufferSource.get();
 			this.renderType		= renderType;
 			this.acceleration	= null;
+			this.init			= true;
 		}
 
 		return (VertexConsumer) this;
