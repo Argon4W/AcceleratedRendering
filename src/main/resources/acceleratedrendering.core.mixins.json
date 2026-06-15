@@ -8,6 +8,7 @@
     "buffers.BufferSourceMixin",
     "buffers.EntityOutlineGeneratorMixin",
     "buffers.MinecraftMixin",
+    "buffers.MultiBufferSourceMixin",
     "buffers.OutlineBufferSourceMixin",
     "buffers.SheetedDecalTextureGeneratorMixin",
     "buffers.SpriteCoordinateExpanderMixin",

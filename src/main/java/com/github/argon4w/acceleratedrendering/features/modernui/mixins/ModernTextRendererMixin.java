@@ -23,8 +23,8 @@ import org.spongepowered.asm.mixin.injection.At;
 public class ModernTextRendererMixin {
 
 	@WrapOperation(
-			method = "drawText(Licyllis/modernui/mc/text/TextLayout;FFIZLorg/joml/Matrix4f;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/client/gui/Font$DisplayMode;II)F",
-			at = @At(
+			method	= "drawText(Licyllis/modernui/mc/text/TextLayout;FFIZLorg/joml/Matrix4f;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/client/gui/Font$DisplayMode;II)F",
+			at		= @At(
 					value	= "INVOKE",
 					target	= "Licyllis/modernui/mc/text/TextLayout;drawText(Lorg/joml/Matrix4f;Lnet/minecraft/client/renderer/MultiBufferSource;FFIIIIZIZFII)F"
 			),

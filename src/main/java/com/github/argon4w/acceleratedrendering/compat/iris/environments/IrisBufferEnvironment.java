@@ -69,11 +69,6 @@ public class IrisBufferEnvironment implements IBufferEnvironment {
 	}
 
 	@Override
-	public IServerBuffer getImmediateMeshBuffer() {
-		return getSubSet().getImmediateMeshBuffer();
-	}
-
-	@Override
 	public ProgramOverride getProgramOverride(RenderType renderType) {
 		return getSubSet().getProgramOverride(renderType);
 	}
@@ -185,11 +180,6 @@ public class IrisBufferEnvironment implements IBufferEnvironment {
 		@Override
 		public VertexLayout getLayout() {
 			return layout;
-		}
-
-		@Override
-		public IServerBuffer getImmediateMeshBuffer() {
-			return ServerMesh.Builder.BUFFERS.get(layout).get(0);
 		}
 
 		@Override

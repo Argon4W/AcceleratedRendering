@@ -7,14 +7,15 @@ import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 
-@Mod.EventBusSubscriber(
+@EventBusSubscriber	(
 		modid	= AcceleratedRenderingModEntry	.MOD_ID,
-		bus		= Mod.EventBusSubscriber.Bus	.FORGE,
-		value	= Dist							.CLIENT
+		value	= Dist							.CLIENT,
+		bus		= Bus							.FORGE
 )
-public class CoreEvents {
+public class CoreGameEvents {
 
 	@SubscribeEvent
 	public static void onClientPlayerLoggedIn(ClientPlayerNetworkEvent.LoggingIn event) {

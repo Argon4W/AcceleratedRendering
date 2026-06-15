@@ -48,4 +48,10 @@ public class SimpleMeshDataCache implements IMeshDataCache {
 	public int count(VertexLayout layout, MeshData data) {
 		return counts.get(layout).getInt(data);
 	}
+
+	@Override
+	public void reload() {
+		meshes.clear();
+		counts.clear();
+	}
 }

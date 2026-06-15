@@ -139,8 +139,7 @@ public class AcceleratedBufferSource implements IAcceleratedBufferSource {
 				continue;
 			}
 
-			environment.getImmediateMeshBuffer				().bindBase	(GL_SHADER_STORAGE_BUFFER,	MeshUploadingProgramDispatcher.SPARSE_MESH_BUFFER_INDEX);
-			environment.selectMeshUploadingProgramDispatcher().dispatch	(builders.values(),			buffer);
+			environment.selectMeshUploadingProgramDispatcher().dispatch	(builders.values(), buffer);
 			environment.selectTransformProgramDispatcher	().dispatch	(builders.values());
 
 			glMemoryBarrier(barriers);

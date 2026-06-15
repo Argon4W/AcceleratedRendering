@@ -75,17 +75,25 @@ public class MeshUploadingProgramDispatcher {
 			var dense	= buffer.getDenseUploads	();
 			var all		= buffer.getMeshUploads		();
 
-			for (var uploads : all.getUploads().values()) {
-				var mesh		= uploads.getMesh		();
-				var uploaders	= uploads.getMeshUploads();
-				var uploadCount	= uploads.getMeshCounter();
+			var denseObjects	= all.getDenseObj	();
+			var denseHeads		= all.getDenseHead	();
+			var layerSize		= all.getLayerSize	();
 
-				var upload = mesh.isDense(uploadCount)
-						? dense
-						: sparse;
+			for (var meshLayer = 0; meshLayer < layerSize; meshLayer ++) {
+				for (int denseId = 0, denseSize = denseHeads[meshLayer]; denseId < denseSize; denseId ++) {
+					var uploads = (MeshUploads.Upload) denseObjects[meshLayer][denseId];
 
-				for (var uploader : uploaders) {
-					upload.add(uploader);
+					var mesh		= uploads.getMesh		();
+					var uploaders	= uploads.getMeshUploads();
+					var uploadCount	= uploads.getMeshCounter();
+
+					var upload = mesh.isDense(uploadCount)
+							? dense
+							: sparse;
+
+					for (var uploader : uploaders) {
+						upload.add(uploader);
+					}
 				}
 			}
 		}
@@ -94,9 +102,7 @@ public class MeshUploadingProgramDispatcher {
 		ringBuffer.bindTransformBuffers	();
 
 		for (var builder : builders) {
-			var offset		= 0;
-			var sparseStart	= 0;
-
+			var globalOffset	= 0;
 			var vertexBuffer	= builder.getVertexBuffer	();
 			var varyingBuffer	= builder.getVaryingBuffer	();
 			var vertexCount		= builder.getVertexCount	();
@@ -107,6 +113,7 @@ public class MeshUploadingProgramDispatcher {
 			var varyingOffset	= builder		.getVaryingCountOffset	();
 
 			for (var buffer : buffers.values()) {
+				var localCount	= 0;
 				var sparse		= buffer.getSparseUploads	();
 				var meshBuffer	= buffer.getMeshBuffer		();
 				var upload		= sparse.getUploads			()[builder.getIndex()];
@@ -122,6 +129,8 @@ public class MeshUploadingProgramDispatcher {
 					var meshSize	= mesh		.size			();
 
 					for (var i = 0; i < meshCount; i ++) {
+						var offset = globalOffset + localCount;
+
 						builder.getColorOffset		()	.putIntAt		(vertexAddress, offset, meshInfos	.getColor		(i));
 						builder.getUv1Offset		()	.putIntAt		(vertexAddress, offset, meshInfos	.getOverlay		(i));
 						builder.getUv2Offset		()	.putIntAt		(vertexAddress, offset, meshInfos	.getLight		(i));
@@ -134,78 +143,86 @@ public class MeshUploadingProgramDispatcher {
 						for (var offsetValue = 0; offsetValue < meshSize; offsetValue ++) {
 							builder
 									.getVaryingOffset	()
-									.putIntAt			(varyingAddress, offset + offsetValue, offsetValue);
+									.putIntAt			(varyingAddress, localCount + offsetValue, offsetValue);
 						}
 
-						offset += meshSize;
+						localCount += meshSize;
 					}
 				}
 
-				var count = offset - sparseStart;
-
-				if (count != 0) {
+				if (localCount != 0) {
 					meshBuffer.bindBase(GL_SHADER_STORAGE_BUFFER, SPARSE_MESH_BUFFER_INDEX);
 
 					lastBarriers |=	transform.dispatch(
 							builder,
 							vertexBuffer,
 							varyingBuffer,
-							count,
-							sparseStart + vertexCount + vertexOffset,
-							sparseStart + vertexCount + varyingOffset
+							vertexCount + globalOffset,
+							localCount,
+							vertexOffset	+ vertexCount + globalOffset,
+							varyingOffset	+ vertexCount + globalOffset
 					);
-				}
 
-				sparseStart = offset;
+					globalOffset += localCount;
+				}
 			}
 		}
 
 		for (var buffer : buffers.values()) {
-			var meshBuffer = buffer.getMeshBuffer();
+			var meshBuffer		= buffer.getMeshBuffer	();
+			var denseUploads	= buffer.getDenseUploads();
 
-			for (var group : buffer.getDenseUploads().getGroups().values()) {
-				var mesh = group.getMesh();
+			var denseObjects	= denseUploads.getDenseObj	();
+			var denseHeads		= denseUploads.getDenseHead	();
+			var layerSize		= denseUploads.getLayerSize	();
 
-				for (var upload : group.getUploads()) {
-					if (upload == null) {
-						continue;
-					}
+			for (var meshLayer = 0; meshLayer < layerSize; meshLayer ++) {
+				for (int denseId = 0, denseSize = denseHeads[meshLayer]; denseId < denseSize; denseId++) {
+					var group = (DenseUploads.Group) denseObjects[meshLayer][denseId];
 
-					var override			= upload	.getOverride		();
-					var overrideUploaders	= upload	.getMeshUploads		();
-					var overrideCounts		= upload	.getMeshCounter		();
-					var uploading			= override	.uploading			();
-					var infoBuffer			= ringBuffer.getMeshInfoBuffer	();
+					var mesh = group.getMesh();
 
-					if (overrideCounts == 0) {
-						continue;
-					}
+					for (var upload : group.getUploads()) {
+						if (upload == null) {
+							continue;
+						}
 
-					for (var uploader : overrideUploaders) {
-						var meshOffsets		= offsets		.reserve		(uploader);
-						var vertexOffset	= meshOffsets	.vertexOffset	();
-						var varyingOffset	= meshOffsets	.varyingOffset	();
-						var address			= infoBuffer	.reserve		(uploader.getMeshInfoSize());
+						var override			= upload	.getOverride		();
+						var overrideUploaders	= upload	.getMeshUploads		();
+						var overrideCounts		= upload	.getMeshCounter		();
+						var uploading			= override	.uploading			();
+						var infoBuffer			= ringBuffer.getMeshInfoBuffer	();
 
-						uploader.upload(
-								address,
-								(int) vertexOffset,
-								(int) varyingOffset
+						if (overrideCounts == 0) {
+							continue;
+						}
+
+						for (var uploader : overrideUploaders) {
+							var meshOffsets		= offsets		.reserve		(uploader);
+							var vertexOffset	= meshOffsets	.vertexOffset	();
+							var varyingOffset	= meshOffsets	.varyingOffset	();
+							var address			= infoBuffer	.reserve		(uploader.getMeshInfoSize());
+
+							uploader.upload(
+									address,
+									(int) vertexOffset,
+									(int) varyingOffset
+							);
+						}
+
+						transform.resetOverride	();
+						uploading.useProgram	();
+						uploading.setupProgram	();
+
+						meshBuffer.bindBase(GL_SHADER_STORAGE_BUFFER, MESH_BUFFER_INDEX);
+						infoBuffer.bindBase(GL_SHADER_STORAGE_BUFFER, MESH_INFO_BUFFER_INDEX);
+
+						lastBarriers |= uploading.dispatchUploading(
+								overrideCounts,
+								mesh.size	(),
+								mesh.offset	()
 						);
 					}
-
-					transform.resetOverride	();
-					uploading.useProgram	();
-					uploading.setupProgram	();
-
-					meshBuffer.bindBase(GL_SHADER_STORAGE_BUFFER, MESH_BUFFER_INDEX);
-					infoBuffer.bindBase(GL_SHADER_STORAGE_BUFFER, MESH_INFO_BUFFER_INDEX);
-
-					lastBarriers |= uploading.dispatchUploading(
-							overrideCounts,
-							mesh.size	(),
-							mesh.offset	()
-					);
 				}
 			}
 		}
@@ -219,7 +236,7 @@ public class MeshUploadingProgramDispatcher {
 
 	public void clear() {
 		for (var buffer : buffers.values()) {
-			buffer.endUpload();
+			buffer.remove();
 		}
 	}
 
@@ -306,10 +323,10 @@ public class MeshUploadingProgramDispatcher {
 			meshUploads		.clear();
 		}
 
-		public void endUpload() {
-			sparseUploads	.endUpload();
-			denseUploads	.endUpload();
-			meshUploads		.endUpload();
+		public void remove() {
+			sparseUploads	.remove();
+			denseUploads	.remove();
+			meshUploads		.remove();
 		}
 	}
 }

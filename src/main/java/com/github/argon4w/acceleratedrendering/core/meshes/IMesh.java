@@ -11,7 +11,9 @@ public interface IMesh {
 
 		IMesh	build	(IMeshCollector collector);
 		IMesh	build	(IMeshCollector collector, boolean forceDense);
-		IMesh	build	(IMeshCollector collector, boolean forceDense, int meshLayer);
+		IMesh	build	(IMeshCollector collector, boolean forceDense, int		meshLayer);
+		IMesh	build	(IMeshCollector collector, boolean forceDense, boolean	reloadSensitive, int meshLayer);
 		void	delete	();
+		void	reload	();
 	}
 }

@@ -62,6 +62,7 @@ public class TransformProgramDispatcher {
 			AcceleratedBufferBuilder		builder,
 			StagingBufferPool.StagingBuffer	vertexBuffer,
 			StagingBufferPool.StagingBuffer	varyingBuffer,
+			long							inputOffset,
 			long							vertexCount,
 			long							vertexOffset,
 			long							varyingOffset
@@ -74,8 +75,11 @@ public class TransformProgramDispatcher {
 			lastOverride.setupProgram	();
 		}
 
-		vertexBuffer	.bindBase(GL_SHADER_STORAGE_BUFFER, VERTEX_BUFFER_IN_INDEX);
-		varyingBuffer	.bindBase(GL_SHADER_STORAGE_BUFFER, VARYING_BUFFER_IN_INDEX);
+		var vertexSize	= builder.getVertexSize	();
+		var varyingSize	= builder.getVaryingSize();
+
+		vertexBuffer	.bindRange(GL_SHADER_STORAGE_BUFFER, VERTEX_BUFFER_IN_INDEX,	inputOffset * vertexSize,	vertexCount * vertexSize);
+		varyingBuffer	.bindRange(GL_SHADER_STORAGE_BUFFER, VARYING_BUFFER_IN_INDEX,	inputOffset * varyingSize,	vertexCount * varyingSize);
 
 		return currentOverride.dispatchTransform(
 				(int) vertexCount,

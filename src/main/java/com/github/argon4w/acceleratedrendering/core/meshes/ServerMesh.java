@@ -20,7 +20,6 @@ import org.lwjgl.system.MemoryUtil;
 import java.util.List;
 
 public record ServerMesh(
-		long			meshKey,
 		int				meshLayer,
 		int				meshId,
 		int				size,
@@ -51,13 +50,17 @@ public record ServerMesh(
 	public static class Builder implements IMesh.Builder {
 
 		public static final Builder													INSTANCE;
-		public static final Reference2ObjectMap<VertexLayout, List<IServerBuffer>>	BUFFERS;
+		public static final Reference2ObjectMap<VertexLayout, List<IServerBuffer>>	NORMAL_BUFFERS;
+		public static final Reference2ObjectMap<VertexLayout, List<IServerBuffer>>	RELOAD_BUFFERS;
 		public static		int														COUNTER;
 
 		static {
-			INSTANCE	= new Builder						();
-			BUFFERS		= new Reference2ObjectOpenHashMap<>	();
-			BUFFERS.defaultReturnValue						(ReferenceLists.singleton(EmptyServerBuffer.INSTANCE));
+			INSTANCE		= new Builder						();
+			NORMAL_BUFFERS	= new Reference2ObjectOpenHashMap<>	();
+			RELOAD_BUFFERS	= new Reference2ObjectOpenHashMap<>	();
+
+			NORMAL_BUFFERS.defaultReturnValue(ReferenceLists.singleton(EmptyServerBuffer.INSTANCE));
+			RELOAD_BUFFERS.defaultReturnValue(ReferenceLists.singleton(EmptyServerBuffer.INSTANCE));
 		}
 
 		private Builder() {
@@ -68,6 +71,7 @@ public record ServerMesh(
 		public IMesh build(
 				IMeshCollector	collector,
 				boolean			forceDense,
+				boolean			reloadSensitive,
 				int				meshLayer
 		) {
 			var vertexCount	= collector.getVertexCount();
@@ -76,10 +80,10 @@ public record ServerMesh(
 				return EmptyMesh.INSTANCE;
 			}
 
-			var builder		= collector				.getBuffer		();
-			var layout		= collector				.getLayout		();
-			var data		= collector				.getData		();
-			var mesh		= MeshDataCaches.SERVER	.get			(layout, data);
+			var builder	= collector				.getBuffer	();
+			var layout	= collector				.getLayout	();
+			var data	= collector				.getData	();
+			var mesh	= MeshDataCaches.SERVER	.get		(layout, data);
 
 			if (mesh != null) {
 				builder.close();
@@ -93,9 +97,13 @@ public record ServerMesh(
 				return EmptyMesh.INSTANCE;
 			}
 
+			var buffers = reloadSensitive
+					? RELOAD_BUFFERS
+					: NORMAL_BUFFERS;
+
 			var buffer		= result	.byteBuffer		();
 			var capacity	= buffer	.capacity		();
-			var meshBuffers	= BUFFERS	.getOrDefault	(layout, null);
+			var meshBuffers	= buffers	.getOrDefault	(layout, null);
 
 			var meshBuffer = (MappedBuffer) null;
 
@@ -103,30 +111,15 @@ public record ServerMesh(
 				meshBuffers	= new ReferenceArrayList<>	();
 				meshBuffer	= new MappedBuffer			(64L);
 				meshBuffers	.add						(meshBuffer);
-				BUFFERS		.put						(layout, meshBuffers);
+				buffers		.put						(layout, meshBuffers);
 			} else {
 				meshBuffer	= (MappedBuffer) meshBuffers.get(meshBuffers.size() - 1);
 			}
 
-			if (meshBuffer.getPosition() + capacity >= GLConstants.MAX_SHADER_STORAGE_BLOCK_SIZE) {
-				if (CoreFeature.shouldUploadMeshImmediately()) {
-					collector
-							.getBuffer	()
-							.close		();
+			if (meshBuffer.overflow(capacity)) {
+				meshBuffer = new MappedBuffer(64L);
 
-					var crashReport	= CrashReport	.forThrowable	(new OutOfMemoryError("Mesh buffer size exceeds limits."), "Exception in building meshes.");
-					var category	= crashReport	.addCategory	("Mesh being built");
-
-					category.setDetail("Mesh type",						"Server side mesh");
-					category.setDetail("Mesh layout size (bytes)",		collector.getLayout()	.getSize		());
-					category.setDetail("Mesh size (vertices)",			collector				.getVertexCount	());
-					category.setDetail("Mesh buffer limits (bytes)",	GLConstants				.MAX_SHADER_STORAGE_BLOCK_SIZE);
-
-					throw new ReportedException(crashReport);
-				}
-
-				meshBuffer = new MappedBuffer	(64L);
-				meshBuffers.add					(meshBuffer);
+				meshBuffers.add(meshBuffer);
 			}
 
 			var position	= meshBuffer.getPosition();
@@ -141,13 +134,9 @@ public record ServerMesh(
 
 			builder.close();
 
-			var meshId	= COUNTER ++;
-			var meshKey	= (meshLayer & 0xFFFFFFFFL) << 32 | (meshId & 0xFFFFFFFFL);
-
 			mesh = new ServerMesh(
-					meshKey,
 					meshLayer,
-					meshId,
+					COUNTER ++,
 					vertexCount,
 					(int) (position / layout.getSize()),
 					forceDense,
@@ -164,6 +153,20 @@ public record ServerMesh(
 		}
 
 		@Override
+		public IMesh build(
+				IMeshCollector	collector,
+				boolean			forceDense,
+				int				meshLayer
+		) {
+			return build(
+					collector,
+					forceDense,
+					false,
+					meshLayer
+			);
+		}
+
+		@Override
 		public IMesh build(IMeshCollector collector, boolean forceDense) {
 			return build(collector, forceDense, 0);
 		}
@@ -175,11 +178,13 @@ public record ServerMesh(
 
 		@Override
 		public void delete() {
-			for (		var buffers	: BUFFERS.values()) {
-				for (	var buffer	: buffers) {
-					buffer.delete();
-				}
-			}
+			for (var buffers : NORMAL_BUFFERS.values()) for (var buffer : buffers) buffer.delete();
+			for (var buffers : RELOAD_BUFFERS.values()) for (var buffer : buffers) buffer.delete();
+		}
+
+		@Override
+		public void reload() {
+			for (var buffers : RELOAD_BUFFERS.values()) for (var buffer : buffers) ((MappedBuffer) buffer).reset();
 		}
 	}
 }

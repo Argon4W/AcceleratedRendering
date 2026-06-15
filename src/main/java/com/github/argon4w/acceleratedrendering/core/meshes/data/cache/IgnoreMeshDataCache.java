@@ -24,4 +24,9 @@ public class IgnoreMeshDataCache implements IMeshDataCache {
 	public int count(VertexLayout layout, MeshData data) {
 		return 0;
 	}
+
+	@Override
+	public void reload() {
+
+	}
 }

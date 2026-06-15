@@ -6,6 +6,7 @@ import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.renderers.IAcceleratedRenderer;
 import com.github.argon4w.acceleratedrendering.core.meshes.IMesh;
 import com.github.argon4w.acceleratedrendering.core.meshes.collectors.SimpleMeshCollector;
+import com.github.argon4w.acceleratedrendering.features.entities.AcceleratedEntityRenderingFeature;
 import com.github.argon4w.acceleratedrendering.features.text.renderers.AcceleratedBakedGlyphRenderer;
 import com.github.argon4w.acceleratedrendering.features.text.AcceleratedTextRenderingFeature;
 import com.github.argon4w.acceleratedrendering.features.text.IAcceleratedBakedGlyph;
@@ -205,10 +206,16 @@ public class BakedGlyphMixin implements IAcceleratedRenderer<BakedGlyph.Effect>,
 					.uv2	(0);
 		}
 
-		mesh = AcceleratedTextRenderingFeature
+		var builder = AcceleratedEntityRenderingFeature
 				.getMeshType()
-				.getBuilder	()
-				.build		(meshCollector);
+				.getBuilder	();
+
+		mesh = builder.build(
+				meshCollector,
+				false,
+				true,
+				0
+		);
 
 		meshes	.put	(extension, mesh);
 		mesh	.write	(

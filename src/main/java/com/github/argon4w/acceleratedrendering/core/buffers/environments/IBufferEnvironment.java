@@ -1,6 +1,5 @@
 package com.github.argon4w.acceleratedrendering.core.buffers.environments;
 
-import com.github.argon4w.acceleratedrendering.core.backends.buffers.IServerBuffer;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.draw.IDrawMethod;
 import com.github.argon4w.acceleratedrendering.core.buffers.memory.VertexLayout;
 import com.github.argon4w.acceleratedrendering.core.programs.ComputeShaderPrograms;
@@ -22,7 +21,6 @@ public interface IBufferEnvironment {
 	IDrawMethod							getDrawMethod						();
 	Set<VertexFormat>					getVertexFormats					();
 	VertexLayout						getLayout							();
-	IServerBuffer						getImmediateMeshBuffer				();
 	MeshUploadingProgramDispatcher		selectMeshUploadingProgramDispatcher();
 	TransformProgramDispatcher			selectTransformProgramDispatcher	();
 	ProgramOverride						getProgramOverride					(int				overrideId);

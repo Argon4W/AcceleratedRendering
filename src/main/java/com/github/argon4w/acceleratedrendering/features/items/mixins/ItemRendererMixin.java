@@ -20,7 +20,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 @ExtensionMethod(value = {VertexConsumerExtension	.class, BakedModelExtension.class	})
-@Mixin			(value = {ItemRenderer				.class								})
+@Mixin			(value = {ItemRenderer				.class								}, priority = 0)
 public class ItemRendererMixin {
 
 	@SuppressWarnings	("deprecation")

@@ -20,15 +20,30 @@ public class MeshOffsets {
 	}
 
 	public void setupOffsets(AcceleratedBufferBuilder builder) {
-		var index = builder.getIndex();
+		var index = builder.getIndex		();
+		var count = builder.getVertexCount	();
 
-		cache[index * OFFSETS_SIZE + VERTEX_OFFSET]		= builder.getVertexCountOffset	();
-		cache[index * OFFSETS_SIZE + VARYING_OFFSET]	= builder.getVaryingCountOffset	();
+		cache[index * OFFSETS_SIZE + VERTEX_OFFSET]		= builder.getVertexCountOffset	() + count;
+		cache[index * OFFSETS_SIZE + VARYING_OFFSET]	= builder.getVaryingCountOffset	() + count;
 	}
 
 	public OffsetPair reserve(MeshUploader uploader) {
 		var index = uploader.getIndex		();
 		var count = uploader.getVertexCount	();
+
+		var pair = new OffsetPair(
+				cache[index * OFFSETS_SIZE + VERTEX_OFFSET],
+				cache[index * OFFSETS_SIZE + VARYING_OFFSET]
+		);
+
+		cache[index * OFFSETS_SIZE + VERTEX_OFFSET]		+= count;
+		cache[index * OFFSETS_SIZE + VARYING_OFFSET]	+= count;
+
+		return pair;
+	}
+
+	public OffsetPair reserve(AcceleratedBufferBuilder builder, int count) {
+		var index = builder.getIndex();
 
 		var pair = new OffsetPair(
 				cache[index * OFFSETS_SIZE + VERTEX_OFFSET],

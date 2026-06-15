@@ -23,6 +23,7 @@ import com.github.argon4w.acceleratedrendering.core.programs.ComputeShaderProgra
 import com.github.argon4w.acceleratedrendering.core.utils.AvailabilityUtils;
 import com.github.argon4w.acceleratedrendering.core.utils.PackedVector2i;
 import com.google.common.util.concurrent.Runnables;
+import net.minecraft.client.Minecraft;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -97,10 +98,6 @@ public class CoreFeature {
 
 	public static MeshDataCacheType getMeshMergeType() {
 		return FeatureConfig.CONFIG.coreMeshMergeType.get();
-	}
-
-	public static boolean shouldUploadMeshImmediately() {
-		return FeatureConfig.CONFIG.coreUploadMeshImmediately.get() == FeatureStatus.ENABLED;
 	}
 
 	public static boolean shouldCacheDynamicRenderType() {

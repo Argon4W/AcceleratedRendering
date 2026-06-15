@@ -98,23 +98,23 @@ public class SimpleSequenceKey implements ISequenceKey {
 	}
 
 	@Override
-	public final boolean equals(Object o) {
+	public boolean equals(Object o) {
 		if (this == o) {
 			return true;
 		}
 
 		if (o instanceof Mutable that
-				&&					this.flag		==	that.flag
-				&& Objects	.equals(this.font,			that.font)
-				&& FastUtils.equals(this.texts,			that.texts)
+				&&					this.flag ==	that.flag
+				&& Objects	.equals(this.font,		that.font)
+				&& FastUtils.equals(this.texts,		that.texts)
 		) {
 			return true;
 		}
 
 		return o instanceof SimpleSequenceKey that
-				&&					this.flag		==	that.flag
-				&& Objects	.equals(this.font,			that.font)
-				&& FastUtils.equals(this.texts,			that.texts);
+				&&					this.flag ==	that.flag
+				&& Objects	.equals(this.font,		that.font)
+				&& FastUtils.equals(this.texts,		that.texts);
 	}
 
 	@Override
@@ -255,23 +255,23 @@ public class SimpleSequenceKey implements ISequenceKey {
 		}
 
 		@Override
-		public final boolean equals(Object o) {
+		public boolean equals(Object o) {
 			if (this == o) {
 				return true;
 			}
 
 			if (o instanceof Mutable that
-					&&					this.flag		==	that.flag
-					&& Objects	.equals(this.font,			that.font)
-					&& FastUtils.equals(this.texts,			that.texts)
+					&&					this.flag ==	that.flag
+					&& Objects	.equals(this.font,		that.font)
+					&& FastUtils.equals(this.texts,		that.texts)
 			) {
 				return true;
 			}
 
 			return o instanceof SimpleSequenceKey that
-					&&					this.flag		==	that.flag
-					&& Objects	.equals(this.font,			that.font)
-					&& FastUtils.equals(this.texts,			that.texts);
+					&&					this.flag ==	that.flag
+					&& Objects	.equals(this.font,		that.font)
+					&& FastUtils.equals(this.texts,		that.texts);
 		}
 
 		@Override

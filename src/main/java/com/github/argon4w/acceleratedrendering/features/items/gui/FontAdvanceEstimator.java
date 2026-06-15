@@ -1,7 +1,5 @@
 package com.github.argon4w.acceleratedrendering.features.items.gui;
 
-import it.unimi.dsi.fastutil.ints.IntList;
-import it.unimi.dsi.fastutil.longs.LongList;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;

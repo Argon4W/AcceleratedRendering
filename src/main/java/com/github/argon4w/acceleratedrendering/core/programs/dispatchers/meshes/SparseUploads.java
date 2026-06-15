@@ -46,7 +46,7 @@ public class SparseUploads implements IMeshUploads {
 		}
 	}
 
-	public void endUpload() {
+	public void remove() {
 		for (var i = 0; i < count; i++) {
 			if (!usages.get(i)) {
 				uploads[i] = null;

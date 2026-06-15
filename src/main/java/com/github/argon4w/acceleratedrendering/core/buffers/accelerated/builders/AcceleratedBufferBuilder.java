@@ -388,36 +388,6 @@ public class AcceleratedBufferBuilder extends DefaultedVertexConsumer implements
 			);
 		}
 
-		var shouldCull = cullingProgramDispatcher.shouldCull() ? 1 : 0;
-
-		if (CoreFeature.shouldUploadMeshImmediately()) {
-			var meshSize		= mesh			.size	();
-			var vertexAddress	= vertexBuffer	.reserve(getVertexSize	() * meshSize);
-			var varyingAddress	= varyingBuffer	.reserve(getVaryingSize	() * meshSize);
-
-			colorOffset	.putInt(vertexAddress, FastColorUtils.convert(color));
-			uv1Offset	.putInt(vertexAddress, overlay);
-			uv2Offset	.putInt(vertexAddress, light);
-
-			varyingSharing		.putInt			(varyingAddress, activeSharing);
-			varyingMesh			.putInt			(varyingAddress, mesh.offset());
-			varyingShouldCull	.putInt			(varyingAddress, shouldCull);
-			programOverride		.uploadVarying	(varyingAddress, 0);
-
-			for (var index = 0; index < meshSize; index ++) {
-				varyingOffset.putIntAt(
-						varyingAddress,
-						index,
-						index
-				);
-			}
-
-			elementSegment.count(mode.indexCount(meshSize));
-			vertexCount += meshSize;
-
-			return;
-		}
-
 		var meshId			= mesh			.meshId	();
 		var meshSize		= mesh			.size	();
 		var meshUploader	= meshUploaders	.get	(meshId);
@@ -438,7 +408,7 @@ public class AcceleratedBufferBuilder extends DefaultedVertexConsumer implements
 				light,
 				overlay,
 				activeSharing,
-				shouldCull
+				cullingProgramDispatcher.shouldCull() ? 1 : 0
 		);
 	}
 

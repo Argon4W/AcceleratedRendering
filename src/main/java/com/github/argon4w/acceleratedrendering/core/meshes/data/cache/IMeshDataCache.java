@@ -6,6 +6,7 @@ import com.github.argon4w.acceleratedrendering.core.meshes.data.MeshData;
 
 public interface IMeshDataCache {
 
+	void	reload	();
 	void	set		(VertexLayout layout, MeshData data, IMesh mesh);
 	IMesh	get		(VertexLayout layout, MeshData data);
 	int		count	(VertexLayout layout, MeshData data);

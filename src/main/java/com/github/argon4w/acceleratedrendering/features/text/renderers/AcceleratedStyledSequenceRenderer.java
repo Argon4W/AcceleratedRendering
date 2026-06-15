@@ -31,12 +31,12 @@ public class AcceleratedStyledSequenceRenderer implements IAcceleratedRenderer<I
 
 	public static final AcceleratedStyledSequenceRenderer INSTANCE = new AcceleratedStyledSequenceRenderer();
 
-	private final Map	<ISequenceKey, Sequence>	sequenceByKey;
-	private final List	<Sequence>					sequenceByIdx;
+	private final Map	<ISequenceKey, Sequence>	sequencesByKey;
+	private final List	<Sequence>					sequencesByIdx;
 
 	public AcceleratedStyledSequenceRenderer() {
-		this.sequenceByKey = new Object2ObjectOpenHashMap	<>();
-		this.sequenceByIdx = new ObjectArrayList			<>();
+		this.sequencesByKey = new Object2ObjectOpenHashMap	<>();
+		this.sequencesByIdx = new ObjectArrayList			<>();
 	}
 
 	public ISequenceKey getIndexKey(ISequenceKey key) {
@@ -138,10 +138,16 @@ public class AcceleratedStyledSequenceRenderer implements IAcceleratedRenderer<I
 		if (mesh != null) {
 			buffer.close();
 		} else {
-			mesh = AcceleratedEntityRenderingFeature
+			var builder = AcceleratedEntityRenderingFeature
 					.getMeshType()
-					.getBuilder	()
-					.build		(meshCollector);
+					.getBuilder	();
+
+			mesh = builder.build(
+					meshCollector,
+					false,
+					true,
+					0
+			);
 		}
 
 		meshes	.put	(extension, mesh);
@@ -242,8 +248,8 @@ public class AcceleratedStyledSequenceRenderer implements IAcceleratedRenderer<I
 
 	private Sequence getSequence(ISequenceKey key) {
 		var sequence = key instanceof IndexKey idx
-				? sequenceByIdx.get(idx.id())
-				: sequenceByKey.get(key);
+				? sequencesByIdx.get(idx.id())
+				: sequencesByKey.get(key);
 
 		if (sequence == null) {
 			sequence = new Sequence(key.bake());
@@ -262,10 +268,15 @@ public class AcceleratedStyledSequenceRenderer implements IAcceleratedRenderer<I
 		public Sequence(ISequenceKey key) {
 			this.meshes	= new Object2ObjectArrayMap		<>	();
 			this.merges	= new Object2ObjectOpenHashMap	<>	();
-			this.index	= sequenceByIdx.size				();
+			this.index	= sequencesByIdx.size				();
 
-			sequenceByKey.put(key,	this);
-			sequenceByIdx.add(		this);
+			sequencesByKey.put(key,	this);
+			sequencesByIdx.add(		this);
 		}
+	}
+
+	public void reload() {
+		sequencesByKey.clear();
+		sequencesByIdx.clear();
 	}
 }

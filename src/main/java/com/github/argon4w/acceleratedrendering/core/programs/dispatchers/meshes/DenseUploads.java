@@ -4,63 +4,54 @@ import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.Accelera
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.meshes.MeshUploaderPool.MeshUploader;
 import com.github.argon4w.acceleratedrendering.core.meshes.ServerMesh;
 import com.github.argon4w.acceleratedrendering.core.programs.overrides.ProgramOverride;
-import it.unimi.dsi.fastutil.longs.Long2ObjectAVLTreeMap;
-import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-import it.unimi.dsi.fastutil.longs.LongSet;
-import it.unimi.dsi.fastutil.objects.*;
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import lombok.Getter;
 
 import java.util.BitSet;
 import java.util.List;
 
-public class DenseUploads implements IMeshUploads {
+public class DenseUploads extends MeshSparseMap<DenseUploads.Group> implements IMeshUploads {
 
-	@Getter
-	private final Long2ObjectMap<Group>	groups;
-	private final LongSet				usages;
-	private final int					count;
+	private final int count;
 
 	public DenseUploads(Buffers buffers) {
-		this.count	= buffers.getOverrideCount		();
-		this.groups	= new Long2ObjectAVLTreeMap<>	();
-		this.usages	= new LongOpenHashSet			();
+		this.count = buffers.getOverrideCount();
 	}
 
 	@Override
-	public void add(MeshUploader uploader) {
-		var mesh	= uploader	.getServerMesh	();
-		var meshKey	= mesh		.meshKey		();
-		var group	= groups	.get			(meshKey);
-
-		if (group == null) {
-			group = new Group(mesh, meshKey);
-		}
-
-		group	.add(uploader);
-		usages	.add(meshKey);
+	public Group create(ServerMesh mesh) {
+		return new Group(mesh);
 	}
 
-	public void clear() {
-		for (var group : groups.values()) {
-			group.clear();
+	@Override
+	public void clear(Group group) {
+		for (int index = 0, size = group.uploads.length; index < size; index ++) {
+			var upload = group.uploads[index];
+
+			if (upload != null) {
+				upload.meshUploads.clear();
+				upload.meshCounter = 0;
+			}
 		}
 	}
 
-	public void endUpload() {
-		var each = groups.values().iterator();
+	@Override
+	public void remove(Group group) {
+		var usages	= group.usages;
+		var uploads	= group.uploads;
 
-		while (each.hasNext()) {
-			var val = each.next();
-
-			if (!usages.contains(val.meshKey)) {
-				each.remove();
-			} else {
-				val.remove();
+		for (var i = 0; i < count; i++) {
+			if (!usages.get(i)) {
+				uploads[i] = null;
 			}
 		}
 
 		usages.clear();
+	}
+
+	@Override
+	public void add(MeshUploader uploader) {
+		get(uploader.getServerMesh()).add(uploader);
 	}
 
 	public class Group {
@@ -68,15 +59,11 @@ public class DenseUploads implements IMeshUploads {
 		@Getter private	final ServerMesh	mesh;
 		@Getter private final Upload[]		uploads;
 		private			final BitSet		usages;
-		private			final long			meshKey;
 
-		public Group(ServerMesh mesh, long meshKey) {
+		public Group(ServerMesh mesh) {
 			this.uploads	= new Upload[count];
 			this.usages		= new BitSet(count);
-			this.meshKey	= meshKey;
 			this.mesh		= mesh;
-
-			groups.put(meshKey, this);
 		}
 
 		public void add(MeshUploader uploader) {
@@ -93,25 +80,6 @@ public class DenseUploads implements IMeshUploads {
 			this	.usages		.set(id);
 			upload	.meshUploads.add(uploader);
 			upload	.meshCounter += meshCount;
-		}
-
-		public void clear() {
-			for (var upload : uploads) {
-				if (upload != null) {
-					upload.meshUploads.clear();
-					upload.meshCounter = 0;
-				}
-			}
-		}
-
-		public void remove() {
-			for (var i = 0; i < count; i++) {
-				if (!usages.get(i)) {
-					uploads[i] = null;
-				}
-			}
-
-			usages.clear();
 		}
 
 		@Getter

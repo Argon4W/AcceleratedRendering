@@ -1,5 +1,6 @@
 package com.github.argon4w.acceleratedrendering.core.backends.buffers;
 
+import com.github.argon4w.acceleratedrendering.core.backends.GLConstants;
 import lombok.Getter;
 
 import static org.lwjgl.opengl.GL46.*;
@@ -70,6 +71,10 @@ public class MappedBuffer extends MutableBuffer implements IClientBuffer {
 
 	public long getCurrent() {
 		return address + current;
+	}
+
+	public boolean overflow(long bytes) {
+		return position + bytes >= GLConstants.MAX_SHADER_STORAGE_BLOCK_SIZE;
 	}
 
 	public long map() {

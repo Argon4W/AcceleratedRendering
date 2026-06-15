@@ -132,10 +132,16 @@ public class AcceleratedSequenceEffectRenderer implements IAcceleratedRenderer<I
 		if (mesh != null) {
 			buffer.close();
 		} else {
-			mesh = AcceleratedEntityRenderingFeature
+			var builder = AcceleratedEntityRenderingFeature
 					.getMeshType()
-					.getBuilder	()
-					.build		(meshCollector);
+					.getBuilder	();
+
+			mesh = builder.build(
+					meshCollector,
+					false,
+					true,
+					0
+			);
 		}
 
 		meshes	.put	(extension, mesh);
@@ -257,5 +263,10 @@ public class AcceleratedSequenceEffectRenderer implements IAcceleratedRenderer<I
 			sequencesByKey.put(key,	this);
 			sequencesByIdx.add(		this);
 		}
+	}
+
+	public void reload() {
+		sequencesByKey.clear();
+		sequencesByIdx.clear();
 	}
 }
