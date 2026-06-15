@@ -1,9 +1,5 @@
 package com.github.argon4w.acceleratedrendering.features.text.cache;
 
-import com.github.argon4w.acceleratedrendering.core.utils.FastUtils;
-import com.github.argon4w.acceleratedrendering.features.text.key.SimpleSequenceKey;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
 import lombok.Setter;
 import net.minecraft.client.gui.Font.DisplayMode;
 
