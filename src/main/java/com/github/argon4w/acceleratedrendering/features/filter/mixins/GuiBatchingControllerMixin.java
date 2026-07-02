@@ -39,7 +39,7 @@ public class GuiBatchingControllerMixin {
 					value	= "INVOKE",
 					target	= "Ljava/util/List;add(Ljava/lang/Object;)Z"
 			),
-			remap = false
+			remap	= false
 	)
 	public boolean filterItem(
 			List<?>								drawContexts,
