@@ -38,7 +38,8 @@ public class GuiBatchingControllerMixin {
 			at = @At(
 					value	= "INVOKE",
 					target	= "Ljava/util/List;add(Ljava/lang/Object;)Z"
-			)
+			),
+			remap = false
 	)
 	public boolean filterItem(
 			List<?>								drawContexts,
@@ -66,7 +67,8 @@ public class GuiBatchingControllerMixin {
 					value	= "INVOKE",
 					target	= "Lcom/github/argon4w/acceleratedrendering/features/items/gui/GuiBatchingController;flushBatching()V",
 					shift	= At.Shift.AFTER
-			)
+			),
+			remap	= false
 	)
 	public void flushFilteredItems(
 			GuiGraphics														graphics,
@@ -133,7 +135,8 @@ public class GuiBatchingControllerMixin {
 					target	= "Ljava/util/List;clear()V",
 					ordinal	= 0,
 					shift	= At.Shift.BEFORE
-			)
+			),
+			remap	= false
 	)
 	public void clearFilteredItems(GuiGraphics graphics, CallbackInfoReturnable<Float> cir) {
 		filteredFlatItemDrawContexts	.clear();
