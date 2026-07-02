@@ -34,8 +34,8 @@ public class GuiBatchingControllerMixin {
 	@Unique private final List<ItemRenderContext> filteredBlockItemDrawContexts	= new ReferenceArrayList<>();
 
 	@WrapOperation(
-			method = "submitItem",
-			at = @At(
+			method	= "submitItem",
+			at		= @At(
 					value	= "INVOKE",
 					target	= "Ljava/util/List;add(Ljava/lang/Object;)Z"
 			),
