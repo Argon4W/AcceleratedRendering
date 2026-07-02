@@ -42,7 +42,7 @@ import java.util.Map;
 		BufferSourceExtension		.class,
 })
 @Mixin(Font.class)
-public abstract class FontMixin implements IAcceleratedFont {
+public class FontMixin implements IAcceleratedFont {
 
 	@Unique private final Object2IntMap	<ISeekableFormattedText>					widths			= new Object2IntOpenHashMap		<>	();
 	@Unique private final Map			<ISeekableFormattedText,	OutlineMesh>	outlineMeshes	= new Object2ObjectOpenHashMap	<>	();
@@ -61,9 +61,14 @@ public abstract class FontMixin implements IAcceleratedFont {
 	}
 
 	@Shadow
-	public abstract int width(FormattedCharSequence text);
+	public int width(FormattedCharSequence text) {
+		throw new UnsupportedOperationException("Implemented via mixin");
+	}
 
-	@WrapMethod(method = "width(Ljava/lang/String;)I")
+	@WrapMethod(
+			method	= "width(Ljava/lang/String;)I",
+			require	= 0
+	)
 	public int wrapWidth1(String text, Operation<Integer> original) {
 		if (			CoreFeature						.isLoaded						()
 				&&		AcceleratedTextRenderingFeature	.isEnabled						()
@@ -87,7 +92,10 @@ public abstract class FontMixin implements IAcceleratedFont {
 		return original.call(text);
 	}
 
-	@WrapMethod(method = "width(Lnet/minecraft/network/chat/FormattedText;)I")
+	@WrapMethod(
+			method	= "width(Lnet/minecraft/network/chat/FormattedText;)I",
+			require	= 0
+	)
 	public int wrapWidth2(FormattedText text, Operation<Integer> original) {
 		if (			text instanceof ISeekableFormattedText seekable
 				&&		CoreFeature						.isLoaded						()
@@ -110,7 +118,10 @@ public abstract class FontMixin implements IAcceleratedFont {
 		return original.call(text);
 	}
 
-	@WrapMethod(method = "width(Lnet/minecraft/util/FormattedCharSequence;)I")
+	@WrapMethod(
+			method	= "width(Lnet/minecraft/util/FormattedCharSequence;)I",
+			require	= 0
+	)
 	public int wrapWidth3(FormattedCharSequence text, Operation<Integer> original) {
 		if (			text				instanceof ISeekableFormattedCharSequence	source
 				&&		source.getSource()	instanceof ISeekableFormattedText			seekable
@@ -141,7 +152,8 @@ public abstract class FontMixin implements IAcceleratedFont {
 					target	= "Lnet/minecraft/util/StringDecomposer;iterateFormatted(Ljava/lang/String;Lnet/minecraft/network/chat/Style;Lnet/minecraft/util/FormattedCharSink;)Z",
 					shift	= At.Shift.BEFORE
 			),
-			cancellable	= true
+			cancellable	= true,
+			require		= 0
 	)
 	public void onRenderTextFormatted(
 			String							string,
@@ -234,7 +246,8 @@ public abstract class FontMixin implements IAcceleratedFont {
 					target	= "Lnet/minecraft/util/FormattedCharSequence;accept(Lnet/minecraft/util/FormattedCharSink;)Z",
 					shift	= At.Shift.BEFORE
 			),
-			cancellable	= true
+			cancellable	= true,
+			require		= 0
 	)
 	public void onRenderTextFormatted(
 			FormattedCharSequence			formatted,
@@ -325,7 +338,8 @@ public abstract class FontMixin implements IAcceleratedFont {
 					shift	= At.Shift.BY,
 					by		= 2
 			),
-			cancellable	= true
+			cancellable	= true,
+			require		= 0
 	)
 	public void onDraw8xOutline1(
 			FormattedCharSequence							formatted,
@@ -409,7 +423,8 @@ public abstract class FontMixin implements IAcceleratedFont {
 					value	= "INVOKE",
 					target	= "Lnet/minecraft/util/FormattedCharSequence;accept(Lnet/minecraft/util/FormattedCharSink;)Z",
 					ordinal	= 0
-			)
+			),
+			require	= 0
 	)
 	public boolean onDraw8xOutline2(
 			FormattedCharSequence					instance,
@@ -439,7 +454,8 @@ public abstract class FontMixin implements IAcceleratedFont {
 					target	= "Lnet/minecraft/util/FormattedCharSequence;accept(Lnet/minecraft/util/FormattedCharSink;)Z",
 					shift	= At.Shift.BEFORE,
 					ordinal	= 1
-			)
+			),
+			require	= 0
 	)
 	public void onDraw8xOutline3(
 			FormattedCharSequence							formatted,

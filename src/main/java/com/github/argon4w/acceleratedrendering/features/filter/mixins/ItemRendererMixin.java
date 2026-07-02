@@ -31,7 +31,7 @@ public class ItemRendererMixin {
 	public void filterItem(
 			ItemRenderer	instance,
 			BakedModel		bakedModel,
-			ItemStack		model,
+			ItemStack		itemStack,
 			int				stack,
 			int				combinedLight,
 			PoseStack		combinedOverlay,
@@ -41,7 +41,7 @@ public class ItemRendererMixin {
 		var pass =	!	CoreFeature		.isLoaded			()
 				||	!	FilterFeature	.isEnabled			()
 				||	!	FilterFeature	.shouldFilterItems	()
-				||		FilterFeature	.testItem			(model);
+				||		FilterFeature	.testItem			(itemStack);
 
 		if (!pass) {
 			AcceleratedEntityRenderingFeature	.useVanillaPipeline();
@@ -52,7 +52,7 @@ public class ItemRendererMixin {
 		original.call(
 				instance,
 				bakedModel,
-				model,
+				itemStack,
 				stack,
 				combinedLight,
 				combinedOverlay,

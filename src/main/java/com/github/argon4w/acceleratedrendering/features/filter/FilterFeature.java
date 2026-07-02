@@ -18,6 +18,8 @@ import net.minecraftforge.client.event.RenderLevelStageEvent;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Set;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public class FilterFeature {
 
@@ -33,12 +35,36 @@ public class FilterFeature {
 	private static final Set	<Item>					ITEM_FILTER_VALUES;
 	private static final Set	<String>				STAGE_FILTER_VALUES;
 
+	private static final Set	<MenuType<?>>			PREDEFINED_MENU_BLACKLIST_VALUES;
+	private static final Set	<EntityType<?>>			PREDEFINED_ENTITY_BLACKLIST_VALUES;
+	private static final Set	<BlockEntityType<?>>	PREDEFINED_BLOCK_ENTITY_BLACKLIST_VALUES;
+	private static final Set	<Item>					PREDEFINED_ITEM_BLACKLIST_VALUES;
+	private static final Set	<String>				PREDEFINED_STAGE_BLACKLIST_VALUES;
+
+	private static final boolean						HAS_PREDEFINED_MENU_BLACKLIST;
+	private static final boolean						HAS_PREDEFINED_ENTITY_BLACKLIST;
+	private static final boolean						HAS_PREDEFINED_BLOCK_ENTITY_BLACKLIST;
+	private static final boolean						HAS_PREDEFINED_ITEM_BLACKLIST;
+	private static final boolean						HAS_PREDEFINED_STAGE_BLACKLIST;
+
 	static {
 		MENU_FILTER_VALUES			= RegistryFilter.filterValues	(BuiltInRegistries.MENU,				FeatureConfig.CONFIG.filterMenuFilterValues			.get());
 		ENTITY_FILTER_VALUES		= RegistryFilter.filterValues	(BuiltInRegistries.ENTITY_TYPE,			FeatureConfig.CONFIG.filterEntityFilterValues		.get());
 		BLOCK_ENTITY_FILTER_VALUES	= RegistryFilter.filterValues	(BuiltInRegistries.BLOCK_ENTITY_TYPE,	FeatureConfig.CONFIG.filterBlockEntityFilterValues	.get());
 		ITEM_FILTER_VALUES			= RegistryFilter.filterValues	(BuiltInRegistries.ITEM,				FeatureConfig.CONFIG.filterItemFilterValues			.get());
 		STAGE_FILTER_VALUES			= new ReferenceOpenHashSet<>	(										FeatureConfig.CONFIG.filterStageFilterValues		.get());
+
+		PREDEFINED_MENU_BLACKLIST_VALUES			= FilterIMC.MENU_TYPE_BLACKLIST_SUPPLIERS			.stream().map(Supplier::get).collect(Collectors.toCollection(ReferenceOpenHashSet::new));
+		PREDEFINED_ENTITY_BLACKLIST_VALUES			= FilterIMC.ENTITY_TYPE_BLACKLIST_SUPPLIERS			.stream().map(Supplier::get).collect(Collectors.toCollection(ReferenceOpenHashSet::new));
+		PREDEFINED_BLOCK_ENTITY_BLACKLIST_VALUES	= FilterIMC.BLOCK_ENTITY_TYPE_BLACKLIST_SUPPLIERS	.stream().map(Supplier::get).collect(Collectors.toCollection(ReferenceOpenHashSet::new));
+		PREDEFINED_ITEM_BLACKLIST_VALUES			= FilterIMC.ITEM_BLACKLIST_SUPPLIERS				.stream().map(Supplier::get).collect(Collectors.toCollection(ReferenceOpenHashSet::new));
+		PREDEFINED_STAGE_BLACKLIST_VALUES			= FilterIMC.STAGE_BLACKLIST_SUPPLIERS				.stream().map(Supplier::get).collect(Collectors.toCollection(ReferenceOpenHashSet::new));
+
+		HAS_PREDEFINED_MENU_BLACKLIST			= !PREDEFINED_MENU_BLACKLIST_VALUES			.isEmpty();
+		HAS_PREDEFINED_ENTITY_BLACKLIST			= !PREDEFINED_ENTITY_BLACKLIST_VALUES		.isEmpty();
+		HAS_PREDEFINED_BLOCK_ENTITY_BLACKLIST	= !PREDEFINED_BLOCK_ENTITY_BLACKLIST_VALUES	.isEmpty();
+		HAS_PREDEFINED_ITEM_BLACKLIST			= !PREDEFINED_ITEM_BLACKLIST_VALUES			.isEmpty();
+		HAS_PREDEFINED_STAGE_BLACKLIST			= !PREDEFINED_STAGE_BLACKLIST_VALUES		.isEmpty();
 	}
 
 	public static boolean isEnabled() {
@@ -46,43 +72,43 @@ public class FilterFeature {
 	}
 
 	public static boolean testMenu(AbstractContainerMenu menu) {
-		return menu.menuType == null || getMenuFilterType().test(MENU_FILTER_VALUES, menu.menuType);
+		return menu.menuType == null || (!PREDEFINED_MENU_BLACKLIST_VALUES.contains(menu.menuType) && getMenuFilterType().test(MENU_FILTER_VALUES, menu.menuType));
 	}
 
 	public static boolean testEntity(Entity entity) {
-		return getEntityFilterType().test(ENTITY_FILTER_VALUES, entity.getType());
+		return !PREDEFINED_ENTITY_BLACKLIST_VALUES.contains(entity.getType()) && getEntityFilterType().test(ENTITY_FILTER_VALUES, entity.getType());
 	}
 
 	public static boolean testBlockEntity(BlockEntity entity) {
-		return getBlockEntityFilterType().test(BLOCK_ENTITY_FILTER_VALUES, entity.getType());
+		return !PREDEFINED_BLOCK_ENTITY_BLACKLIST_VALUES.contains(entity.getType()) && getBlockEntityFilterType().test(BLOCK_ENTITY_FILTER_VALUES, entity.getType());
 	}
 
 	public static boolean testItem(ItemStack itemStack) {
-		return getItemFilterType().test(ITEM_FILTER_VALUES, itemStack.getItem());
+		return !PREDEFINED_ITEM_BLACKLIST_VALUES.contains(itemStack.getItem()) && getItemFilterType().test(ITEM_FILTER_VALUES, itemStack.getItem());
 	}
 
 	public static boolean testStage(RenderLevelStageEvent.Stage stage) {
-		return getStageFilterType().test(STAGE_FILTER_VALUES, stage.toString());
+		return !PREDEFINED_STAGE_BLACKLIST_VALUES.contains(stage.toString()) && getStageFilterType().test(STAGE_FILTER_VALUES, stage.toString());
 	}
 
 	public static boolean shouldFilterMenus() {
-		return getMenuFilterSetting() == FeatureStatus.ENABLED;
+		return getMenuFilterSetting() == FeatureStatus.ENABLED || HAS_PREDEFINED_MENU_BLACKLIST;
 	}
 
 	public static boolean shouldFilterEntities() {
-		return getEntityFilterSetting() == FeatureStatus.ENABLED;
+		return getEntityFilterSetting() == FeatureStatus.ENABLED || HAS_PREDEFINED_ENTITY_BLACKLIST;
 	}
 
 	public static boolean shouldFilterBlockEntities() {
-		return getBlockEntityFilterSetting() == FeatureStatus.ENABLED;
+		return getBlockEntityFilterSetting() == FeatureStatus.ENABLED || HAS_PREDEFINED_BLOCK_ENTITY_BLACKLIST;
 	}
 
 	public static boolean shouldFilterItems() {
-		return getItemFilterSetting() == FeatureStatus.ENABLED;
+		return getItemFilterSetting() == FeatureStatus.ENABLED || HAS_PREDEFINED_ITEM_BLACKLIST;
 	}
 
 	public static boolean shouldFilterStage() {
-		return getStageFilterSetting() == FeatureStatus.ENABLED;
+		return getStageFilterSetting() == FeatureStatus.ENABLED || HAS_PREDEFINED_STAGE_BLACKLIST;
 	}
 
 	public static FilterType getMenuFilterType() {
