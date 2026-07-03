@@ -30,10 +30,15 @@ public class AcceleratedMUIBgRenderer implements IAcceleratedRenderer<Accelerate
 
 		extension.beginTransform(transform, normal);
 
-		vertexConsumer.vertex(backgroundX - 1.0F,						backgroundTop + 9.0F, 0.01F, FastColor.ABGR32.red(color), FastColor.ABGR32.green(color), FastColor.ABGR32.blue(color), FastColor.ABGR32.alpha(color), 0.0F, 1.0F, overlay, light, 0.0F, 0.0F, 0.0F);
-		vertexConsumer.vertex(backgroundX + backgroundAdvance + 1.0F,	backgroundTop + 9.0F, 0.01F, FastColor.ABGR32.red(color), FastColor.ABGR32.green(color), FastColor.ABGR32.blue(color), FastColor.ABGR32.alpha(color), 1.0F, 1.0F, overlay, light, 0.0F, 0.0F, 0.0F);
-		vertexConsumer.vertex(backgroundX + backgroundAdvance + 1.0F,	backgroundTop - 1.0F, 0.01F, FastColor.ABGR32.red(color), FastColor.ABGR32.green(color), FastColor.ABGR32.blue(color), FastColor.ABGR32.alpha(color), 1.0F, 0.0F, overlay, light, 0.0F, 0.0F, 0.0F);
-		vertexConsumer.vertex(backgroundX - 1.0F,						backgroundTop - 1.0F, 0.01F, FastColor.ABGR32.red(color), FastColor.ABGR32.green(color), FastColor.ABGR32.blue(color), FastColor.ABGR32.alpha(color), 0.0F, 0.0F, overlay, light, 0.0F, 0.0F, 0.0F);
+		var red		= FastColor.ARGB32.red	(color) / 255.0F;
+		var green	= FastColor.ARGB32.green(color) / 255.0F;
+		var blue	= FastColor.ARGB32.blue	(color) / 255.0F;
+		var alpha	= FastColor.ARGB32.alpha(color) / 255.0F;
+
+		vertexConsumer.vertex(backgroundX - 1.0F,						backgroundTop + 9.0F, 0.01F, red, green, blue, alpha, 0.0F, 1.0F, overlay, light, 0.0F, 0.0F, 0.0F);
+		vertexConsumer.vertex(backgroundX + backgroundAdvance + 1.0F,	backgroundTop + 9.0F, 0.01F, red, green, blue, alpha, 1.0F, 1.0F, overlay, light, 0.0F, 0.0F, 0.0F);
+		vertexConsumer.vertex(backgroundX + backgroundAdvance + 1.0F,	backgroundTop - 1.0F, 0.01F, red, green, blue, alpha, 1.0F, 0.0F, overlay, light, 0.0F, 0.0F, 0.0F);
+		vertexConsumer.vertex(backgroundX - 1.0F,						backgroundTop - 1.0F, 0.01F, red, green, blue, alpha, 0.0F, 0.0F, overlay, light, 0.0F, 0.0F, 0.0F);
 
 		extension.endTransform();
 	}

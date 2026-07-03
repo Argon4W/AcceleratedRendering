@@ -23,7 +23,9 @@
     "iris.IrisVertexFormatsMixin",
     "iris.ModelToEntityVertexSerializerMixin",
     "iris.ShadowRendererMixin",
+    "vanilla.BlockEntityRenderDispatcherMixin",
     "vanilla.BufferBuilderMixin",
+    "vanilla.EntityRenderDispatcherMixin",
     "vanilla.LevelRendererMixin"
   ],
   "injectors": {

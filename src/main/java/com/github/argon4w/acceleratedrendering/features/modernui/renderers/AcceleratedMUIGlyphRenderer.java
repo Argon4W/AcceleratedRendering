@@ -35,10 +35,15 @@ public class AcceleratedMUIGlyphRenderer implements IAcceleratedRenderer<Acceler
 
 		extension.beginTransform(transform, normal);
 
-		vertexConsumer.vertex(glyphX			+ upSkew,	glyphY,				0.0F, FastColor.ABGR32.red(color), FastColor.ABGR32.green(color), FastColor.ABGR32.blue(color), FastColor.ABGR32.alpha(color), glyph.u1, glyph.v1, overlay, light, 0.0F, 0.0F, 0.0F);
-		vertexConsumer.vertex(glyphX			+ downSkew,	glyphY + height,	0.0F, FastColor.ABGR32.red(color), FastColor.ABGR32.green(color), FastColor.ABGR32.blue(color), FastColor.ABGR32.alpha(color), glyph.u1, glyph.v2, overlay, light, 0.0F, 0.0F, 0.0F);
-		vertexConsumer.vertex(glyphX + width	+ downSkew,	glyphY + height,	0.0F, FastColor.ABGR32.red(color), FastColor.ABGR32.green(color), FastColor.ABGR32.blue(color), FastColor.ABGR32.alpha(color), glyph.u2, glyph.v2, overlay, light, 0.0F, 0.0F, 0.0F);
-		vertexConsumer.vertex(glyphX + width	+ upSkew,	glyphY,				0.0F, FastColor.ABGR32.red(color), FastColor.ABGR32.green(color), FastColor.ABGR32.blue(color), FastColor.ABGR32.alpha(color), glyph.u2, glyph.v1, overlay, light, 0.0F, 0.0F, 0.0F);
+		var red		= FastColor.ARGB32.red	(color) / 255.0F;
+		var green	= FastColor.ARGB32.green(color) / 255.0F;
+		var blue	= FastColor.ARGB32.blue	(color) / 255.0F;
+		var alpha	= FastColor.ARGB32.alpha(color) / 255.0F;
+
+		vertexConsumer.vertex(glyphX			+ upSkew,	glyphY,				0.0F, red, green, blue, alpha, glyph.u1, glyph.v1, overlay, light, 0.0F, 0.0F, 0.0F);
+		vertexConsumer.vertex(glyphX			+ downSkew,	glyphY + height,	0.0F, red, green, blue, alpha, glyph.u1, glyph.v2, overlay, light, 0.0F, 0.0F, 0.0F);
+		vertexConsumer.vertex(glyphX + width	+ downSkew,	glyphY + height,	0.0F, red, green, blue, alpha, glyph.u2, glyph.v2, overlay, light, 0.0F, 0.0F, 0.0F);
+		vertexConsumer.vertex(glyphX + width	+ upSkew,	glyphY,				0.0F, red, green, blue, alpha, glyph.u2, glyph.v1, overlay, light, 0.0F, 0.0F, 0.0F);
 
 		extension.endTransform();
 	}

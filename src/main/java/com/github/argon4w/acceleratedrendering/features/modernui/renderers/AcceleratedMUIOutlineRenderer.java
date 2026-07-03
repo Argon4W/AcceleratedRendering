@@ -37,10 +37,15 @@ public class AcceleratedMUIOutlineRenderer implements IAcceleratedRenderer<Accel
 
 		extension.beginTransform(transform, normal);
 
-		vertexConsumer.vertex(glyphX			- sBloat,	glyphY			- sBloat, 0.0F, FastColor.ABGR32.red(color), FastColor.ABGR32.green(color), FastColor.ABGR32.blue(color), FastColor.ABGR32.alpha(color), glyph.u1 - uBloat, glyph.v1 - vBloat, overlay, light, 0.0F, 0.0F, 0.0F);
-		vertexConsumer.vertex(glyphX			- sBloat,	glyphY + height	+ sBloat, 0.0F, FastColor.ABGR32.red(color), FastColor.ABGR32.green(color), FastColor.ABGR32.blue(color), FastColor.ABGR32.alpha(color), glyph.u1 - uBloat, glyph.v2 + vBloat, overlay, light, 0.0F, 0.0F, 0.0F);
-		vertexConsumer.vertex(glyphX + width	+ sBloat,	glyphY + height	+ sBloat, 0.0F, FastColor.ABGR32.red(color), FastColor.ABGR32.green(color), FastColor.ABGR32.blue(color), FastColor.ABGR32.alpha(color), glyph.u2 + uBloat, glyph.v2 + vBloat, overlay, light, 0.0F, 0.0F, 0.0F);
-		vertexConsumer.vertex(glyphX + width	+ sBloat,	glyphY			- sBloat, 0.0F, FastColor.ABGR32.red(color), FastColor.ABGR32.green(color), FastColor.ABGR32.blue(color), FastColor.ABGR32.alpha(color), glyph.u2 + uBloat, glyph.v1 - vBloat, overlay, light, 0.0F, 0.0F, 0.0F);
+		var red		= FastColor.ARGB32.red	(color) / 255.0F;
+		var green	= FastColor.ARGB32.green(color) / 255.0F;
+		var blue	= FastColor.ARGB32.blue	(color) / 255.0F;
+		var alpha	= FastColor.ARGB32.alpha(color) / 255.0F;
+
+		vertexConsumer.vertex(glyphX			- sBloat,	glyphY			- sBloat, 0.0F, red, green, blue, alpha, glyph.u1 - uBloat, glyph.v1 - vBloat, overlay, light, 0.0F, 0.0F, 0.0F);
+		vertexConsumer.vertex(glyphX			- sBloat,	glyphY + height	+ sBloat, 0.0F, red, green, blue, alpha, glyph.u1 - uBloat, glyph.v2 + vBloat, overlay, light, 0.0F, 0.0F, 0.0F);
+		vertexConsumer.vertex(glyphX + width	+ sBloat,	glyphY + height	+ sBloat, 0.0F, red, green, blue, alpha, glyph.u2 + uBloat, glyph.v2 + vBloat, overlay, light, 0.0F, 0.0F, 0.0F);
+		vertexConsumer.vertex(glyphX + width	+ sBloat,	glyphY			- sBloat, 0.0F, red, green, blue, alpha, glyph.u2 + uBloat, glyph.v1 - vBloat, overlay, light, 0.0F, 0.0F, 0.0F);
 
 		extension.endTransform();
 	}
