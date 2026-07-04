@@ -51,8 +51,7 @@ public class TextLayoutMixin {
 							target	= "Lcom/mojang/blaze3d/vertex/VertexConsumer;vertex(Lorg/joml/Matrix4f;FFF)Lcom/mojang/blaze3d/vertex/VertexConsumer;",
 							ordinal	= 3
 					)
-			},
-			remap	= false
+			}
 	)
 	public VertexConsumer preventVanillaGlyphVertex(
 			VertexConsumer						instance,
@@ -90,8 +89,7 @@ public class TextLayoutMixin {
 							target	= "Lcom/mojang/blaze3d/vertex/VertexConsumer;vertex(Lorg/joml/Matrix4f;FFF)Lcom/mojang/blaze3d/vertex/VertexConsumer;",
 							ordinal	= 7
 					)
-			},
-			remap	= false
+			}
 	)
 	public VertexConsumer preventVanillaBgVertex(
 			VertexConsumer						instance,
@@ -129,8 +127,7 @@ public class TextLayoutMixin {
 							target	= "Lcom/mojang/blaze3d/vertex/VertexConsumer;vertex(Lorg/joml/Matrix4f;FFF)Lcom/mojang/blaze3d/vertex/VertexConsumer;",
 							ordinal	= 3
 					)
-			},
-			remap	= false
+			}
 	)
 	public VertexConsumer preventVanillaOutlineVertex(
 			VertexConsumer							instance,
@@ -156,8 +153,7 @@ public class TextLayoutMixin {
 					value	= "INVOKE",
 					target	= "Lcom/mojang/blaze3d/vertex/VertexConsumer;vertex(Lorg/joml/Matrix4f;FFF)Lcom/mojang/blaze3d/vertex/VertexConsumer;",
 					ordinal	= 0
-			),
-			remap	= false
+			)
 	)
 	public VertexConsumer drawMUIGlyph(
 			VertexConsumer									instance,
@@ -234,8 +230,7 @@ public class TextLayoutMixin {
 					value	= "INVOKE",
 					target	= "Lcom/mojang/blaze3d/vertex/VertexConsumer;vertex(Lorg/joml/Matrix4f;FFF)Lcom/mojang/blaze3d/vertex/VertexConsumer;",
 					ordinal	= 4
-			),
-			remap	= false
+			)
 	)
 	public VertexConsumer drawMUIBg(
 			VertexConsumer									instance,
@@ -295,8 +290,7 @@ public class TextLayoutMixin {
 					value	= "INVOKE",
 					target	= "Lcom/mojang/blaze3d/vertex/VertexConsumer;vertex(Lorg/joml/Matrix4f;FFF)Lcom/mojang/blaze3d/vertex/VertexConsumer;",
 					ordinal	= 0
-			),
-			remap	= false
+			)
 	)
 	public VertexConsumer drawMUIOutline(
 			VertexConsumer									instance,
