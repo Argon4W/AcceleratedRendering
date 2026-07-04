@@ -80,7 +80,7 @@ public class ClientMesh implements IMesh {
 
 			builders.add(builder);
 
-			mesh = new ClientMesh(vertexCount, result.byteBuffer());
+			mesh = new ClientMesh((int) vertexCount, result.byteBuffer());
 
 			MeshDataCaches.CLIENT.set(
 					layout,

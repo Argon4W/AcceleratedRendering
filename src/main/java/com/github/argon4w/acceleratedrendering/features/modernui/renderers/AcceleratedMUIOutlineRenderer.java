@@ -42,10 +42,10 @@ public class AcceleratedMUIOutlineRenderer implements IAcceleratedRenderer<Accel
 		var blue	= FastColor.ARGB32.blue	(color) / 255.0F;
 		var alpha	= FastColor.ARGB32.alpha(color) / 255.0F;
 
-		vertexConsumer.vertex(glyphX			- sBloat,	glyphY			- sBloat, 0.0F, red, green, blue, alpha, glyph.u1 - uBloat, glyph.v1 - vBloat, overlay, light, 0.0F, 0.0F, 0.0F);
-		vertexConsumer.vertex(glyphX			- sBloat,	glyphY + height	+ sBloat, 0.0F, red, green, blue, alpha, glyph.u1 - uBloat, glyph.v2 + vBloat, overlay, light, 0.0F, 0.0F, 0.0F);
-		vertexConsumer.vertex(glyphX + width	+ sBloat,	glyphY + height	+ sBloat, 0.0F, red, green, blue, alpha, glyph.u2 + uBloat, glyph.v2 + vBloat, overlay, light, 0.0F, 0.0F, 0.0F);
-		vertexConsumer.vertex(glyphX + width	+ sBloat,	glyphY			- sBloat, 0.0F, red, green, blue, alpha, glyph.u2 + uBloat, glyph.v1 - vBloat, overlay, light, 0.0F, 0.0F, 0.0F);
+		vertexConsumer.vertex(glyphX			- sBloat,	glyphY			- sBloat, 0.001F,	red, green, blue, alpha, glyph.u1 - uBloat, glyph.v1 - vBloat, overlay, light, 0.0F, 0.0F, 0.0F);
+		vertexConsumer.vertex(glyphX			- sBloat,	glyphY + height	+ sBloat, 0.001F,	red, green, blue, alpha, glyph.u1 - uBloat, glyph.v2 + vBloat, overlay, light, 0.0F, 0.0F, 0.0F);
+		vertexConsumer.vertex(glyphX + width	+ sBloat,	glyphY + height	+ sBloat, 0.0F,		red, green, blue, alpha, glyph.u2 + uBloat, glyph.v2 + vBloat, overlay, light, 0.0F, 0.0F, 0.0F);
+		vertexConsumer.vertex(glyphX + width	+ sBloat,	glyphY			- sBloat, 0.0F,		red, green, blue, alpha, glyph.u2 + uBloat, glyph.v1 - vBloat, overlay, light, 0.0F, 0.0F, 0.0F);
 
 		extension.endTransform();
 	}

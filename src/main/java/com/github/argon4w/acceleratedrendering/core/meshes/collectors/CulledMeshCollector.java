@@ -183,7 +183,7 @@ public class CulledMeshCollector implements IMeshCollector {
 	}
 
 	@Override
-	public int getVertexCount() {
+	public long getVertexCount() {
 		return meshCollector.getVertexCount();
 	}
 }

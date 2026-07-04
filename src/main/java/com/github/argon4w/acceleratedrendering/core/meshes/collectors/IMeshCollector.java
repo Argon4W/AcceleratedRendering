@@ -10,6 +10,6 @@ public interface IMeshCollector extends VertexConsumer {
 	MeshData			getData			();
 	ByteBufferBuilder	getBuffer		();
 	VertexLayout		getLayout		();
-	int					getVertexCount	();
+	long				getVertexCount	();
 	void				flush			();
 }

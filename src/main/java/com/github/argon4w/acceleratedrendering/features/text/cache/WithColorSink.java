@@ -12,13 +12,13 @@ public class WithColorSink implements FormattedCharSink {
 
 	@Override
 	public boolean accept(
-			int		position,
+			int		codepointPosition,
 			Style	codepointStyle,
 			int		codePoint
 	) {
 		if (sink != null) {
 			return sink.accept(
-					position,
+					codepointPosition,
 					codepointStyle.withColor(color),
 					codePoint
 			);

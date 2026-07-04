@@ -1,10 +1,8 @@
 package com.github.argon4w.acceleratedrendering.core.meshes;
 
 import com.github.argon4w.acceleratedrendering.core.CoreFeature;
-import com.github.argon4w.acceleratedrendering.core.backends.GLConstants;
 import com.github.argon4w.acceleratedrendering.core.backends.buffers.EmptyServerBuffer;
 import com.github.argon4w.acceleratedrendering.core.backends.buffers.IServerBuffer;
-import com.github.argon4w.acceleratedrendering.core.backends.buffers.MappedBuffer;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.IAcceleratedVertexConsumer;
 import com.github.argon4w.acceleratedrendering.core.buffers.memory.VertexLayout;
 import com.github.argon4w.acceleratedrendering.core.meshes.collectors.IMeshCollector;
@@ -13,8 +11,6 @@ import it.unimi.dsi.fastutil.objects.Reference2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import it.unimi.dsi.fastutil.objects.ReferenceLists;
-import net.minecraft.CrashReport;
-import net.minecraft.ReportedException;
 import org.lwjgl.system.MemoryUtil;
 
 import java.util.List;
@@ -104,41 +100,34 @@ public record ServerMesh(
 			var buffer		= result	.byteBuffer		();
 			var capacity	= buffer	.capacity		();
 			var meshBuffers	= buffers	.getOrDefault	(layout, null);
+			var address		= MemoryUtil.memAddress0	(buffer);
 
-			var meshBuffer = (MappedBuffer) null;
+			var meshBuffer = (MeshBuffer) null;
 
 			if (meshBuffers == null) {
 				meshBuffers	= new ReferenceArrayList<>	();
-				meshBuffer	= new MappedBuffer			(64L);
+				meshBuffer	= new MeshBuffer			(64L);
 				meshBuffers	.add						(meshBuffer);
 				buffers		.put						(layout, meshBuffers);
 			} else {
-				meshBuffer	= (MappedBuffer) meshBuffers.get(meshBuffers.size() - 1);
+				meshBuffer = (MeshBuffer) meshBuffers.get(meshBuffers.size() - 1);
 			}
 
 			if (meshBuffer.overflow(capacity)) {
-				meshBuffer = new MappedBuffer(64L);
+				meshBuffer = new MeshBuffer(64L);
 
 				meshBuffers.add(meshBuffer);
 			}
 
-			var position	= meshBuffer.getPosition();
-			var srcAddress	= MemoryUtil.memAddress0(buffer);
-			var destAddress	= meshBuffer.reserve	(capacity);
-
-			MemoryUtil.memCopy(
-					srcAddress,
-					destAddress,
-					capacity
-			);
+			var vertexOffset = meshBuffer.append(address, capacity) / layout.getSize();
 
 			builder.close();
 
 			mesh = new ServerMesh(
 					meshLayer,
 					COUNTER ++,
-					vertexCount,
-					(int) (position / layout.getSize()),
+					(int) vertexCount,
+					(int) vertexOffset,
 					forceDense,
 					meshBuffer
 			);
@@ -184,7 +173,7 @@ public record ServerMesh(
 
 		@Override
 		public void reload() {
-			for (var buffers : RELOAD_BUFFERS.values()) for (var buffer : buffers) ((MappedBuffer) buffer).reset();
+			for (var buffers : RELOAD_BUFFERS.values()) for (var buffer : buffers) ((MeshBuffer) buffer).reset();
 		}
 	}
 }

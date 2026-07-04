@@ -57,15 +57,6 @@ public class ImmutableBuffer implements IServerBuffer {
 	}
 
 	@Override
-	public void data(ByteBuffer data) {
-		glNamedBufferSubData(
-				bufferHandle,
-				0,
-				data
-		);
-	}
-
-	@Override
 	public void bindBase(int target, int index) {
 		glBindBufferBase(
 				target,
@@ -87,6 +78,20 @@ public class ImmutableBuffer implements IServerBuffer {
 				bufferHandle,
 				offset,
 				size
+		);
+	}
+
+	@Override
+	public void data(
+			long offset,
+			long size,
+			long address
+	) {
+		nglNamedBufferSubData(
+				bufferHandle,
+				offset,
+				size,
+				address
 		);
 	}
 }

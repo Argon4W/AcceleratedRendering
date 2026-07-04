@@ -313,37 +313,44 @@ public class StringRenderOutputMixin implements IAcceleratedStringRenderOutput {
 		this.advance	+= MUTABLE.getAdvance();
 	}
 
+	@Unique
 	@Override
 	public void setPosition(float positionX, float positionY) {
 		this.x = positionX;
 		this.y = positionY;
 	}
 
+	@Unique
 	@Override
 	public void setAccelerated(boolean accelerated) {
 		this.accelerated = accelerated;
 	}
 
+	@Unique
 	@Override
 	public void setOutline(boolean outline) {
 		this.outline = outline;
 	}
 
+	@Unique
 	@Override
 	public void setColor(int color) {
 		this.color = color;
 	}
 
+	@Unique
 	@Override
 	public void setMode(Font.DisplayMode mode) {
 		this.mode = mode;
 	}
 
+	@Unique
 	@Override
 	public void beginMesh() {
 		mesh = new ComponentMesh.Builder();
 	}
 
+	@Unique
 	@Override
 	public ComponentMesh bake() {
 		return mesh == null ? null : mesh.build(dropShadow);

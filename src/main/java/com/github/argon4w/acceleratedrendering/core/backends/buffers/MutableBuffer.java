@@ -2,8 +2,6 @@ package com.github.argon4w.acceleratedrendering.core.backends.buffers;
 
 import com.github.argon4w.acceleratedrendering.core.utils.MutableSize;
 
-import java.nio.ByteBuffer;
-
 public class MutableBuffer extends MutableSize implements IServerBuffer {
 
 	private final	int				bits;
@@ -35,10 +33,6 @@ public class MutableBuffer extends MutableSize implements IServerBuffer {
 		glBuffer.unmap();
 	}
 
-	public void copyTo(IServerBuffer buffer) {
-		glBuffer.copyTo(buffer, size);
-	}
-
 	@Override
 	public int getBufferHandle() {
 		return glBuffer.getBufferHandle();
@@ -52,11 +46,6 @@ public class MutableBuffer extends MutableSize implements IServerBuffer {
 	@Override
 	public void bind(int target) {
 		glBuffer.bind(target);
-	}
-
-	@Override
-	public void data(ByteBuffer data) {
-		glBuffer.data(data);
 	}
 
 	@Override
@@ -76,6 +65,19 @@ public class MutableBuffer extends MutableSize implements IServerBuffer {
 				index,
 				offset,
 				size
+		);
+	}
+
+	@Override
+	public void data(
+			long offset,
+			long size,
+			long address
+	) {
+		glBuffer.data(
+				offset,
+				size,
+				address
 		);
 	}
 }
