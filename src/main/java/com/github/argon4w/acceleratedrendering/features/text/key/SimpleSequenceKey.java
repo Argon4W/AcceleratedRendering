@@ -9,6 +9,8 @@ import net.minecraft.resources.ResourceLocation;
 
 import java.util.Objects;
 
+// Inspired by Modern UI's FormattedLayoutKey: https://github.com/BloCamLimb/ModernUI-MC/blob/1.21.1/common/src/main/java/icyllis/modernui/mc/text/FormattedLayoutKey.java
+// Special thanks to BloCamLimb.
 @ExtensionMethod(StyleExtension.class)
 public class SimpleSequenceKey implements ISequenceKey {
 
