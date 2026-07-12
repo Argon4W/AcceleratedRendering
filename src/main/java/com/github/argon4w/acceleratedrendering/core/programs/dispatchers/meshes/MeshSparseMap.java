@@ -129,8 +129,9 @@ public abstract class MeshSparseMap<T> {
 				resizeDense(meshLayer, denseId);
 			}
 
-			denseIdx[meshLayer][denseId] = meshId;
-			denseObj[meshLayer][denseId] = object;
+			denseIdx	[meshLayer][denseId] = meshId;
+			denseObj	[meshLayer][denseId] = object;
+			denseUsed	[meshLayer][denseId] = true;
 
 			block	[meshIndex] = denseId + 1;
 			counts	[meshBlock] ++;
