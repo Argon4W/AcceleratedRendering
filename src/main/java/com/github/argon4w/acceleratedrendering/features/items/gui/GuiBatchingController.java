@@ -73,7 +73,7 @@ public class GuiBatchingController {
 		this.depthLayers			= new Float2ReferenceAVLTreeMap	<>	();
 	}
 
-	public void startBatching(GuiGraphics graphics) {
+	public boolean startBatching(GuiGraphics graphics) {
 		if (		graphics.bufferSource().getAcceleratable()	.isBufferSourceAcceleratable		()
 				&&	AcceleratedItemRenderingFeature				.isEnabled							()
 				&&	AcceleratedItemRenderingFeature				.shouldUseAcceleratedPipeline		()
@@ -84,7 +84,11 @@ public class GuiBatchingController {
 		) {
 			CoreFeature.setGuiBatching	();
 			scissorDraw.record			(graphics);
+
+			return true;
 		}
+
+		return false;
 	}
 
 	@SuppressWarnings("UnstableApiUsage")

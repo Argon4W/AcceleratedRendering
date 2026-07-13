@@ -135,11 +135,13 @@ public class StringRenderOutputMixin implements IAcceleratedStringRenderOutput {
 
 				glyph = fontSet.getRandomGlyph(info);
 
+				var buffer = bufferSource.getBuffer(type);
+
 				var boldOffset		= bold			? info.getBoldOffset	() : 0.0f;
 				var shadowOffset	= dropShadow	? info.getShadowOffset	() : 0.0f;
 
-				var extension1 = glyph							.getAccelerated();
-				var extension2 = bufferSource.getBuffer(type)	.getAccelerated();
+				var extension1 = glyph	.getAccelerated();
+				var extension2 = buffer	.getAccelerated();
 
 				if (extension2.isAccelerated()) {
 					var renderer = extension1.getRenderer(italic);
@@ -179,14 +181,28 @@ public class StringRenderOutputMixin implements IAcceleratedStringRenderOutput {
 						);
 					}
 				} else {
-					throw new IllegalStateException("Someone uses incorrect render type in the baked glyph.");
+					this$0.renderChar(
+							glyph,
+							bold,
+							italic,
+							boldOffset,
+							this.x + shadowOffset + MUTABLE.getAdvance(),
+							this.y + shadowOffset,
+							pose,
+							buffer,
+							FastColor.ARGB32.red	(color),
+							FastColor.ARGB32.green	(color),
+							FastColor.ARGB32.blue	(color),
+							FastColor.ARGB32.alpha	(color),
+							packedLightCoords
+					);
 				}
 
 				MUTABLE.addHidden	(codePoint);
 				MUTABLE.addAdvance	(advance);
 			} else {
-				MUTABLE.addCodePoint	(codePoint);
-				MUTABLE.addAdvance		(advance);
+				MUTABLE.addCodePoint(codePoint);
+				MUTABLE.addAdvance	(advance);
 			}
 		}
 	}
@@ -227,8 +243,8 @@ public class StringRenderOutputMixin implements IAcceleratedStringRenderOutput {
 			);
 		}
 
-		MUTABLE.reset		();
-		MUTABLE.setStyle	(
+		MUTABLE.reset	();
+		MUTABLE.setStyle(
 				this.style,
 				this.dropShadow,
 				this.outline
@@ -257,25 +273,27 @@ public class StringRenderOutputMixin implements IAcceleratedStringRenderOutput {
 
 	@Unique
 	private void flush(FontSet fontSet) {
-		var extension1 = bufferSource.getBuffer(type).getAccelerated();
+		var buffer1 = bufferSource.getBuffer(type);
+
+		if (mesh != null) {
+			mesh.addAdvance	(MUTABLE.getAdvance());
+			mesh.addSequence(
+					MUTABLE.bake(),
+					this.type,
+					this.advance
+			);
+		}
+
+		SCRATCH.set			(pose);
+		SCRATCH.translate	(
+				this.x,
+				this.y,
+				0.0f
+		);
+
+		var extension1 = buffer1.getAccelerated();
 
 		if (extension1.isAccelerated()) {
-			if (mesh != null) {
-				mesh.addAdvance	(MUTABLE.getAdvance());
-				mesh.addSequence(
-						MUTABLE.bake(),
-						this.type,
-						this.advance
-				);
-			}
-
-			SCRATCH.set			(pose);
-			SCRATCH.translate	(
-					this.x,
-					this.y,
-					0.0f
-			);
-
 			extension1.doRender(
 					AcceleratedStyledSequenceRenderer.INSTANCE,
 					MUTABLE,
@@ -286,13 +304,21 @@ public class StringRenderOutputMixin implements IAcceleratedStringRenderOutput {
 					color
 			);
 		} else {
-			throw new IllegalStateException("Someone uses incorrect render type in the baked glyph.");
+			AcceleratedStyledSequenceRenderer.INSTANCE.buildSequenceMesh(
+					buffer1,
+					MUTABLE,
+					SCRATCH,
+					color,
+					packedLightCoords
+			);
 		}
 
 		if (		style.isStrikethrough	()
 				||	style.isUnderlined		()
 		) {
-			var extension2 = bufferSource.getBuffer(fontSet.whiteGlyph().renderType(mode)).getAccelerated();
+			var buffer2 = bufferSource.getBuffer(fontSet.whiteGlyph().renderType(mode));
+
+			var extension2 = buffer2.getAccelerated();
 
 			if (extension2.isAccelerated()) {
 				extension2.doRender(
@@ -305,7 +331,13 @@ public class StringRenderOutputMixin implements IAcceleratedStringRenderOutput {
 						color
 				);
 			} else {
-				throw new IllegalStateException("Someone uses incorrect render type in the baked glyph.");
+				AcceleratedSequenceEffectRenderer.INSTANCE.buildSequenceMesh(
+						buffer2,
+						MUTABLE,
+						SCRATCH,
+						color,
+						packedLightCoords
+				);
 			}
 		}
 

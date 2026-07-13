@@ -72,11 +72,13 @@ public class ComponentMesh {
 
 			var glyph = fontSet.getRandomGlyph(glyphInfo);
 
+			var buffer = bufferSource.getBuffer(glyph.renderType(mode));
+
 			var boldOffset		= bold		? glyphInfo.getBoldOffset	() : 0.0f;
 			var shadowOffset	= shadow	? glyphInfo.getShadowOffset	() : 0.0f;
 
-			var extension1 = glyph											.getAccelerated();
-			var extension2 = bufferSource.getBuffer(glyph.renderType(mode))	.getAccelerated();
+			var extension1 = glyph	.getAccelerated();
+			var extension2 = buffer	.getAccelerated();
 
 			if (extension2.isAccelerated()) {
 				var renderer = extension1.getRenderer(italic);
@@ -84,7 +86,7 @@ public class ComponentMesh {
 				SCRATCH.set			(transform);
 				SCRATCH.translate	(
 						positionX + shadowOffset + offset,
-						positionX + shadowOffset,
+						positionY + shadowOffset,
 						0.0f
 				);
 
@@ -116,38 +118,54 @@ public class ComponentMesh {
 					);
 				}
 			} else {
-				throw new IllegalStateException("Someone uses incorrect render type in the baked glyph.");
+				mcFont.renderChar(
+						glyph,
+						bold,
+						italic,
+						boldOffset,
+						positionX + shadowOffset + offset,
+						positionY + shadowOffset,
+						transform,
+						buffer,
+						FastColor.ARGB32.red	(color),
+						FastColor.ARGB32.green	(color),
+						FastColor.ARGB32.blue	(color),
+						FastColor.ARGB32.alpha	(color),
+						packedLight
+				);
 			}
 		}
 
 		for (var sequences : sequences.values()) {
-			var extension1 = bufferSource.getBuffer(sequences.getRenderType()).getAccelerated();
+			var buffer1 = bufferSource.getBuffer(sequences.getRenderType());
 
-			if (extension1.isAccelerated()) {
-				for (int index = 0, size = sequences.getSequenceKeys().size(); index < size; index ++) {
-					var sequenceOffset	= sequences		.getSequenceOffsets	().getFloat	(index);
-					var sequenceKey 	= sequences		.getSequenceKeys	().get		(index);
-					var hasColor		= sequenceKey	.hasColor			();
-					var textColor		= sequenceKey	.getColor			();
+			var extension1 = buffer1.getAccelerated();
 
-					if (hasColor) {
-						color = FastColor.ARGB32.color(
-										FastColor.ARGB32.alpha	(color),
-								(int) (	FastColor.ARGB32.red	(textColor) * dimFactor),
-								(int) (	FastColor.ARGB32.green	(textColor) * dimFactor),
-								(int) (	FastColor.ARGB32.blue	(textColor) * dimFactor)
-						);
-					} else {
-						color = defaultColor;
-					}
+			for (int index = 0, size = sequences.getSequenceKeys().size(); index < size; index ++) {
+				var sequenceOffset	= sequences		.getSequenceOffsets	().getFloat	(index);
+				var sequenceKey 	= sequences		.getSequenceKeys	().get		(index);
+				var hasColor		= sequenceKey	.hasColor			();
+				var textColor		= sequenceKey	.getColor			();
 
-					SCRATCH.set			(transform);
-					SCRATCH.translate	(
-							positionX + sequenceOffset,
-							positionY,
-							0.0f
+				if (hasColor) {
+					color = FastColor.ARGB32.color(
+							FastColor.ARGB32.alpha	(color),
+							(int) (	FastColor.ARGB32.red	(textColor) * dimFactor),
+							(int) (	FastColor.ARGB32.green	(textColor) * dimFactor),
+							(int) (	FastColor.ARGB32.blue	(textColor) * dimFactor)
 					);
+				} else {
+					color = defaultColor;
+				}
 
+				SCRATCH.set			(transform);
+				SCRATCH.translate	(
+						positionX + sequenceOffset,
+						positionY,
+						0.0f
+				);
+
+				if (extension1.isAccelerated()) {
 					extension1.doRender(
 							AcceleratedStyledSequenceRenderer.INSTANCE,
 							sequenceKey,
@@ -157,29 +175,43 @@ public class ComponentMesh {
 							OverlayTexture.NO_OVERLAY,
 							color
 					);
+				} else {
+					AcceleratedStyledSequenceRenderer.INSTANCE.buildSequenceMesh(
+							buffer1,
+							sequenceKey,
+							SCRATCH,
+							color,
+							packedLight
+					);
+				}
 
-					if (		sequenceKey.isStrikethrough	()
-							||	sequenceKey.isUnderlined	()
-					) {
-						var extension2 = bufferSource.getBuffer(mcFont.getFontSet(sequenceKey.getFont()).whiteGlyph().renderType(mode)).getAccelerated();
+				if (		sequenceKey.isStrikethrough	()
+						||	sequenceKey.isUnderlined	()
+				) {
+					var buffer2 = bufferSource.getBuffer(mcFont.getFontSet(sequenceKey.getFont()).whiteGlyph().renderType(mode));
 
-						if (extension2.isAccelerated()) {
-							extension2.doRender(
-									AcceleratedSequenceEffectRenderer.INSTANCE,
-									sequenceKey,
-									SCRATCH,
-									NORMAL,
-									packedLight,
-									OverlayTexture.NO_OVERLAY,
-									color
-							);
-						} else {
-							throw new IllegalStateException("Someone uses incorrect render type in the baked glyph.");
-						}
+					var extension2 = buffer2.getAccelerated();
+
+					if (extension2.isAccelerated()) {
+						extension2.doRender(
+								AcceleratedSequenceEffectRenderer.INSTANCE,
+								sequenceKey,
+								SCRATCH,
+								NORMAL,
+								packedLight,
+								OverlayTexture.NO_OVERLAY,
+								color
+						);
+					} else {
+						AcceleratedSequenceEffectRenderer.INSTANCE.buildSequenceMesh(
+								buffer2,
+								sequenceKey,
+								SCRATCH,
+								color,
+								packedLight
+						);
 					}
 				}
-			} else {
-				throw new IllegalStateException("Someone uses incorrect render type in the baked glyph.");
 			}
 		}
 

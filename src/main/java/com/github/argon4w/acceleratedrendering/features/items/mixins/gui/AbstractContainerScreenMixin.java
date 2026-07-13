@@ -7,6 +7,7 @@ import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Share;
+import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
 import com.llamalad7.mixinextras.sugar.ref.LocalFloatRef;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -43,15 +44,16 @@ public abstract class AbstractContainerScreenMixin {
 			at		= @At("HEAD")
 	)
 	public void startBackgroundBatching(
-			GuiGraphics						guiGraphics,
-			int								mouseX,
-			int								mouseY,
-			float							partialTick,
-			CallbackInfo					ci,
-			@Share("depth") LocalFloatRef	depth
+			GuiGraphics								guiGraphics,
+			int										mouseX,
+			int										mouseY,
+			float									partialTick,
+			CallbackInfo							ci,
+			@Share("depth")			LocalFloatRef	depth,
+			@Share("accelerated")	LocalBooleanRef	accelerated
 	) {
-		depth.set(0.0f);
-		GuiBatchingController.INSTANCE.startBatching(guiGraphics);
+		depth		.set(0.0f);
+		accelerated	.set(GuiBatchingController.INSTANCE.startBatching(guiGraphics));
 	}
 
 	@Inject(
@@ -63,14 +65,15 @@ public abstract class AbstractContainerScreenMixin {
 			)
 	)
 	public void flushBackgroundBatching(
-			GuiGraphics						guiGraphics,
-			int								mouseX,
-			int								mouseY,
-			float							partialTick,
-			CallbackInfo					ci,
-			@Share("depth") LocalFloatRef	depth
+			GuiGraphics								guiGraphics,
+			int										mouseX,
+			int										mouseY,
+			float									partialTick,
+			CallbackInfo							ci,
+			@Share("depth")			LocalFloatRef	depth,
+			@Share("accelerated")	LocalBooleanRef	accelerated
 	) {
-		if (!AcceleratedItemRenderingFeature.shouldMergeGuiItemBatches()) {
+		if (!AcceleratedItemRenderingFeature.shouldMergeGuiItemBatches() && accelerated.get()) {
 			depth.set(depth.get() + GuiBatchingController.INSTANCE.flushBatching(guiGraphics));
 
 			var pose = guiGraphics.pose().last().pose();
@@ -104,13 +107,15 @@ public abstract class AbstractContainerScreenMixin {
 			)
 	)
 	public void startItemBatching(
-			GuiGraphics		guiGraphics,
-			int				mouseX,
-			int				mouseY,
-			float			partialTick,
-			CallbackInfo	ci
+			GuiGraphics								guiGraphics,
+			int										mouseX,
+			int										mouseY,
+			float									partialTick,
+			CallbackInfo							ci,
+			@Share("depth")			LocalFloatRef	depth,
+			@Share("accelerated")	LocalBooleanRef	accelerated
 	) {
-		if (!AcceleratedItemRenderingFeature.shouldMergeGuiItemBatches()) {
+		if (!AcceleratedItemRenderingFeature.shouldMergeGuiItemBatches() && accelerated.get()) {
 			GuiBatchingController.INSTANCE.startBatching(guiGraphics);
 		}
 	}
@@ -124,14 +129,17 @@ public abstract class AbstractContainerScreenMixin {
 			)
 	)
 	public void flushItemBatching(
-			GuiGraphics						guiGraphics,
-			int								mouseX,
-			int								mouseY,
-			float							partialTick,
-			CallbackInfo					ci,
-			@Share("depth") LocalFloatRef	depth
+			GuiGraphics								guiGraphics,
+			int										mouseX,
+			int										mouseY,
+			float									partialTick,
+			CallbackInfo							ci,
+			@Share("depth")			LocalFloatRef	depth,
+			@Share("accelerated")	LocalBooleanRef	accelerated
 	) {
-		depth.set(depth.get() + GuiBatchingController.INSTANCE.flushBatching(guiGraphics));
+		if (accelerated.get()) {
+			depth.set(depth.get() + GuiBatchingController.INSTANCE.flushBatching(guiGraphics));
+		}
 	}
 
 	@Inject(
@@ -139,30 +147,33 @@ public abstract class AbstractContainerScreenMixin {
 			at		= @At("TAIL")
 	)
 	public void liftGlobalLayer(
-			GuiGraphics						guiGraphics,
-			int								mouseX,
-			int								mouseY,
-			float							partialTick,
-			CallbackInfo					ci,
-			@Share("depth") LocalFloatRef	depth
+			GuiGraphics								guiGraphics,
+			int										mouseX,
+			int										mouseY,
+			float									partialTick,
+			CallbackInfo							ci,
+			@Share("depth")			LocalFloatRef	depth,
+			@Share("accelerated")	LocalBooleanRef	accelerated
 	) {
-		var pose = guiGraphics.pose().last().pose();
+		if (accelerated.get()) {
+			var pose = guiGraphics.pose().last().pose();
 
-		var previousDepth = GuiBatchingController.getGlobalDepth(
-				pose.m22(),
-				pose.m32(),
-				0.0F
-		);
+			var previousDepth = GuiBatchingController.getGlobalDepth(
+					pose.m22(),
+					pose.m32(),
+					0.0F
+			);
 
-		guiGraphics
-				.pose			()
-				.last			()
-				.pose			()
-				.translateLocal	(
-						0.0f,
-						0.0f,
-						depth.get() - previousDepth
-				);
+			guiGraphics
+					.pose			()
+					.last			()
+					.pose			()
+					.translateLocal	(
+							0.0f,
+							0.0f,
+							depth.get() - previousDepth
+					);
+		}
 	}
 
 	@WrapMethod(method = "renderSlotHighlight(Lnet/minecraft/client/gui/GuiGraphics;IIII)V")

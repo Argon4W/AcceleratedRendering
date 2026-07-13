@@ -5,6 +5,7 @@ import com.github.argon4w.acceleratedrendering.features.items.AcceleratedItemRen
 import com.github.argon4w.acceleratedrendering.features.items.gui.GuiBatchingController;
 import com.github.argon4w.acceleratedrendering.features.mods.ModsFeature;
 import com.llamalad7.mixinextras.sugar.Share;
+import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
 import com.llamalad7.mixinextras.sugar.ref.LocalFloatRef;
 import net.minecraft.client.gui.GuiGraphics;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.StorageScreenBase;
@@ -23,19 +24,20 @@ public class StorageScreenBaseMixin {
 			at		= @At("HEAD")
 	)
 	public void startBackgroundBatching(
-			GuiGraphics						guiGraphics,
-			int								mouseX,
-			int								mouseY,
-			float							partialTick,
-			CallbackInfo					ci,
-			@Share("depth") LocalFloatRef	depth
+			GuiGraphics								guiGraphics,
+			int										mouseX,
+			int										mouseY,
+			float									partialTick,
+			CallbackInfo							ci,
+			@Share("depth")			LocalFloatRef	depth,
+			@Share("accelerated")	LocalBooleanRef	accelerated
 	) {
 		if (		CoreFeature.isLoaded						()
 				&&	ModsFeature.isEnabled						()
 				&&	ModsFeature.shouldAccelerateSophisticated	()
 		) {
-			depth.set(0.0f);
-			GuiBatchingController.INSTANCE.startBatching(guiGraphics);
+			depth		.set(0.0f);
+			accelerated	.set(GuiBatchingController.INSTANCE.startBatching(guiGraphics));
 		}
 	}
 
@@ -49,17 +51,19 @@ public class StorageScreenBaseMixin {
 			)
 	)
 	public void flushBackgroundBatching(
-			GuiGraphics						guiGraphics,
-			int								mouseX,
-			int								mouseY,
-			float							partialTick,
-			CallbackInfo					ci,
-			@Share("depth") LocalFloatRef	depth
+			GuiGraphics								guiGraphics,
+			int										mouseX,
+			int										mouseY,
+			float									partialTick,
+			CallbackInfo							ci,
+			@Share("depth")			LocalFloatRef	depth,
+			@Share("accelerated")	LocalBooleanRef	accelerated
 	) {
 		if (		CoreFeature						.isLoaded						()
 				&&	ModsFeature						.isEnabled						()
 				&&	ModsFeature						.shouldAccelerateSophisticated	()
 				&& !AcceleratedItemRenderingFeature	.shouldMergeGuiItemBatches		()
+				&&	accelerated						.get							()
 		) {
 			depth.set(depth.get() + GuiBatchingController.INSTANCE.flushBatching(guiGraphics));
 
@@ -95,16 +99,19 @@ public class StorageScreenBaseMixin {
 			)
 	)
 	public void startItemBatching(
-			GuiGraphics		guiGraphics,
-			int				mouseX,
-			int				mouseY,
-			float			partialTick,
-			CallbackInfo	ci
+			GuiGraphics								guiGraphics,
+			int										mouseX,
+			int										mouseY,
+			float									partialTick,
+			CallbackInfo							ci,
+			@Share("depth")			LocalFloatRef	depth,
+			@Share("accelerated")	LocalBooleanRef	accelerated
 	) {
 		if (		CoreFeature						.isLoaded						()
 				&&	ModsFeature						.isEnabled						()
 				&&	ModsFeature						.shouldAccelerateSophisticated	()
 				&& !AcceleratedItemRenderingFeature	.shouldMergeGuiItemBatches		()
+				&&	accelerated						.get							()
 		) {
 			GuiBatchingController.INSTANCE.startBatching(guiGraphics);
 		}
@@ -119,16 +126,18 @@ public class StorageScreenBaseMixin {
 			)
 	)
 	public void flushItemBatching(
-			GuiGraphics						guiGraphics,
-			int								mouseX,
-			int								mouseY,
-			float							partialTick,
-			CallbackInfo					ci,
-			@Share("depth") LocalFloatRef	depth
+			GuiGraphics								guiGraphics,
+			int										mouseX,
+			int										mouseY,
+			float									partialTick,
+			CallbackInfo							ci,
+			@Share("depth")			LocalFloatRef	depth,
+			@Share("accelerated")	LocalBooleanRef	accelerated
 	) {
 		if (		CoreFeature.isLoaded						()
 				&&	ModsFeature.isEnabled						()
 				&&	ModsFeature.shouldAccelerateSophisticated	()
+				&&	accelerated.get								()
 		) {
 			depth.set(depth.get() + GuiBatchingController.INSTANCE.flushBatching(guiGraphics));
 		}
@@ -139,29 +148,32 @@ public class StorageScreenBaseMixin {
 			at		= @At("TAIL")
 	)
 	public void liftGlobalLayer(
-			GuiGraphics						guiGraphics,
-			int								mouseX,
-			int								mouseY,
-			float							partialTick,
-			CallbackInfo					ci,
-			@Share("depth") LocalFloatRef	depth
+			GuiGraphics								guiGraphics,
+			int										mouseX,
+			int										mouseY,
+			float									partialTick,
+			CallbackInfo							ci,
+			@Share("depth")			LocalFloatRef	depth,
+			@Share("accelerated")	LocalBooleanRef	accelerated
 	) {
-		var pose = guiGraphics.pose().last().pose();
+		if (accelerated.get()) {
+			var pose = guiGraphics.pose().last().pose();
 
-		var previousDepth = GuiBatchingController.getGlobalDepth(
-				pose.m22(),
-				pose.m32(),
-				0.0F
-		);
+			var previousDepth = GuiBatchingController.getGlobalDepth(
+					pose.m22(),
+					pose.m32(),
+					0.0F
+			);
 
-		guiGraphics
-				.pose			()
-				.last			()
-				.pose			()
-				.translateLocal	(
-						0.0f,
-						0.0f,
-						depth.get() - previousDepth
-				);
+			guiGraphics
+					.pose			()
+					.last			()
+					.pose			()
+					.translateLocal	(
+							0.0f,
+							0.0f,
+							depth.get() - previousDepth
+					);
+		}
 	}
 }

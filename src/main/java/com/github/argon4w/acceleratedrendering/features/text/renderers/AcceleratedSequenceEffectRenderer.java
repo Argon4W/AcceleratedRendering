@@ -21,6 +21,7 @@ import net.minecraft.client.gui.font.glyphs.EmptyGlyph;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
+import org.joml.Vector3f;
 
 import java.util.List;
 import java.util.Map;
@@ -28,7 +29,9 @@ import java.util.Map;
 @ExtensionMethod(VertexConsumerExtension.class)
 public class AcceleratedSequenceEffectRenderer implements IAcceleratedRenderer<ISequenceKey> {
 
-	public static final AcceleratedSequenceEffectRenderer INSTANCE = new AcceleratedSequenceEffectRenderer();
+	public static final AcceleratedSequenceEffectRenderer	INSTANCE	= new AcceleratedSequenceEffectRenderer	();
+	private	static final Matrix4f							IDENTITY	= new Matrix4f							().identity();
+	private	static final Vector3f							SCRATCH		= new Vector3f							();
 
 	private final Map	<ISequenceKey, Sequence>	sequencesByKey;
 	private final List	<Sequence>					sequencesByIdx;
@@ -72,58 +75,16 @@ public class AcceleratedSequenceEffectRenderer implements IAcceleratedRenderer<I
 			return;
 		}
 
-		var advance			= 0.0f;
 		var meshCollector	= new SimpleMeshCollector	(extension.getLayout());
 		var meshBuilder		= extension.decorate		(meshCollector);
 
-		var mcFont	= Minecraft		.getInstance	().font;
-		var texts	= sequenceKey	.getTexts		();
-		var font	= sequenceKey	.getFont		();
-		var shadow	= sequenceKey	.isShadow		();
-		var outline	= sequenceKey	.isOutline		();
-		var bold	= sequenceKey	.isBold			();
-		var fontSet	= mcFont		.getFontSet		(font);
-		var filter	= mcFont		.filterFishyGlyphs;
-
-		for (int text : texts) {
-			var codePoint = text & 0x1FFFFF;
-
-			var whiteGlyph		= fontSet	.whiteGlyph		();
-			var glyphInfo		= fontSet	.getGlyphInfo	(codePoint, filter);
-			var glyphAdvance	= glyphInfo	.getAdvance		(bold);
-			var shadowOffset	= glyphInfo	.getShadowOffset();
-			var positionX		= advance;
-
-			advance += glyphAdvance;
-
-			var effectOffset = shadow ? 1.0f : 0.0f;
-
-			if (sequenceKey.isStrikethrough()) {
-				buildEffectMesh(
-						meshBuilder,
-						whiteGlyph,
-						outline,
-						glyphAdvance,
-						4.5f,
-						positionX	+ effectOffset,
-						0			+ effectOffset,
-						shadowOffset
-				);
-			}
-
-			if (sequenceKey.isUnderlined()) {
-				buildEffectMesh(
-						meshBuilder,
-						whiteGlyph,
-						outline,
-						glyphAdvance,
-						9.0f,
-						positionX	+ effectOffset,
-						0			+ effectOffset,
-						shadowOffset
-				);
-			}
-		}
+		buildSequenceMesh(
+				meshBuilder,
+				sequenceKey,
+				IDENTITY,
+				0xFF_FF_FF_FF,
+				0
+		);
 
 		var data	= meshCollector	.getData	();
 		var buffer	= meshCollector	.getBuffer	();
@@ -155,15 +116,82 @@ public class AcceleratedSequenceEffectRenderer implements IAcceleratedRenderer<I
 		);
 	}
 
+	public void buildSequenceMesh(
+			VertexConsumer	meshBuilder,
+			ISequenceKey	sequenceKey,
+			Matrix4f		transform,
+			int				color,
+			int				light
+	) {
+		var advance	= 0.0f;
+		var mcFont	= Minecraft		.getInstance	().font;
+		var texts	= sequenceKey	.getTexts		();
+		var font	= sequenceKey	.getFont		();
+		var shadow	= sequenceKey	.isShadow		();
+		var outline	= sequenceKey	.isOutline		();
+		var bold	= sequenceKey	.isBold			();
+		var fontSet	= mcFont		.getFontSet		(font);
+		var filter	= mcFont		.filterFishyGlyphs;
+
+		for (int text : texts) {
+			var codePoint = text & 0x1FFFFF;
+
+			var whiteGlyph		= fontSet	.whiteGlyph		();
+			var glyphInfo		= fontSet	.getGlyphInfo	(codePoint, filter);
+			var glyphAdvance	= glyphInfo	.getAdvance		(bold);
+			var shadowOffset	= glyphInfo	.getShadowOffset();
+			var positionX		= advance;
+
+			advance += glyphAdvance;
+
+			var effectOffset = shadow ? 1.0f : 0.0f;
+
+			if (sequenceKey.isStrikethrough()) {
+				buildEffectMesh(
+						meshBuilder,
+						whiteGlyph,
+						transform,
+						outline,
+						glyphAdvance,
+						4.5f,
+						positionX	+ effectOffset,
+						0			+ effectOffset,
+						shadowOffset,
+						color,
+						light
+				);
+			}
+
+			if (sequenceKey.isUnderlined()) {
+				buildEffectMesh(
+						meshBuilder,
+						whiteGlyph,
+						transform,
+						outline,
+						glyphAdvance,
+						9.0f,
+						positionX	+ effectOffset,
+						0			+ effectOffset,
+						shadowOffset,
+						color,
+						light
+				);
+			}
+		}
+	}
+
 	private void buildEffectMesh(
 			VertexConsumer	meshBuilder,
 			BakedGlyph		bakedGlyph,
+			Matrix4f		transform,
 			boolean			outline,
 			float			advance,
 			float			position,
 			float			offsetX,
 			float			offsetY,
-			float			shadowOffset
+			float			shadowOffset,
+			int				color,
+			int				light
 	) {
 		var positions = new Vector2f[] {
 				new Vector2f(-1.0f,		position),
@@ -187,10 +215,13 @@ public class AcceleratedSequenceEffectRenderer implements IAcceleratedRenderer<I
 					) {
 						bakeQuad(
 								meshBuilder,
+								transform,
 								positions,
 								texCoords,
 								offsetX + shadowOffset * outlineOffsetX,
-								offsetY + shadowOffset * outlineOffsetY
+								offsetY + shadowOffset * outlineOffsetY,
+								color,
+								light
 						);
 					}
 				}
@@ -198,35 +229,46 @@ public class AcceleratedSequenceEffectRenderer implements IAcceleratedRenderer<I
 		} else {
 			bakeQuad(
 					meshBuilder,
+					transform,
 					positions,
 					texCoords,
 					offsetX,
-					offsetY
+					offsetY,
+					color,
+					light
 			);
 		}
 	}
 
 	public void bakeQuad(
 			VertexConsumer	meshBuilder,
+			Matrix4f		transform,
 			Vector2f[]		positions,
 			Vector2f[]		texCoords,
 			float			offsetX,
-			float			offsetY
+			float			offsetY,
+			int				color,
+			int				light
 	) {
 		for (var i = 0; i < 4; i ++) {
-			var positionX	= positions[i].x() + offsetX;
-			var positionY	= positions[i].y() + offsetY;
-			var texCoord	= texCoords[i];
+			var texCoord = texCoords[i];
+
+			transform.transformPosition(
+					positions[i].x() + offsetX,
+					positions[i].y() + offsetY,
+					0.01f,
+					SCRATCH
+			);
 
 			meshBuilder.addVertex(
-					positionX,
-					positionY,
-					0.01f,
-					0xFF_FF_FF_FF,
+					SCRATCH.x(),
+					SCRATCH.y(),
+					SCRATCH.z(),
+					color,
 					texCoord.x,
 					texCoord.y,
 					0,
-					0,
+					light,
 					0.0f,
 					0.0f,
 					0.0f
