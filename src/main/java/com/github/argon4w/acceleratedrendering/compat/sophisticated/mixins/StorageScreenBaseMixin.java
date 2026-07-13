@@ -64,6 +64,14 @@ public class StorageScreenBaseMixin {
 		) {
 			depth.set(depth.get() + GuiBatchingController.INSTANCE.flushBatching(guiGraphics));
 
+			var pose = guiGraphics.pose().last().pose();
+
+			var previousDepth = GuiBatchingController.getGlobalDepth(
+					pose.m22(),
+					pose.m32(),
+					0.0F
+			);
+
 			guiGraphics
 					.pose			()
 					.last			()
@@ -71,8 +79,10 @@ public class StorageScreenBaseMixin {
 					.translateLocal	(
 							0.0f,
 							0.0f,
-							depth.get()
+							depth.get() - previousDepth
 					);
+
+			depth.set(0.0f);
 		}
 	}
 
@@ -138,6 +148,14 @@ public class StorageScreenBaseMixin {
 			CallbackInfo					ci,
 			@Share("depth") LocalFloatRef	depth
 	) {
+		var pose = guiGraphics.pose().last().pose();
+
+		var previousDepth = GuiBatchingController.getGlobalDepth(
+				pose.m22(),
+				pose.m32(),
+				0.0F
+		);
+
 		guiGraphics
 				.pose			()
 				.last			()
@@ -145,7 +163,7 @@ public class StorageScreenBaseMixin {
 				.translateLocal	(
 						0.0f,
 						0.0f,
-						depth.get()
+						depth.get() - previousDepth
 				);
 	}
 }
