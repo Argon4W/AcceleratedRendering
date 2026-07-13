@@ -73,6 +73,14 @@ public abstract class AbstractContainerScreenMixin {
 		if (!AcceleratedItemRenderingFeature.shouldMergeGuiItemBatches()) {
 			depth.set(depth.get() + GuiBatchingController.INSTANCE.flushBatching(guiGraphics));
 
+			var pose = guiGraphics.pose().last().pose();
+
+			var previousDepth = GuiBatchingController.getGlobalDepth(
+					pose.m22(),
+					pose.m32(),
+					0.0F
+			);
+
 			guiGraphics
 					.pose			()
 					.last			()
@@ -80,8 +88,10 @@ public abstract class AbstractContainerScreenMixin {
 					.translateLocal	(
 							0.0f,
 							0.0f,
-							depth.get()
+							depth.get() - previousDepth
 					);
+
+			depth.set(0.0f);
 		}
 	}
 
@@ -136,6 +146,14 @@ public abstract class AbstractContainerScreenMixin {
 			CallbackInfo					ci,
 			@Share("depth") LocalFloatRef	depth
 	) {
+		var pose = guiGraphics.pose().last().pose();
+
+		var previousDepth = GuiBatchingController.getGlobalDepth(
+				pose.m22(),
+				pose.m32(),
+				0.0F
+		);
+
 		guiGraphics
 				.pose			()
 				.last			()
@@ -143,7 +161,7 @@ public abstract class AbstractContainerScreenMixin {
 				.translateLocal	(
 						0.0f,
 						0.0f,
-						depth.get()
+						depth.get() - previousDepth
 				);
 	}
 
