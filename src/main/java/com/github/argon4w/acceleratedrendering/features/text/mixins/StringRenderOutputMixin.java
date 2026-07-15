@@ -55,6 +55,7 @@ public class StringRenderOutputMixin implements IAcceleratedStringRenderOutput {
 
 	@Unique	private					ComponentMesh.Builder		mesh		= null;
 	@Unique private					RenderType					type		= null;
+	@Unique private					RenderType					effect		= null;
 	@Unique private					Style						style		= null;
 	@Unique private					boolean						accelerated	= false;
 	@Unique private					boolean						outline		= false;
@@ -103,23 +104,33 @@ public class StringRenderOutputMixin implements IAcceleratedStringRenderOutput {
 		if (accelerated) {
 			cir.setReturnValue(true);
 
-			var italic	= style		.isItalic		();
-			var bold	= style		.isBold			();
-			var font	= style		.getFont		();
-			var fontSet	= this$0	.getFontSet		(font);
-			var info	= fontSet	.getGlyphInfo	(codePoint, this$0.filterFishyGlyphs);
-			var glyph	= fontSet	.getGlyph		(codePoint);
-			var type	= glyph		.renderType		(mode);
-			var advance	= info		.getAdvance		(bold);
+			var italic	= style					.isItalic		();
+			var bold	= style					.isBold			();
+			var font	= style					.getFont		();
+			var fontSet	= this$0				.getFontSet		(font);
+			var info	= fontSet				.getGlyphInfo	(codePoint, this$0.filterFishyGlyphs);
+			var glyph	= fontSet				.getGlyph		(codePoint);
+			var effect	= fontSet.whiteGlyph()	.renderType		(mode);
+			var type	= glyph					.renderType		(mode);
+			var advance	= info					.getAdvance		(bold);
 
 			if (this.style == null) {
-				setup(style, type);
+				setup(
+						type,
+						effect,
+						style
+				);
 			} else {
 				if (		!this.type	.equals(type)
 						||	!this.style	.equals(style)
+						||	!this.effect.equals(effect)
 				) {
-					flush(fontSet);
-					setup(style, type);
+					flush0();
+					setup(
+							type,
+							effect,
+							style
+					);
 				}
 			}
 
@@ -220,8 +231,13 @@ public class StringRenderOutputMixin implements IAcceleratedStringRenderOutput {
 	}
 
 	@Unique
-	private void setup(Style style, RenderType type) {
+	private void setup(
+			RenderType	type,
+			RenderType	effect,
+			Style		style
+	) {
 		this.style	= style;
+		this.effect	= effect;
 		this.type	= type;
 
 		var textColor = style.getColor();
@@ -257,13 +273,15 @@ public class StringRenderOutputMixin implements IAcceleratedStringRenderOutput {
 		if (			this.accelerated
 				&& 		this.style	!= null
 				&&		this.type	!= null
+				&&		this.effect	!= null
 				&&	!	MUTABLE.isEmpty()
 		) {
-			flush(this$0.getFontSet(style.getFont()));
+			flush0();
 		}
 
 		this.style		= null;
 		this.type		= null;
+		this.effect		= null;
 		this.outline	= false;
 		this.color		= 0;
 		this.advance	= 0.0f;
@@ -272,7 +290,7 @@ public class StringRenderOutputMixin implements IAcceleratedStringRenderOutput {
 	}
 
 	@Unique
-	private void flush(FontSet fontSet) {
+	private void flush0() {
 		var buffer1 = bufferSource.getBuffer(type);
 
 		if (mesh != null) {
@@ -280,6 +298,7 @@ public class StringRenderOutputMixin implements IAcceleratedStringRenderOutput {
 			mesh.addSequence(
 					MUTABLE.bake(),
 					this.type,
+					this.effect,
 					this.advance
 			);
 		}
@@ -316,7 +335,7 @@ public class StringRenderOutputMixin implements IAcceleratedStringRenderOutput {
 		if (		style.isStrikethrough	()
 				||	style.isUnderlined		()
 		) {
-			var buffer2 = bufferSource.getBuffer(fontSet.whiteGlyph().renderType(mode));
+			var buffer2 = bufferSource.getBuffer(effect);
 
 			var extension2 = buffer2.getAccelerated();
 

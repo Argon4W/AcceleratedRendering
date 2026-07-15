@@ -43,7 +43,7 @@ public class AcceleratedStyledSequenceRenderer implements IAcceleratedRenderer<I
 	}
 
 	public ISequenceKey getIndexKey(ISequenceKey key) {
-		return new IndexKey(key, getSequence(key).getIndex());
+		return key instanceof IndexKey ? key : new IndexKey(key, getSequence(key).getIndex());
 	}
 
 	@Override
