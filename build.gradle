@@ -148,9 +148,13 @@ dependencies {
     implementation "maven.modrinth:sodium:mc1.21.1-0.6.13-neoforge"
     implementation "maven.modrinth:iris:1.8.8+1.21.1-neoforge"
 
+    implementation "maven.modrinth:emi:1.1.24+1.21.1+neoforge"
+    implementation "maven.modrinth:sophisticated-backpacks:1.21.1-3.25.69.1979"
+    implementation "maven.modrinth:sophisticated-sorter:Vbt1mjHA"
+
     compileOnly "maven.modrinth:create:6.0.10+mc1.21.1"
     compileOnly "maven.modrinth:modern-ui:3.12.0.2"
-    compileOnly "maven.modrinth:sophisticated-core:1.21.1-1.4.44.1923"
+    implementation "maven.modrinth:sophisticated-core:1.21.1-1.4.72.2136"
     compileOnly "maven.modrinth:entitytexturefeatures:7.1-neoforge-1.21"
     compileOnly "maven.modrinth:entity-model-features:3.2.4-neoforge-1.21"
     compileOnly "maven.modrinth:touhou-little-maid:1.5.0-neoforge+mc1.21.1"

@@ -196,7 +196,7 @@ public class CoreFeature {
 		FORCE_TRANSLUCENT_ACCELERATION_CONTROLLER_STACK.push(FeatureStatus.ENABLED);
 	}
 
-	public static void forceBypassGuiItemBatching() {
+	public static void forceBypassGuiBatching() {
 		BYPASS_GUI_BATCHING_CONTROLLER_STACK.push(FeatureStatus.ENABLED);
 	}
 
