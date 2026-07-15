@@ -19,9 +19,11 @@ import lombok.experimental.ExtensionMethod;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.font.glyphs.BakedGlyph;
 import net.minecraft.client.gui.font.glyphs.EmptyGlyph;
+import net.minecraft.util.FastColor;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
+import org.joml.Vector3f;
 
 import java.util.List;
 import java.util.Map;
@@ -29,7 +31,9 @@ import java.util.Map;
 @ExtensionMethod(VertexConsumerExtension.class)
 public class AcceleratedStyledSequenceRenderer implements IAcceleratedRenderer<ISequenceKey> {
 
-	public static final AcceleratedStyledSequenceRenderer INSTANCE = new AcceleratedStyledSequenceRenderer();
+	public	static final AcceleratedStyledSequenceRenderer	INSTANCE	= new AcceleratedStyledSequenceRenderer	();
+	private	static final Matrix4f							IDENTITY	= new Matrix4f							().identity();
+	private	static final Vector3f							SCRATCH		= new Vector3f							();
 
 	private final Map	<ISequenceKey, Sequence>	sequencesByKey;
 	private final List	<Sequence>					sequencesByIdx;
@@ -73,10 +77,54 @@ public class AcceleratedStyledSequenceRenderer implements IAcceleratedRenderer<I
 			return;
 		}
 
-		var advance			= 0.0f;
 		var meshCollector	= new SimpleMeshCollector	(extension.getLayout());
 		var meshBuilder		= extension.decorate		(meshCollector);
 
+		buildSequenceMesh(
+				meshBuilder,
+				sequenceKey,
+				IDENTITY,
+				0xFF_FF_FF_FF,
+				0
+		);
+
+		var data	= meshCollector	.getData	();
+		var buffer	= meshCollector	.getBuffer	();
+		mesh		= merges		.get		(data);
+
+		if (mesh != null) {
+			buffer.close();
+		} else {
+			var builder = AcceleratedEntityRenderingFeature
+					.getMeshType()
+					.getBuilder	();
+
+			mesh = builder.build(
+					meshCollector,
+					false,
+					true,
+					0
+			);
+		}
+
+		meshes	.put	(extension, mesh);
+		merges	.put	(data,		mesh);
+		mesh	.write	(
+				extension,
+				color,
+				light,
+				overlay
+		);
+	}
+
+	public void buildSequenceMesh(
+			VertexConsumer	meshBuilder,
+			ISequenceKey	sequenceKey,
+			Matrix4f		transform,
+			int				color,
+			int				light
+	) {
+		var advance	= 0.0f;
 		var mcFont	= Minecraft		.getInstance	().font;
 		var texts	= sequenceKey	.getTexts		();
 		var font	= sequenceKey	.getFont		();
@@ -110,64 +158,45 @@ public class AcceleratedStyledSequenceRenderer implements IAcceleratedRenderer<I
 				buildCodepointMesh(
 						meshBuilder,
 						bakedGlyph,
+						transform,
 						italic,
 						outline,
 						positionX	+ glyphShadow,
 						0			+ glyphShadow,
-						shadowOffset
+						shadowOffset,
+						color,
+						light
 				);
 
 				if (bold) {
 					buildCodepointMesh(
 							meshBuilder,
 							bakedGlyph,
+							transform,
 							italic,
 							outline,
 							positionX	+ glyphShadow + glyphBold,
 							0			+ glyphShadow,
-							shadowOffset
+							shadowOffset,
+							color,
+							light
 					);
 				}
 			}
 		}
-
-		var data	= meshCollector	.getData	();
-		var buffer	= meshCollector	.getBuffer	();
-		mesh		= merges		.get		(data);
-
-		if (mesh != null) {
-			buffer.close();
-		} else {
-			var builder = AcceleratedEntityRenderingFeature
-					.getMeshType()
-					.getBuilder	();
-
-			mesh = builder.build(
-					meshCollector,
-					false,
-					true,
-					0
-			);
-		}
-
-		meshes	.put	(extension, mesh);
-		merges	.put	(data,		mesh);
-		mesh	.write	(
-				extension,
-				color,
-				light,
-				overlay
-		);
 	}
 
 	private void buildCodepointMesh(
 			VertexConsumer	meshBuilder,
 			BakedGlyph		bakedGlyph,
+			Matrix4f		transform,
 			boolean			italic,
 			boolean			outline,
 			float			offsetX,
 			float			offsetY,
-			float			shadowOffset
+			float			shadowOffset,
+			int				color,
+			int				light
 	) {
 		var offsetUp			= bakedGlyph.up		- 3.0f;
 		var offsetDown			= bakedGlyph.down	- 3.0f;
@@ -196,10 +225,13 @@ public class AcceleratedStyledSequenceRenderer implements IAcceleratedRenderer<I
 					) {
 						bakeQuad(
 								meshBuilder,
+								transform,
 								positions,
 								texCoords,
 								offsetX + shadowOffset * outlineOffsetX,
-								offsetY + shadowOffset * outlineOffsetY
+								offsetY + shadowOffset * outlineOffsetY,
+								color,
+								light
 						);
 					}
 				}
@@ -207,38 +239,49 @@ public class AcceleratedStyledSequenceRenderer implements IAcceleratedRenderer<I
 		} else {
 			bakeQuad(
 					meshBuilder,
+					transform,
 					positions,
 					texCoords,
 					offsetX,
-					offsetY
+					offsetY,
+					color,
+					light
 			);
 		}
 	}
 
 	public void bakeQuad(
 			VertexConsumer	meshBuilder,
+			Matrix4f		transform,
 			Vector2f[]		positions,
 			Vector2f[]		texCoords,
 			float			offsetX,
-			float			offsetY
+			float			offsetY,
+			int				color,
+			int				light
 	) {
 		for (var i = 0; i < 4; i ++) {
-			var positionX	= positions[i].x() + offsetX;
-			var positionY	= positions[i].y() + offsetY;
-			var texCoord	= texCoords[i];
+			var texCoord = texCoords[i];
+
+			transform.transformPosition(
+					positions[i].x() + offsetX,
+					positions[i].y() + offsetY,
+					0.0f,
+					SCRATCH
+			);
 
 			meshBuilder.vertex(
-					positionX,
-					positionY,
-					0.0f,
-					1.0f,
-					1.0f,
-					1.0f,
-					1.0f,
+					SCRATCH.x(),
+					SCRATCH.y(),
+					SCRATCH.z(),
+					FastColor.ARGB32.red	(color) / 255.0f,
+					FastColor.ARGB32.green	(color) / 255.0f,
+					FastColor.ARGB32.blue	(color) / 255.0f,
+					FastColor.ARGB32.alpha	(color) / 255.0f,
 					texCoord.x,
 					texCoord.y,
 					0,
-					0,
+					light,
 					0.0f,
 					0.0f,
 					0.0f

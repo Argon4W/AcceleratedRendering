@@ -14,6 +14,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import lombok.experimental.ExtensionMethod;
 import net.minecraft.client.gui.font.glyphs.BakedGlyph;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.util.FastColor;
 import org.joml.Matrix3f;
@@ -195,15 +196,22 @@ public class BakedGlyphMixin implements IAcceleratedRenderer<BakedGlyph.Effect>,
 			var position = new Vector3f(positions[i], context.depth);
 			var texCoord = texCoords[i];
 
-			meshBuilder
-					.vertex	(
-							position.x,
-							position.y,
-							position.z
-					)
-					.color	(-1)
-					.uv		(texCoord.x, texCoord.y)
-					.uv2	(0);
+			meshBuilder.vertex(
+					position.x(),
+					position.y(),
+					position.z(),
+					1.0f,
+					1.0f,
+					1.0f,
+					1.0f,
+					texCoord.x(),
+					texCoord.y(),
+					OverlayTexture.NO_OVERLAY,
+					0,
+					0.0f,
+					0.0f,
+					0.0f
+			);
 		}
 
 		var builder = AcceleratedEntityRenderingFeature

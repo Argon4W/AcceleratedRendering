@@ -5,6 +5,7 @@ import com.github.argon4w.acceleratedrendering.features.items.AcceleratedItemRen
 import com.github.argon4w.acceleratedrendering.features.items.gui.GuiBatchingController;
 import com.github.argon4w.acceleratedrendering.features.mods.ModsFeature;
 import com.llamalad7.mixinextras.sugar.Share;
+import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
 import com.llamalad7.mixinextras.sugar.ref.LocalFloatRef;
 import net.minecraft.client.gui.GuiGraphics;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.StorageScreenBase;
@@ -24,19 +25,20 @@ public class StorageScreenBaseMixin {
 			remap	= false
 	)
 	public void startBackgroundBatching(
-			GuiGraphics						guiGraphics,
-			int								mouseX,
-			int								mouseY,
-			float							partialTick,
-			CallbackInfo					ci,
-			@Share("depth") LocalFloatRef	depth
+			GuiGraphics							guiGraphics,
+			int									mouseX,
+			int									mouseY,
+			float								partialTick,
+			CallbackInfo						ci,
+			@Share("depth")		LocalFloatRef	depth,
+			@Share("enabled")	LocalBooleanRef	enabled
 	) {
 		if (		CoreFeature.isLoaded						()
 				&&	ModsFeature.isEnabled						()
 				&&	ModsFeature.shouldAccelerateSophisticated	()
 		) {
-			depth.set(0.0f);
-			GuiBatchingController.INSTANCE.startBatching(guiGraphics);
+			depth	.set(0.0f);
+			enabled	.set(GuiBatchingController.INSTANCE.startBatching(guiGraphics));
 		}
 	}
 
@@ -50,17 +52,19 @@ public class StorageScreenBaseMixin {
 			)
 	)
 	public void flushBackgroundBatching(
-			GuiGraphics						guiGraphics,
-			int								mouseX,
-			int								mouseY,
-			float							partialTick,
-			CallbackInfo					ci,
-			@Share("depth") LocalFloatRef	depth
+			GuiGraphics							guiGraphics,
+			int									mouseX,
+			int									mouseY,
+			float								partialTick,
+			CallbackInfo						ci,
+			@Share("depth")		LocalFloatRef	depth,
+			@Share("enabled")	LocalBooleanRef	enabled
 	) {
 		if (		CoreFeature						.isLoaded						()
 				&&	ModsFeature						.isEnabled						()
 				&&	ModsFeature						.shouldAccelerateSophisticated	()
 				&& !AcceleratedItemRenderingFeature	.shouldMergeGuiItemBatches		()
+				&&	enabled							.get							()
 		) {
 			depth.set(depth.get() + GuiBatchingController.INSTANCE.flushBatching(guiGraphics));
 
@@ -96,16 +100,19 @@ public class StorageScreenBaseMixin {
 			)
 	)
 	public void startItemBatching(
-			GuiGraphics		guiGraphics,
-			int				mouseX,
-			int				mouseY,
-			float			partialTick,
-			CallbackInfo	ci
+			GuiGraphics							guiGraphics,
+			int									mouseX,
+			int									mouseY,
+			float								partialTick,
+			CallbackInfo						ci,
+			@Share("depth")		LocalFloatRef	depth,
+			@Share("enabled")	LocalBooleanRef	enabled
 	) {
 		if (		CoreFeature						.isLoaded						()
 				&&	ModsFeature						.isEnabled						()
 				&&	ModsFeature						.shouldAccelerateSophisticated	()
 				&& !AcceleratedItemRenderingFeature	.shouldMergeGuiItemBatches		()
+				&&	enabled							.get							()
 		) {
 			GuiBatchingController.INSTANCE.startBatching(guiGraphics);
 		}
@@ -115,21 +122,24 @@ public class StorageScreenBaseMixin {
 			method	= "renderSuper",
 			at		= @At(
 					value	= "INVOKE",
-					target	= "Lnet/p3pp3rf1y/sophisticatedcore/client/gui/StorageScreenBase;renderLabels(Lnet/minecraft/client/gui/GuiGraphics;II)V",
-					shift	= At.Shift.AFTER
+					target	= "Lcom/mojang/blaze3d/systems/RenderSystem;disableDepthTest()V",
+					shift	= At.Shift.AFTER,
+					ordinal	= 1
 			)
 	)
 	public void flushItemBatching(
-			GuiGraphics						guiGraphics,
-			int								mouseX,
-			int								mouseY,
-			float							partialTick,
-			CallbackInfo					ci,
-			@Share("depth") LocalFloatRef	depth
+			GuiGraphics							guiGraphics,
+			int									mouseX,
+			int									mouseY,
+			float								partialTick,
+			CallbackInfo						ci,
+			@Share("depth")		LocalFloatRef	depth,
+			@Share("enabled")	LocalBooleanRef	enabled
 	) {
-		if (		CoreFeature.isLoaded						()
-				&&	ModsFeature.isEnabled						()
-				&&	ModsFeature.shouldAccelerateSophisticated	()
+		if (		CoreFeature	.isLoaded						()
+				&&	ModsFeature	.isEnabled						()
+				&&	ModsFeature	.shouldAccelerateSophisticated	()
+				&&	enabled		.get							()
 		) {
 			depth.set(depth.get() + GuiBatchingController.INSTANCE.flushBatching(guiGraphics));
 		}
@@ -137,33 +147,44 @@ public class StorageScreenBaseMixin {
 
 	@Inject(
 			method	= "renderSuper",
-			at		= @At("TAIL"),
+			at		= {
+					@At(
+							value	= "INVOKE",
+							target	= "Lnet/minecraftforge/eventbus/api/IEventBus;post(Lnet/minecraftforge/eventbus/api/Event;)Z",
+							shift	= At.Shift.BEFORE,
+							ordinal	= 1
+					),
+					@At("TAIL")
+			},
 			remap	= false
 	)
 	public void liftGlobalLayer(
-			GuiGraphics						guiGraphics,
-			int								mouseX,
-			int								mouseY,
-			float							partialTick,
-			CallbackInfo					ci,
-			@Share("depth") LocalFloatRef	depth
+			GuiGraphics							guiGraphics,
+			int									mouseX,
+			int									mouseY,
+			float								partialTick,
+			CallbackInfo						ci,
+			@Share("depth")		LocalFloatRef	depth,
+			@Share("enabled")	LocalBooleanRef	enabled
 	) {
-		var pose = guiGraphics.pose().last().pose();
+		if (enabled.get()) {
+			var pose = guiGraphics.pose().last().pose();
 
-		var previousDepth = GuiBatchingController.getGlobalDepth(
-				pose.m22(),
-				pose.m32(),
-				0.0F
-		);
+			var previousDepth = GuiBatchingController.getGlobalDepth(
+					pose.m22(),
+					pose.m32(),
+					0.0F
+			);
 
-		guiGraphics
-				.pose			()
-				.last			()
-				.pose			()
-				.translateLocal	(
-						0.0f,
-						0.0f,
-						depth.get() - previousDepth
-				);
+			guiGraphics
+					.pose			()
+					.last			()
+					.pose			()
+					.translateLocal	(
+							0.0f,
+							0.0f,
+							depth.get() - previousDepth
+					);
+		}
 	}
 }

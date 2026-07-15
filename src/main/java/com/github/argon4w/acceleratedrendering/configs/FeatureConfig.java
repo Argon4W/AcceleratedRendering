@@ -60,7 +60,7 @@ public class FeatureConfig {
 	public			final	ForgeConfigSpec.ConfigValue<MeshType>						acceleratedItemRenderingMeshType;
 	public			final	ForgeConfigSpec.ConfigValue<FeatureStatus>					acceleratedItemRenderingHandAcceleration;
 	public			final	ForgeConfigSpec.ConfigValue<FeatureStatus>					acceleratedItemRenderingGuiAcceleration;
-	public 			final	ForgeConfigSpec.ConfigValue<FeatureStatus>					acceleratedItemRenderingGuiItemBatching;
+	public			final	ForgeConfigSpec.ConfigValue<FeatureStatus>					acceleratedItemRenderingGuiItemBatching;
 	public			final	ForgeConfigSpec.ConfigValue<FeatureStatus>					acceleratedItemRenderingMergeGuiItemBatches;
 
 	public			final	ForgeConfigSpec.ConfigValue<FeatureStatus>					orientationCullingFeatureStatus;

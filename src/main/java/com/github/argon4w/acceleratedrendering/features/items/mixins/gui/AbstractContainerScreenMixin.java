@@ -6,6 +6,7 @@ import com.github.argon4w.acceleratedrendering.features.items.gui.GuiBatchingCon
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.sugar.Share;
+import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
 import com.llamalad7.mixinextras.sugar.ref.LocalFloatRef;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -22,15 +23,16 @@ public abstract class AbstractContainerScreenMixin {
 			at		= @At("HEAD")
 	)
 	public void startBackgroundBatching(
-			GuiGraphics						guiGraphics,
-			int								mouseX,
-			int								mouseY,
-			float							partialTick,
-			CallbackInfo					ci,
-			@Share("depth") LocalFloatRef	depth
+			GuiGraphics							guiGraphics,
+			int									mouseX,
+			int									mouseY,
+			float								partialTick,
+			CallbackInfo						ci,
+			@Share("depth")		LocalFloatRef	depth,
+			@Share("enabled")	LocalBooleanRef	enabled
 	) {
-		depth.set(0.0f);
-		GuiBatchingController.INSTANCE.startBatching(guiGraphics);
+		depth	.set(0.0f);
+		enabled	.set(GuiBatchingController.INSTANCE.startBatching(guiGraphics));
 	}
 
 	@Inject(
@@ -42,14 +44,15 @@ public abstract class AbstractContainerScreenMixin {
 			)
 	)
 	public void flushBackgroundBatching(
-			GuiGraphics						guiGraphics,
-			int								mouseX,
-			int								mouseY,
-			float							partialTick,
-			CallbackInfo					ci,
-			@Share("depth") LocalFloatRef	depth
+			GuiGraphics							guiGraphics,
+			int									mouseX,
+			int									mouseY,
+			float								partialTick,
+			CallbackInfo						ci,
+			@Share("depth")		LocalFloatRef	depth,
+			@Share("enabled")	LocalBooleanRef	enabled
 	) {
-		if (!AcceleratedItemRenderingFeature.shouldMergeGuiItemBatches()) {
+		if (!AcceleratedItemRenderingFeature.shouldMergeGuiItemBatches() && enabled.get()) {
 			depth.set(depth.get() + GuiBatchingController.INSTANCE.flushBatching(guiGraphics));
 
 			var pose = guiGraphics.pose().last().pose();
@@ -83,13 +86,15 @@ public abstract class AbstractContainerScreenMixin {
 			)
 	)
 	public void startItemBatching(
-			GuiGraphics		guiGraphics,
-			int				mouseX,
-			int				mouseY,
-			float			partialTick,
-			CallbackInfo	ci
+			GuiGraphics							guiGraphics,
+			int									mouseX,
+			int									mouseY,
+			float								partialTick,
+			CallbackInfo						ci,
+			@Share("depth")		LocalFloatRef	depth,
+			@Share("enabled")	LocalBooleanRef	enabled
 	) {
-		if (!AcceleratedItemRenderingFeature.shouldMergeGuiItemBatches()) {
+		if (!AcceleratedItemRenderingFeature.shouldMergeGuiItemBatches() && enabled.get()) {
 			GuiBatchingController.INSTANCE.startBatching(guiGraphics);
 		}
 	}
@@ -103,45 +108,59 @@ public abstract class AbstractContainerScreenMixin {
 			)
 	)
 	public void flushItemBatching(
-			GuiGraphics						guiGraphics,
-			int								mouseX,
-			int								mouseY,
-			float							partialTick,
-			CallbackInfo					ci,
-			@Share("depth") LocalFloatRef	depth
+			GuiGraphics							guiGraphics,
+			int									mouseX,
+			int									mouseY,
+			float								partialTick,
+			CallbackInfo						ci,
+			@Share("depth")		LocalFloatRef	depth,
+			@Share("enabled")	LocalBooleanRef	enabled
 	) {
-		depth.set(depth.get() + GuiBatchingController.INSTANCE.flushBatching(guiGraphics));
+		if (enabled.get()) {
+			depth.set(depth.get() + GuiBatchingController.INSTANCE.flushBatching(guiGraphics));
+		}
 	}
 
 	@Inject(
 			method	= "render",
-			at		= @At("TAIL")
+			at		= {
+					@At(
+							value	= "INVOKE",
+							target	= "Lnet/minecraftforge/eventbus/api/IEventBus;post(Lnet/minecraftforge/eventbus/api/Event;)Z",
+							shift	= At.Shift.BEFORE,
+							ordinal	= 1
+					),
+					@At("TAIL")
+			}
 	)
 	public void liftGlobalLayer(
-			GuiGraphics						guiGraphics,
-			int								mouseX,
-			int								mouseY,
-			float							partialTick,
-			CallbackInfo					ci,
-			@Share("depth") LocalFloatRef	depth
+			GuiGraphics							guiGraphics,
+			int									mouseX,
+			int									mouseY,
+			float								partialTick,
+			CallbackInfo						ci,
+			@Share("depth")		LocalFloatRef	depth,
+			@Share("enabled")	LocalBooleanRef	enabled
 	) {
-		var pose = guiGraphics.pose().last().pose();
+		if (enabled.get()) {
+			var pose = guiGraphics.pose().last().pose();
 
-		var previousDepth = GuiBatchingController.getGlobalDepth(
-				pose.m22(),
-				pose.m32(),
-				0.0F
-		);
+			var previousDepth = GuiBatchingController.getGlobalDepth(
+					pose.m22(),
+					pose.m32(),
+					0.0F
+			);
 
-		guiGraphics
-				.pose			()
-				.last			()
-				.pose			()
-				.translateLocal	(
-						0.0f,
-						0.0f,
-						depth.get() - previousDepth
-				);
+			guiGraphics
+					.pose			()
+					.last			()
+					.pose			()
+					.translateLocal	(
+							0.0f,
+							0.0f,
+							depth.get() - previousDepth
+					);
+		}
 	}
 
 	@WrapMethod(
