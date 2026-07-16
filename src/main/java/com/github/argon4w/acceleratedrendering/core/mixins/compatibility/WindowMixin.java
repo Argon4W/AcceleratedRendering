@@ -2,8 +2,6 @@ package com.github.argon4w.acceleratedrendering.core.mixins.compatibility;
 
 import com.mojang.blaze3d.platform.Window;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.Constant;
-import org.spongepowered.asm.mixin.injection.ModifyConstant;
 
 @Mixin(Window.class)
 public class WindowMixin {

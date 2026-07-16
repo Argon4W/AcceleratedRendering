@@ -1,6 +1,5 @@
 package com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders;
 
-import com.github.argon4w.acceleratedrendering.core.CoreFeature;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.AcceleratedRingBuffers;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.draw.pools.IElementPool;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.layers.LayerKey;
@@ -8,7 +7,10 @@ import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.layers.f
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.StagingBufferPool;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.meshes.MeshUploaderPool;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.renderers.IAcceleratedRenderer;
-import com.github.argon4w.acceleratedrendering.core.buffers.memory.*;
+import com.github.argon4w.acceleratedrendering.core.buffers.memory.IMemoryInterface;
+import com.github.argon4w.acceleratedrendering.core.buffers.memory.SimpleDynamicMemoryInterface;
+import com.github.argon4w.acceleratedrendering.core.buffers.memory.SimpleMemoryInterface;
+import com.github.argon4w.acceleratedrendering.core.buffers.memory.VertexLayout;
 import com.github.argon4w.acceleratedrendering.core.meshes.ServerMesh;
 import com.github.argon4w.acceleratedrendering.core.programs.culling.ICullingProgramDispatcher;
 import com.github.argon4w.acceleratedrendering.core.programs.dispatchers.IPolygonProgramDispatcher;

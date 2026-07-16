@@ -23,7 +23,6 @@ import com.github.argon4w.acceleratedrendering.core.programs.ComputeShaderProgra
 import com.github.argon4w.acceleratedrendering.core.utils.AvailabilityUtils;
 import com.github.argon4w.acceleratedrendering.core.utils.PackedVector2i;
 import com.google.common.util.concurrent.Runnables;
-import net.minecraft.client.Minecraft;
 
 import java.util.ArrayDeque;
 import java.util.Deque;

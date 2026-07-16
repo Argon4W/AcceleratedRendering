@@ -109,7 +109,7 @@ public class SimpleMeshCollector implements IMeshCollector {
 		uv0Offset.putFloat(vertexAddress + 0L, pU);
 		uv0Offset.putFloat(vertexAddress + 4L, pV);
 
-		builder.setUv(pU, pV);
+		builder.setTexCoord(pU, pV);
 
 		return this;
 	}
@@ -128,7 +128,7 @@ public class SimpleMeshCollector implements IMeshCollector {
 		uv2Offset.putShort(vertexAddress + 0L, (short) pU);
 		uv2Offset.putShort(vertexAddress + 2L, (short) pV);
 
-		builder.setUv2(pU, pV);
+		builder.setLight(pU, pV);
 
 		return this;
 	}

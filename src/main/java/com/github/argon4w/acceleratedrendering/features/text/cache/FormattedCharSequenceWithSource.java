@@ -1,7 +1,6 @@
 package com.github.argon4w.acceleratedrendering.features.text.cache;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.FormattedCharSink;

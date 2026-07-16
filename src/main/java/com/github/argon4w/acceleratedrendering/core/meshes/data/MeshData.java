@@ -78,12 +78,12 @@ public class MeshData {
 			return this;
 		}
 
-		public Builder setUv(float u, float v) {
-			scratch.getUv().set(u, v);
+		public Builder setTexCoord(float u, float v) {
+			scratch.getTexCoord().set(u, v);
 			return this;
 		}
 
-		public Builder setUv2(int u, int v) {
+		public Builder setLight(int u, int v) {
 			scratch.getLight().set(u, v);
 			return this;
 		}
@@ -111,24 +111,30 @@ public class MeshData {
 		) {
 			var vertex = new Vertex();
 
-			vertex.getPosition().x = posX;
-			vertex.getPosition().y = posY;
-			vertex.getPosition().z = posZ;
+			var position	= vertex.getPosition();
+			var texCoord	= vertex.getTexCoord();
+			var color		= vertex.getColor	();
+			var light		= vertex.getLight	();
+			var normal		= vertex.getNormal	();
 
-			vertex.getUv()		.x = texU;
-			vertex.getUv()		.y = texV;
+			position.x = posX;
+			position.y = posY;
+			position.z = posZ;
 
-			vertex.getColor()	.w = colorA;
-			vertex.getColor()	.x = colorR;
-			vertex.getColor()	.y = colorG;
-			vertex.getColor()	.z = colorB;
+			texCoord.x = texU;
+			texCoord.y = texV;
 
-			vertex.getLight()	.x = lightU;
-			vertex.getLight()	.y = lightV;
+			color	.w = colorA;
+			color	.x = colorR;
+			color	.y = colorG;
+			color	.z = colorB;
 
-			vertex.getNormal()	.x = normalX;
-			vertex.getNormal()	.y = normalY;
-			vertex.getNormal()	.z = normalZ;
+			light	.x = lightU;
+			light	.y = lightV;
+
+			normal	.x = normalX;
+			normal	.y = normalY;
+			normal	.z = normalZ;
 
 			vertices.add(vertex);
 
@@ -145,8 +151,8 @@ public class MeshData {
 				data[i * 8 + 1] = Float	.floatToRawIntBits	(vertex.getPosition().y);
 				data[i * 8 + 2] = Float	.floatToRawIntBits	(vertex.getPosition().z);
 				data[i * 8 + 3] = vertex.getPackedColor		();
-				data[i * 8 + 4] = Float	.floatToRawIntBits	(vertex.getUv().x);
-				data[i * 8 + 5] = Float	.floatToRawIntBits	(vertex.getUv().y);
+				data[i * 8 + 4] = Float	.floatToRawIntBits	(vertex.getTexCoord().x);
+				data[i * 8 + 5] = Float	.floatToRawIntBits	(vertex.getTexCoord().y);
 				data[i * 8 + 6] = vertex.getPackedLight		();
 				data[i * 8 + 7] = vertex.getPackedNormal	();
 			}

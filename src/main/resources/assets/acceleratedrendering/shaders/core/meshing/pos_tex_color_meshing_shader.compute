@@ -1,0 +1,114 @@
+#version 460 core
+
+struct Vertex {
+    float   positionX;
+    float   positionY;
+    float   positionZ;
+    float   texCoordU;
+    float   texCoordV;
+    uint    packedColor;
+    // uint    packedOverlay;
+    // uint    packedLight;
+    // uint    packedNormal;
+};
+
+struct Transform {
+    mat4    model;
+    mat3    normal;
+};
+
+struct MeshInstance {
+    uint    meshOffset;
+    uint    meshLength;
+    uint    bufferIndex;
+    uint    vertexOffset;
+    uint    transformOffset;
+    uint    packedColor;
+    uint    packedLight;
+    uint    packedOverlay;
+};
+
+struct WorkgroupInfo {
+    uint    baseMeshInstance;
+    uint    baseInvocation;
+    uint    meshLength;
+    uint    meshCount;
+};
+
+layout(local_size_x = 32) in;
+
+layout(binding=0, std430) restrict readonly buffer MeshVertoces {
+    Vertex meshVertices[];
+};
+
+layout(binding=1, std430) restrict readonly buffer MeshTransforms {
+    Transform meshTransforms[];
+};
+
+layout(binding=2, std430) restrict readonly buffer MeshInstances {
+    MeshInstance meshInstances[];
+};
+
+layout(binding=3, std430) restrict readonly buffer WorkgroupInfos {
+    WorkgroupInfo workgroupInfos[];
+};
+
+layout(binding=4, std430) restrict readonly buffer BufferOffsets {
+    uint bufferOffsets[];
+};
+
+layout(binding=5, std430) restrict readonly buffer OutpuutVertices {
+    Vertex outputVertices[];
+};
+
+void main() {
+    WorkgroupInfo workgroupInfo = workgroupInfos[gl_WorkGroupID.x];
+
+    uint bucketInvocationIndex      = gl_LocalInvocationIndex   + workgroupInfo.baseInvocation;
+    uint bucketMeshInstanceOffset   = bucketInvocationIndex     / workgroupInfo.meshLength;
+    uint bucketMeshVertexOffset     = bucketInvocationIndex     % workgroupInfo.meshLength;
+
+    if (bucketMeshInstanceOffset >= workgroupInfo.meshCount) {
+        return;
+    }
+
+    MeshInstance meshInstance = meshInstances[workgroupInfo.baseMeshInstance + bucketMeshInstanceOffset];
+
+    if (bucketMeshVertexOffset >= meshInstance.meshLength) {
+        return;
+    }
+
+    Vertex      outputVertex    = outputVertices[bufferOffsets[meshInstance.bufferIndex] +  meshInstance.vertexOffset   + bucketMeshVertexOffset];
+    Vertex      meshVertex      = meshVertices  [                                           meshInstance.meshOffset     + bucketMeshVertexOffset];
+    Transform   meshTransform   = meshTransforms[                                           meshInstance.transformOffset                        ];
+
+    vec4 colorInstance  = unpackUnorm4x8    (meshInstance   .packedColor);
+    vec2 lightInstance  = unpackUnorm2x16   (meshInstance   .packedLight);
+    vec4 colorMesh      = unpackUnorm4x8    (meshVertex     .packedColor);
+    // vec2 lightMesh      = unpackUnorm2x16   (meshVertex     .packedLight);
+
+    vec4 colorOutput = colorInstance * colorMesh;
+    // vec2 lightOutput = max(lightInstance, lightMesh);
+
+    vec4 positionMesh   = vec4          (meshVertex.positionX, meshVertex.positionY, meshVertex.positionZ, 1.0);
+    // vec4 normalMesh     = unpackUnorm4x8(meshVertex.packedNormal);
+
+    vec4 positionOutput = meshTransform.model   * positionMesh;
+    // vec3 normalOutput   = meshTransform.normal  * normalMesh.xyz;
+
+    outputVertex.positionX = positionOutput.x;
+    outputVertex.positionY = positionOutput.y;
+    outputVertex.positionZ = positionOutput.z;
+
+    // outputVertex.packedColor = packUnorm4x8(colorOutput);
+
+    outputVertex.texCoordU = meshVertex.texCoordU;
+    outputVertex.texCoordV = meshVertex.texCoordV;
+
+    outputVertex.packedColor = packUnorm4x8(colorOutput);
+
+    // outputVertex.packedOverlay  = meshInstance.packedOverlay;
+    // outputVertex.packedLight    = packUnorm2x16(lightOutput);
+
+    // outputVertex.packedNormal = packSnorm4x8(vec4(normalize(normalOutput), 0.0));
+}

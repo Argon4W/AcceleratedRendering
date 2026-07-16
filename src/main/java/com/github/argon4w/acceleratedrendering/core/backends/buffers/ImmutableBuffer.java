@@ -1,7 +1,5 @@
 package com.github.argon4w.acceleratedrendering.core.backends.buffers;
 
-import java.nio.ByteBuffer;
-
 import static org.lwjgl.opengl.GL46.*;
 
 public class ImmutableBuffer implements IServerBuffer {

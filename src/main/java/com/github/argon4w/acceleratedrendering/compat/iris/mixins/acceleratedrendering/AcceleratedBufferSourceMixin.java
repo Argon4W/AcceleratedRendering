@@ -4,7 +4,6 @@ import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.Accelera
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.layers.LayerKey;
 import net.irisshaders.batchedentityrendering.impl.WrappableRenderType;
 import net.irisshaders.iris.vertices.ImmediateState;
-import net.minecraft.client.renderer.RenderType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

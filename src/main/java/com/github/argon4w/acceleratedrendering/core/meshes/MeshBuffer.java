@@ -4,7 +4,7 @@ import com.github.argon4w.acceleratedrendering.core.backends.GLConstants;
 import com.github.argon4w.acceleratedrendering.core.backends.buffers.MutableBuffer;
 import lombok.Getter;
 
-import static org.lwjgl.opengl.GL46.*;
+import static org.lwjgl.opengl.GL46.GL_DYNAMIC_STORAGE_BIT;
 
 @Getter
 public class MeshBuffer extends MutableBuffer {

@@ -2,20 +2,23 @@ package com.github.argon4w.acceleratedrendering.core.buffers.memory;
 
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
+import lombok.Getter;
 
 public class VertexLayout implements IMemoryLayout<VertexFormatElement> {
 
-	private final long					size;
-	private final int					mask;
-	private final int				[]	offsets;
-	private final IMemoryInterface	[]	interfaces;
+	private			final long					size;
+	private			final int					mask;
+	private			final int				[]	offsets;
+	private			final IMemoryInterface	[]	interfaces;
+	@Getter private	final VertexFormat			vertexFormat;
 
 	public VertexLayout(VertexFormat vertexFormat) {
 		var offsets	= vertexFormat	.getOffsetsByElement();
 		var count	= offsets		.length;
 
-		this.size = vertexFormat.getVertexSize	();
-		this.mask = vertexFormat.getElementsMask();
+		this.size			= vertexFormat.getVertexSize	();
+		this.mask			= vertexFormat.getElementsMask	();
+		this.vertexFormat	= vertexFormat;
 
 		this.offsets	= new int				[count];
 		this.interfaces	= new IMemoryInterface	[count];

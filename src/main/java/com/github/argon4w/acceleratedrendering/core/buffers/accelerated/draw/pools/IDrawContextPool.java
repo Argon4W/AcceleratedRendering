@@ -1,8 +1,8 @@
 package com.github.argon4w.acceleratedrendering.core.buffers.accelerated.draw.pools;
 
+import com.github.argon4w.acceleratedrendering.core.backends.buffers.IServerBuffer;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.AcceleratedBufferBuilder;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.draw.pools.IElementPool.IElementSegment;
-import com.github.argon4w.acceleratedrendering.core.backends.buffers.IServerBuffer;
 import com.mojang.blaze3d.vertex.VertexFormat.Mode;
 import net.minecraft.client.renderer.RenderType;
 

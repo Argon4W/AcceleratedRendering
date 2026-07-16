@@ -31,15 +31,17 @@ public class CullerUtils {
 		var maxU = 0.0f;
 		var maxV = 0.0f;
 
-		for (var vertex : vertices) {
-			var uv	= vertex.getUv();
-			var u	= uv	.x;
-			var v	= uv	.y;
+		for (int index = 0, size = vertices.length; index < size; index ++) {
+			var vertex = vertices[index];
 
-			minU = Math.min(minU, u);
-			minV = Math.min(minV, v);
-			maxU = Math.max(maxU, u);
-			maxV = Math.max(maxV, v);
+			var texCoord	= vertex	.getTexCoord();
+			var texCoordU	= texCoord	.x			();
+			var texCoordV	= texCoord	.y			();
+
+			minU = Math.min(minU, texCoordU);
+			minV = Math.min(minV, texCoordV);
+			maxU = Math.max(maxU, texCoordU);
+			maxV = Math.max(maxV, texCoordV);
 		}
 
 		var width	= texture.getWidth	();

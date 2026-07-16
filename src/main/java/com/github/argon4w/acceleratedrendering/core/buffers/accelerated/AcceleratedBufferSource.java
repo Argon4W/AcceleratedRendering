@@ -8,7 +8,6 @@ import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.layers.f
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.layers.functions.EmptyLayerFunction;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.layers.storage.empty.EmptyLayerStorage;
 import com.github.argon4w.acceleratedrendering.core.buffers.environments.IBufferEnvironment;
-import com.github.argon4w.acceleratedrendering.core.programs.dispatchers.meshes.MeshUploadingProgramDispatcher;
 import com.github.argon4w.acceleratedrendering.core.utils.RenderTypeUtils;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferUploader;

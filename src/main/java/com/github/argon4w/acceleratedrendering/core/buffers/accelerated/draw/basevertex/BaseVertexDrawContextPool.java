@@ -10,7 +10,7 @@ import com.mojang.blaze3d.systems.RenderSystem.AutoStorageIndexBuffer;
 import com.mojang.blaze3d.vertex.VertexFormat.Mode;
 import net.minecraft.client.renderer.RenderType;
 
-import static org.lwjgl.opengl.GL46.*;
+import static org.lwjgl.opengl.GL46.glDrawElementsBaseVertex;
 
 public class BaseVertexDrawContextPool extends SimpleResetPool<BaseVertexDrawContextPool.DrawContext, Void> implements IDrawContextPool {
 
