@@ -31,6 +31,7 @@ public class AcceleratedSequenceEffectRenderer implements IAcceleratedRenderer<I
 	public static final AcceleratedSequenceEffectRenderer	INSTANCE	= new AcceleratedSequenceEffectRenderer	();
 	private	static final Matrix4f							IDENTITY	= new Matrix4f							().identity();
 	private	static final Vector3f							SCRATCH		= new Vector3f							();
+	private static final int								COLOR		= 0xFF_FF_FF_FF;
 
 	private final Map	<ISequenceKey, Sequence>	sequencesByKey;
 	private final List	<Sequence>					sequencesByIdx;
@@ -81,7 +82,7 @@ public class AcceleratedSequenceEffectRenderer implements IAcceleratedRenderer<I
 				meshBuilder,
 				sequenceKey,
 				IDENTITY,
-				0xFF_FF_FF_FF,
+				COLOR,
 				0
 		);
 
@@ -113,6 +114,8 @@ public class AcceleratedSequenceEffectRenderer implements IAcceleratedRenderer<I
 				light,
 				overlay
 		);
+
+		extension.endTransform();
 	}
 
 	public void buildSequenceMesh(
