@@ -292,8 +292,8 @@ public class ComponentMesh {
 
 			sequence.sequences.add(new SequenceSet.Sequence(
 					offset,
-					AcceleratedSequenceEffectRenderer.INSTANCE.getIndexKey(sequenceKey),
-					AcceleratedStyledSequenceRenderer.INSTANCE.getIndexKey(sequenceKey)
+					AcceleratedStyledSequenceRenderer.INSTANCE.getIndexKey(sequenceKey),
+					AcceleratedSequenceEffectRenderer.INSTANCE.getIndexKey(sequenceKey)
 			));
 		}
 
