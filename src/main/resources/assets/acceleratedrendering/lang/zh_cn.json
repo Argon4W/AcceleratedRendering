@@ -188,5 +188,5 @@
   "acceleratedrendering.configuration.mods_compatibility.modernui_feature_status": "启用现代化UI兼容",
   "acceleratedrendering.configuration.mods_compatibility.modernui_feature_status.tooltip": "- DISABLED: 禁止加速渲染对现代化UI的现代化文字引擎所驱动的文字渲染进行加速.\n- ENABLED: 加速渲染将会对现代化UI的现代化文字引擎所驱动的文字渲染进行加速.",
   "acceleratedrendering.configuration.mods_compatibility.button": "配置",
-  "acceleratedrendering.component.not_available": "加速渲染正运行在不受支持的环境中, 加速渲染将不会生效."
+  "acceleratedrendering.component.not_available": "您的设备或系统无法运行加速渲染, 加速渲染将自动禁用."
 }

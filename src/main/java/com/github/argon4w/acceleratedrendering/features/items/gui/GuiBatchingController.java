@@ -55,8 +55,8 @@ public class GuiBatchingController {
 	private			final	List<FillDrawContext>			fillDrawContexts;
 	private			final	List<HighlightDrawContext>		highlightDrawContexts;
 	private			final	List<GradientDrawContext>		gradientDrawContexts;
-	private			final	List<ItemRenderContext>			flatItemDrawContexts;
-	private			final	List<ItemRenderContext>			blockItemDrawContexts;
+	private			final	List<ItemDrawContext>			flatItemDrawContexts;
+	private			final	List<ItemDrawContext>			blockItemDrawContexts;
 	private			final	Float2ReferenceSortedMap<Layer>	depthLayers;
 
 	private GuiBatchingController() {
@@ -126,7 +126,9 @@ public class GuiBatchingController {
 				offset = layerDepth + depth;
 			}
 
-			for (var context : blitDrawContexts) {
+			for (int index = 0, size = blitDrawContexts.size(); index < size; index ++) {
+				var context = blitDrawContexts.get(index);
+
 				var extension = graphics.bufferSource().getBuffer(GuiRenderTypes.blit(context.atlasLocation())).getAccelerated();
 
 				if (extension.isAccelerated()) {
@@ -142,7 +144,9 @@ public class GuiBatchingController {
 				}
 			}
 
-			for (var context : fillDrawContexts) {
+			for (int index = 0, size = fillDrawContexts.size(); index < size; index ++) {
+				var context = fillDrawContexts.get(index);
+
 				var extension = graphics.bufferSource().getBuffer(context.renderType()).getAccelerated();
 
 				if (extension.isAccelerated()) {
@@ -158,7 +162,9 @@ public class GuiBatchingController {
 				}
 			}
 
-			for (var context : gradientDrawContexts) {
+			for (int index = 0, size = gradientDrawContexts.size(); index < size; index ++) {
+				var context = gradientDrawContexts.get(index);
+
 				var extension = graphics.bufferSource().getBuffer(context.renderType()).getAccelerated();
 
 				if (extension.isAccelerated()) {
@@ -174,8 +180,8 @@ public class GuiBatchingController {
 				}
 			}
 
-			for (var context : stringDrawContexts) {
-				context.drawString(graphics.bufferSource());
+			for (int index = 0, size = stringDrawContexts.size(); index < size; index ++) {
+				stringDrawContexts.get(index).drawString(graphics.bufferSource());
 			}
 
 			scissorFlush.record	(graphics);
@@ -186,7 +192,9 @@ public class GuiBatchingController {
 			CoreFeature	.forceSetDefaultLayerBeforeFunction	(Lighting::setupForFlatItems);
 			CoreFeature	.forceSetDefaultLayerAfterFunction	(Lighting::setupFor3DItems);
 
-			for (var context : flatItemDrawContexts) {
+			for (int index = 0, size = flatItemDrawContexts.size(); index < size; index ++) {
+				var context = flatItemDrawContexts.get(index);
+
 				poseStack.pushPose	();
 				poseStack.setPose	(context.transform(), context.normal());
 
@@ -210,7 +218,9 @@ public class GuiBatchingController {
 			CoreFeature	.resetDefaultLayerBeforeFunction();
 			CoreFeature	.resetDefaultLayerAfterFunction	();
 
-			for (var context : blockItemDrawContexts) {
+			for (int index = 0, size = blockItemDrawContexts.size(); index < size; index ++) {
+				var context = blockItemDrawContexts.get(index);
+
 				poseStack.pushPose	();
 				poseStack.setPose	(context.transform(), context.normal());
 
@@ -232,7 +242,9 @@ public class GuiBatchingController {
 			graphics	.flush				();
 			flushBatching					();
 
-			for (var context : decoratorDrawContexts) {
+			for (int index = 0, size = decoratorDrawContexts.size(); index < size; index ++) {
+				var context = decoratorDrawContexts.get(index);
+
 				poseStack.pushPose	();
 				poseStack.setPose	(context.transform(), context.normal());
 
@@ -247,7 +259,9 @@ public class GuiBatchingController {
 				graphics.pose().popPose();
 			}
 
-			for (var context : highlightDrawContexts) {
+			for (int index = 0, size = highlightDrawContexts.size(); index < size; index ++) {
+				var context = highlightDrawContexts.get(index);
+
 				poseStack.pushPose	();
 				poseStack.setPose	(context.transform(), context.normal());
 
@@ -367,7 +381,7 @@ public class GuiBatchingController {
 				0.0f
 		));
 
-		var context = new ItemRenderContext(
+		var context = new ItemDrawContext(
 				new Matrix4f(transform),
 				new Matrix3f(normal),
 				itemStack,
@@ -625,7 +639,10 @@ public class GuiBatchingController {
 
 		public void add(IGuiElementContext context) {
 			layerElements.add(context);
-			layerThickness = Math.max(layerThickness, context.thickness());
+
+			if (layerThickness < context.thickness()) {
+				layerThickness = context.thickness();
+			}
 		}
 	}
 }

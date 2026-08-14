@@ -66,20 +66,20 @@ public class AcceleratedBufferSource implements IAcceleratedBufferSource {
 		var builders	= currentBuffer	.getBuilders	();
 		var functions	= currentBuffer	.getFunctions	();
 		var layers		= currentBuffer	.getLayers		();
-		var function	= functions		.get			(layerIndex);
 		var layer		= layers		.get			(layerIndex);
 
 		if (builder != null) {
-			function = builder	.getFunction();
-			function			.addBefore	(before);
-			function			.addAfter	(after);
+			var function = builder	.getFunction();
+				function			.addBefore	(before);
+				function			.addAfter	(after);
 
 			return builder;
 		}
 
-		var vertexBuffer	= currentBuffer.getVertexBuffer		();
-		var varyingBuffer	= currentBuffer.getVaryingBuffer	();
-		var elementSegment	= currentBuffer.getElementSegment	();
+		var function		= functions		.get				(layerIndex);
+		var vertexBuffer	= currentBuffer	.getVertexBuffer	();
+		var varyingBuffer	= currentBuffer	.getVaryingBuffer	();
+		var elementSegment	= currentBuffer	.getElementSegment	();
 
 		if (vertexBuffer == null) {
 			currentBuffer	= ringBuffers	.get				(true);

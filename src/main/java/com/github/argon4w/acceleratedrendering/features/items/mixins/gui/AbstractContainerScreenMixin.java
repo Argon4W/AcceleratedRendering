@@ -44,16 +44,16 @@ public abstract class AbstractContainerScreenMixin {
 			at		= @At("HEAD")
 	)
 	public void startBackgroundBatching(
-			GuiGraphics							guiGraphics,
-			int									mouseX,
-			int									mouseY,
-			float								partialTick,
-			CallbackInfo						ci,
-			@Share("depth")		LocalFloatRef	depth,
-			@Share("enabled")	LocalBooleanRef	enabled
+			GuiGraphics						guiGraphics,
+			int								mouseX,
+			int								mouseY,
+			float							partialTick,
+			CallbackInfo					ci,
+			@Share("depth") LocalFloatRef	depth,
+			@Share("batch") LocalBooleanRef	batch
 	) {
-		depth	.set(0.0f);
-		enabled	.set(GuiBatchingController.INSTANCE.startBatching(guiGraphics));
+		depth.set(0.0f);
+		batch.set(GuiBatchingController.INSTANCE.startBatching(guiGraphics));
 	}
 
 	@Inject(
@@ -65,15 +65,15 @@ public abstract class AbstractContainerScreenMixin {
 			)
 	)
 	public void flushBackgroundBatching(
-			GuiGraphics							guiGraphics,
-			int									mouseX,
-			int									mouseY,
-			float								partialTick,
-			CallbackInfo						ci,
-			@Share("depth")		LocalFloatRef	depth,
-			@Share("enabled")	LocalBooleanRef	enabled
+			GuiGraphics						guiGraphics,
+			int								mouseX,
+			int								mouseY,
+			float							partialTick,
+			CallbackInfo					ci,
+			@Share("depth") LocalFloatRef	depth,
+			@Share("batch") LocalBooleanRef	batch
 	) {
-		if (!AcceleratedItemRenderingFeature.shouldMergeGuiItemBatches() && enabled.get()) {
+		if (!AcceleratedItemRenderingFeature.shouldMergeGuiItemBatches() && batch.get()) {
 			depth.set(depth.get() + GuiBatchingController.INSTANCE.flushBatching(guiGraphics));
 
 			var pose = guiGraphics.pose().last().pose();
@@ -107,15 +107,15 @@ public abstract class AbstractContainerScreenMixin {
 			)
 	)
 	public void startItemBatching(
-			GuiGraphics							guiGraphics,
-			int									mouseX,
-			int									mouseY,
-			float								partialTick,
-			CallbackInfo						ci,
-			@Share("depth")		LocalFloatRef	depth,
-			@Share("enabled")	LocalBooleanRef	enabled
+			GuiGraphics						guiGraphics,
+			int								mouseX,
+			int								mouseY,
+			float							partialTick,
+			CallbackInfo					ci,
+			@Share("depth") LocalFloatRef	depth,
+			@Share("batch") LocalBooleanRef	batch
 	) {
-		if (!AcceleratedItemRenderingFeature.shouldMergeGuiItemBatches() && enabled.get()) {
+		if (!AcceleratedItemRenderingFeature.shouldMergeGuiItemBatches() && batch.get()) {
 			GuiBatchingController.INSTANCE.startBatching(guiGraphics);
 		}
 	}
@@ -129,15 +129,15 @@ public abstract class AbstractContainerScreenMixin {
 			)
 	)
 	public void flushItemBatching(
-			GuiGraphics							guiGraphics,
-			int									mouseX,
-			int									mouseY,
-			float								partialTick,
-			CallbackInfo						ci,
-			@Share("depth")		LocalFloatRef	depth,
-			@Share("enabled")	LocalBooleanRef	enabled
+			GuiGraphics						guiGraphics,
+			int								mouseX,
+			int								mouseY,
+			float							partialTick,
+			CallbackInfo					ci,
+			@Share("depth") LocalFloatRef	depth,
+			@Share("batch") LocalBooleanRef	batch
 	) {
-		if (enabled.get()) {
+		if (batch.get()) {
 			depth.set(depth.get() + GuiBatchingController.INSTANCE.flushBatching(guiGraphics));
 		}
 	}
@@ -155,15 +155,15 @@ public abstract class AbstractContainerScreenMixin {
 			}
 	)
 	public void liftGlobalLayer(
-			GuiGraphics							guiGraphics,
-			int									mouseX,
-			int									mouseY,
-			float								partialTick,
-			CallbackInfo						ci,
-			@Share("depth")		LocalFloatRef	depth,
-			@Share("enabled")	LocalBooleanRef	enabled
+			GuiGraphics						guiGraphics,
+			int								mouseX,
+			int								mouseY,
+			float							partialTick,
+			CallbackInfo					ci,
+			@Share("depth") LocalFloatRef	depth,
+			@Share("batch") LocalBooleanRef	batch
 	) {
-		if (enabled.get()) {
+		if (batch.get()) {
 			var pose = guiGraphics.pose().last().pose();
 
 			var previousDepth = GuiBatchingController.getGlobalDepth(

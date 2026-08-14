@@ -6,7 +6,7 @@ import net.minecraft.world.item.ItemStack;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 
-public record ItemRenderContext(
+public record ItemDrawContext(
 		Matrix4f			transform,
 		Matrix3f			normal,
 		ItemStack			itemStack,

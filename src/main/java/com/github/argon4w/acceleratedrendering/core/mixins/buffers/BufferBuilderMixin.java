@@ -23,7 +23,8 @@ public class BufferBuilderMixin implements IAccelerationHolder, IAcceleratedVert
 	@Unique private IAcceleratedBufferSource	bufferSources = EmptyAcceleratedBufferSources.INSTANCE;
 	@Unique private RenderType					renderType;
 	@Unique private AcceleratedBufferBuilder	acceleration;
-	@Unique private boolean						init = false;
+	@Unique private boolean						init	= false;
+	@Unique private int							layer	= Integer.MIN_VALUE;
 
 	@Unique
 	@Override
@@ -69,17 +70,21 @@ public class BufferBuilderMixin implements IAccelerationHolder, IAcceleratedVert
 	@Unique
 	@Override
 	public AcceleratedBufferBuilder getAccelerated() {
-		if (		acceleration == null
-				||	acceleration.isOutdated()
+		var layer = CoreFeature.getDefaultLayer();
+
+		if (		this.layer			!= layer
+				||	this.acceleration	== null
+				||	this.acceleration.isOutdated()
 		) {
-			acceleration = bufferSources.getBuffer(
+			this.layer			= layer;
+			this.acceleration	= bufferSources.getBuffer(
 					renderType,
 					CoreFeature.getDefaultLayerBeforeFunction	(),
 					CoreFeature.getDefaultLayerAfterFunction	(),
-					CoreFeature.getDefaultLayer					()
+					layer
 			);
 		}
 
-		return acceleration;
+		return this.acceleration;
 	}
 }

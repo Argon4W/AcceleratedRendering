@@ -6,7 +6,7 @@ import com.github.argon4w.acceleratedrendering.features.entities.AcceleratedEnti
 import com.github.argon4w.acceleratedrendering.features.filter.FilterFeature;
 import com.github.argon4w.acceleratedrendering.features.items.AcceleratedItemRenderingFeature;
 import com.github.argon4w.acceleratedrendering.features.items.gui.GuiBatchingController;
-import com.github.argon4w.acceleratedrendering.features.items.gui.contexts.ItemRenderContext;
+import com.github.argon4w.acceleratedrendering.features.items.gui.contexts.ItemDrawContext;
 import com.github.argon4w.acceleratedrendering.features.text.AcceleratedTextRenderingFeature;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -30,8 +30,8 @@ import java.util.List;
 @Mixin			(GuiBatchingController	.class)
 public class GuiBatchingControllerMixin {
 
-	@Unique private final List<ItemRenderContext> filteredFlatItemDrawContexts	= new ReferenceArrayList<>();
-	@Unique private final List<ItemRenderContext> filteredBlockItemDrawContexts	= new ReferenceArrayList<>();
+	@Unique private final List<ItemDrawContext> filteredFlatItemDrawContexts	= new ReferenceArrayList<>();
+	@Unique private final List<ItemDrawContext> filteredBlockItemDrawContexts	= new ReferenceArrayList<>();
 
 	@WrapOperation(
 			method	= "submitItem",
@@ -49,7 +49,7 @@ public class GuiBatchingControllerMixin {
 		var pass =	!	CoreFeature		.isLoaded			()
 				||	!	FilterFeature	.isEnabled			()
 				||	!	FilterFeature	.shouldFilterItems	()
-				||		FilterFeature	.testItem			(((ItemRenderContext) itemRenderContext).itemStack());
+				||		FilterFeature	.testItem			(((ItemDrawContext) itemRenderContext).itemStack());
 
 		if (!pass) {
 			drawContexts = blockLight

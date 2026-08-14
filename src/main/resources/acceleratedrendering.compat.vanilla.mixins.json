@@ -4,6 +4,7 @@
   "package": "com.github.argon4w.acceleratedrendering.compat.vanilla.mixins",
   "compatibilityLevel": "JAVA_21",
   "client": [
+    "BannerRendererMixin",
     "HumanoidArmorLayerMixin",
     "LivingEntityRendererMixin"
   ],

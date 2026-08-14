@@ -15,19 +15,22 @@ import java.util.Set;
 
 public class AcceleratedBufferSources implements IAcceleratedBufferSource {
 
-	private final Map<VertexFormat, AcceleratedBufferSource>	sources;
+	private final Map<VertexFormat, IAcceleratedBufferSource>	sources;
 	private final Set<VertexFormat.Mode>						validModes;
+	private final IAcceleratedBufferSource						defaultSource;
 	private final boolean										supportTranslucent;
 	private final boolean										supportDynamic;
 
 	private AcceleratedBufferSources(
-			Map<VertexFormat, AcceleratedBufferSource>	sources,
+			Map<VertexFormat, IAcceleratedBufferSource>	sources,
 			Set<VertexFormat.Mode>						validModes,
+			IAcceleratedBufferSource					defaultSource,
 			boolean										supportTranslucent,
 			boolean										supportDynamic
 	) {
 		this.sources			= sources;
 		this.validModes			= validModes;
+		this.defaultSource		= defaultSource;
 		this.supportTranslucent	= supportTranslucent;
 		this.supportDynamic		= supportDynamic;
 	}
@@ -43,11 +46,10 @@ public class AcceleratedBufferSources implements IAcceleratedBufferSource {
 				&& 	(	CoreFeature		.shouldForceAccelerateTranslucent	()	|| supportTranslucent	|| !RenderTypeUtils.isTranslucent	(renderType))
 				&& 	(	CoreFeature		.shouldCacheDynamicRenderType		()	|| supportDynamic		|| !RenderTypeUtils.isDynamic		(renderType))
 				&&		validModes		.contains							(renderType.mode)
-				&&		sources			.containsKey						(renderType.format)
 		) {
 			return sources
-					.get		(renderType.format)
-					.getBuffer	(
+					.getOrDefault	(renderType.format, defaultSource)
+					.getBuffer		(
 							renderType,
 							before,
 							after,
@@ -64,9 +66,10 @@ public class AcceleratedBufferSources implements IAcceleratedBufferSource {
 
 	public static class Builder {
 
-		private final	Map<VertexFormat, AcceleratedBufferSource>	sources;
+		private final	Map<VertexFormat, IAcceleratedBufferSource>	sources;
 		private final	Set<VertexFormat.Mode>						validModes;
 
+		private			IAcceleratedBufferSource					defaultSource;
 		private			boolean										supportTranslucent;
 		private			boolean										supportDynamic;
 
@@ -74,6 +77,7 @@ public class AcceleratedBufferSources implements IAcceleratedBufferSource {
 			this.sources			= new Reference2ObjectOpenHashMap	<>();
 			this.validModes			= new ReferenceOpenHashSet			<>();
 
+			this.defaultSource		= EmptyAcceleratedBufferSources.INSTANCE;
 			this.supportTranslucent	= false;
 			this.supportDynamic		= false;
 		}
@@ -94,6 +98,11 @@ public class AcceleratedBufferSources implements IAcceleratedBufferSource {
 			return this;
 		}
 
+		public Builder defaultSource(IAcceleratedBufferSource source) {
+			defaultSource = source;
+			return this;
+		}
+
 		public Builder supportTranslucent() {
 			supportTranslucent = true;
 			return this;
@@ -108,6 +117,7 @@ public class AcceleratedBufferSources implements IAcceleratedBufferSource {
 			return new AcceleratedBufferSources(
 					sources,
 					validModes,
+					defaultSource,
 					supportTranslucent,
 					supportDynamic
 			);

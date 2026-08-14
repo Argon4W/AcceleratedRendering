@@ -188,5 +188,5 @@
   "acceleratedrendering.configuration.mods_compatibility.modernui_feature_status": "Enable Modern UI Compatibility",
   "acceleratedrendering.configuration.mods_compatibility.modernui_feature_status.tooltip": "- DISABLED: Accelerations of text driven by ModernUI's modern text engine will be disabled.\n- ENABLED: Accelerations of text driven by ModernUI's modern text engine will be enabled.",
   "acceleratedrendering.configuration.mods_compatibility.button": "Configure",
-  "acceleratedrendering.component.not_available": "Accelerated Rendering is currently running in an unsupported environment. Accelerated Rendering will not take effect."
+  "acceleratedrendering.component.not_available": "Your device or operating system is unable to run Accelerated Rendering. Accelerated Rendering will not take effect."
 }
