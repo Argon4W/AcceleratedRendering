@@ -1,0 +1,72 @@
+#version 460 core
+
+#define WORKGROUP_ORDER 3
+#define WORKGROUP_SIZE  1 << WORKGROUP_ORDER
+
+layout(local_size_x = WORKGROUP_SIZE) in;
+
+shared uint prefix[WORKGROUP_SIZE];
+
+uint load   ();
+void store  (uint prefix);
+
+void main() {
+    // Get the invocation index;
+    uint index  = gl_LocalInvocationIndex;
+    uint index2 = index << 1;
+
+    // Load the value into the shared memory;
+    prefix[index] = load();
+
+    uint active = WORKGROUP_SIZE;
+
+    // Up-sweep;
+    for (int order = 0; order < WORKGROUP_ORDER; order ++) {
+        barrier();
+
+        active >>= 1u;
+
+        if (index < active) {
+            uint left   = ((index2 + 1u) << order) - 1u;
+            uint right  = ((index2 + 2u) << order) - 1u;
+
+            prefix[right] += prefix[left];
+        }
+    }
+
+    barrier();
+
+    // Set the tree root to 0 for down-sweeping;
+    if (index == 0) {
+        prefix[WORKGROUP_SIZE - 1] = 0u;
+    }
+
+    // Down-sweep
+    for (int order = WORKGROUP_ORDER - 1; order >= 0; order --) {
+        barrier();
+
+        if (index < active) {
+            uint left   = ((index2 + 1u) << order) - 1u;
+            uint right  = ((index2 + 2u) << order) - 1u;
+            uint temp   = prefix[left];
+
+            prefix[left]    =   prefix[right];
+            prefix[right]   +=  temp;
+        }
+
+        active <<= 1u;
+    }
+
+    barrier();
+
+    // Store the prefix sum.
+    store(prefix[index]);
+}
+
+uint load() {
+    return ...;
+}
+
+void store(uint prefix) {
+    ...
+}

@@ -18,14 +18,18 @@ struct Transform {
 };
 
 struct MeshInstance {
-    uint    meshOffset;
-    uint    meshLength;
-    uint    bufferIndex;
+    uint    meshInfoIndex;
+    uint    transformIndex;
+    uint    bufferBaseIndex;
     uint    vertexOffset;
-    uint    transformOffset;
     uint    packedColor;
     uint    packedLight;
     uint    packedOverlay;
+};
+
+struct MeshInfo {
+    uint    vertexOffset;
+    uint    vertexLength;
 };
 
 struct WorkgroupInfo {
@@ -37,27 +41,31 @@ struct WorkgroupInfo {
 
 layout(local_size_x = 32) in;
 
-layout(binding=0, std430) restrict readonly buffer MeshVertoces {
+layout(binding=0, std430) restrict readonly buffer MeshInfos {
+    MeshInfo meshInfos[];
+};
+
+layout(binding=1, std430) restrict readonly buffer MeshVertices {
     Vertex meshVertices[];
 };
 
-layout(binding=1, std430) restrict readonly buffer MeshTransforms {
+layout(binding=2, std430) restrict readonly buffer MeshBufferBases {
+    uint meshBufferBases[];
+};
+
+layout(binding=3, std430) restrict readonly buffer MeshTransforms {
     Transform meshTransforms[];
 };
 
-layout(binding=2, std430) restrict readonly buffer MeshInstances {
+layout(binding=4, std430) restrict readonly buffer MeshInstances {
     MeshInstance meshInstances[];
 };
 
-layout(binding=3, std430) restrict readonly buffer WorkgroupInfos {
+layout(binding=5, std430) restrict readonly buffer WorkgroupInfos {
     WorkgroupInfo workgroupInfos[];
 };
 
-layout(binding=4, std430) restrict readonly buffer BufferOffsets {
-    uint bufferOffsets[];
-};
-
-layout(binding=5, std430) restrict readonly buffer OutpuutVertices {
+layout(binding=6, std430) restrict writeonly buffer OutputVertices {
     Vertex outputVertices[];
 };
 
@@ -74,13 +82,15 @@ void main() {
 
     MeshInstance meshInstance = meshInstances[workgroupInfo.baseMeshInstance + bucketMeshInstanceOffset];
 
-    if (bucketMeshVertexOffset >= meshInstance.meshLength) {
+    MeshInfo meshInfo = meshInfos[meshInstance.meshInfoIndex];
+
+    if (bucketMeshVertexOffset >= meshInfo.vertexLength) {
         return;
     }
 
-    Vertex      outputVertex    = outputVertices[bufferOffsets[meshInstance.bufferIndex] +  meshInstance.vertexOffset   + bucketMeshVertexOffset];
-    Vertex      meshVertex      = meshVertices  [                                           meshInstance.meshOffset     + bucketMeshVertexOffset];
-    Transform   meshTransform   = meshTransforms[                                           meshInstance.transformOffset                        ];
+    uint        meshBufferBase  = meshBufferBases   [meshInstance   .bufferBaseIndex                        ];
+    Transform   meshTransform   = meshTransforms    [meshInstance   .transformIndex                         ];
+    Vertex      meshVertex      = meshVertices      [meshInfo       .vertexOffset + bucketMeshVertexOffset  ];
 
     vec4 colorInstance  = unpackUnorm4x8    (meshInstance   .packedColor);
     vec2 lightInstance  = unpackUnorm2x16   (meshInstance   .packedLight);
@@ -96,17 +106,19 @@ void main() {
     vec4 positionOutput = meshTransform.model   * positionMesh;
     vec3 normalOutput   = meshTransform.normal  * normalMesh.xyz;
 
-    outputVertex.positionX = positionOutput.x;
-    outputVertex.positionY = positionOutput.y;
-    outputVertex.positionZ = positionOutput.z;
+    uint outputIndex = meshBufferBase + meshInstance.vertexOffset + bucketMeshVertexOffset;
 
-    outputVertex.packedColor = packUnorm4x8(colorOutput);
+    outputVertices[outputIndex].positionX = positionOutput.x;
+    outputVertices[outputIndex].positionY = positionOutput.y;
+    outputVertices[outputIndex].positionZ = positionOutput.z;
 
-    outputVertex.texCoordU = meshVertex.texCoordU;
-    outputVertex.texCoordV = meshVertex.texCoordV;
+    outputVertices[outputIndex].packedColor = packUnorm4x8(colorOutput);
 
-    // outputVertex.packedOverlay  = meshInstance.packedOverlay;
-    outputVertex.packedLight    = packUnorm2x16(lightOutput);
+    outputVertices[outputIndex].texCoordU = meshVertex.texCoordU;
+    outputVertices[outputIndex].texCoordV = meshVertex.texCoordV;
 
-    outputVertex.packedNormal = packSnorm4x8(vec4(normalize(normalOutput), 0.0));
+    // outputVertices[outputIndex].packedOverlay   = meshInstance.packedOverlay;
+    outputVertices[outputIndex].packedLight     = packUnorm2x16(lightOutput);
+
+    outputVertices[outputIndex].packedNormal = packSnorm4x8(vec4(normalize(normalOutput), 0.0));
 }
