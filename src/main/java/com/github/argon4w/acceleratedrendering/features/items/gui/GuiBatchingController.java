@@ -47,8 +47,8 @@ public class GuiBatchingController {
 	public static	final	GuiBatchingController			INSTANCE	= new GuiBatchingController();
 	public static	final	float							DELTA		= 1e-6f;
 
-	private			final	IBindingState					scissorDraw;
-	private			final	IBindingState					scissorFlush;
+	private			final	IBindingState					scissor1;
+	private			final	IBindingState					scissor2;
 	private			final	List<BlitDrawContext>			blitDrawContexts;
 	private			final	List<IStringDrawContext>		stringDrawContexts;
 	private			final	List<DecoratorDrawContext>		decoratorDrawContexts;
@@ -60,8 +60,8 @@ public class GuiBatchingController {
 	private			final	Float2ReferenceSortedMap<Layer>	depthLayers;
 
 	private GuiBatchingController() {
-		this.scissorDraw			= CoreFeature.createScissorState	();
-		this.scissorFlush			= CoreFeature.createScissorState	();
+		this.scissor1				= CoreFeature.createScissorState	();
+		this.scissor2				= CoreFeature.createScissorState	();
 		this.blitDrawContexts		= new ReferenceArrayList		<>	();
 		this.stringDrawContexts		= new ReferenceArrayList		<>	();
 		this.decoratorDrawContexts	= new ReferenceArrayList		<>	();
@@ -82,8 +82,8 @@ public class GuiBatchingController {
 				&&	CoreFeature									.isLoaded							()
 				&&	CoreFeature									.shouldForceAccelerateTranslucent	()
 		) {
-			CoreFeature.setGuiBatching	();
-			scissorDraw.record			(graphics);
+			CoreFeature	.setGuiBatching	();
+			scissor1	.capture		(graphics);
 
 			return true;
 		}
@@ -91,8 +91,12 @@ public class GuiBatchingController {
 		return false;
 	}
 
-	@SuppressWarnings("UnstableApiUsage")
 	public float flushBatching(GuiGraphics graphics) {
+		return flushBatching(graphics, true);
+	}
+
+	@SuppressWarnings("UnstableApiUsage")
+	public float flushBatching(GuiGraphics graphics, boolean restoreScissor) {
 		if (CoreFeature.isGuiBatching()) {
 			var itemRenderer	= Minecraft.getInstance()	.getItemRenderer();
 			var bufferSource	= graphics					.bufferSource	();
@@ -184,8 +188,10 @@ public class GuiBatchingController {
 				stringDrawContexts.get(index).drawString(graphics.bufferSource());
 			}
 
-			scissorFlush.record	(graphics);
-			scissorDraw	.restore();
+			if (restoreScissor) {
+				scissor2.capture(graphics);
+				scissor1.restore();
+			}
 
 			Lighting	.setupForFlatItems					();
 			CoreFeature	.forceSetDefaultLayer				(1);
@@ -285,7 +291,10 @@ public class GuiBatchingController {
 			gradientDrawContexts	.clear	();
 			flatItemDrawContexts	.clear	();
 			blockItemDrawContexts	.clear	();
-			scissorFlush			.restore();
+
+			if (restoreScissor) {
+				scissor2.restore();
+			}
 
 			return offset;
 		}
@@ -618,8 +627,8 @@ public class GuiBatchingController {
 	}
 
 	public void delete() {
-		scissorDraw	.delete();
-		scissorFlush.delete();
+		scissor1.delete();
+		scissor2.delete();
 	}
 
 	@Getter

@@ -8,6 +8,7 @@ import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.draw.poo
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.draw.indirect.IndirectElementBufferPool.ElementSegment;
 import com.github.argon4w.acceleratedrendering.core.buffers.memory.IMemoryInterface;
 import com.github.argon4w.acceleratedrendering.core.buffers.memory.SimpleMemoryInterface;
+import com.github.argon4w.acceleratedrendering.core.utils.RenderTypeUtils;
 import com.github.argon4w.acceleratedrendering.core.utils.SimpleResetPool;
 import com.mojang.blaze3d.vertex.VertexFormat.Mode;
 import net.minecraft.client.renderer.RenderType;
@@ -113,8 +114,8 @@ public class IndirectDrawContextPool extends SimpleResetPool<IndirectDrawContext
 		@Override
 		public int compareTo(IDrawContext that) {
 			return Boolean.compare(
-					this.getRenderType().sortOnUpload,
-					that.getRenderType().sortOnUpload
+					RenderTypeUtils.isTranslucent(this.getRenderType()),
+					RenderTypeUtils.isTranslucent(that.getRenderType())
 			);
 		}
 

@@ -7,7 +7,7 @@ public class EmptyBindingState implements IBindingState {
 	public static final IBindingState INSTANCE = new EmptyBindingState();
 
 	@Override
-	public void record(GuiGraphics graphics) {
+	public void capture(GuiGraphics graphics) {
 
 	}
 

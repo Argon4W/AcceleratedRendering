@@ -8,6 +8,7 @@ public class IgnoreMeshDataCache implements IMeshDataCache {
 
 	@Override
 	public void set(
+			boolean			reloadAware,
 			VertexLayout	layout,
 			MeshData		data,
 			IMesh			mesh
@@ -16,13 +17,12 @@ public class IgnoreMeshDataCache implements IMeshDataCache {
 	}
 
 	@Override
-	public IMesh get(VertexLayout layout, MeshData meshData) {
+	public IMesh get(
+			boolean			reloadAware,
+			VertexLayout	layout,
+			MeshData		data
+	) {
 		return null;
-	}
-
-	@Override
-	public int count(VertexLayout layout, MeshData data) {
-		return 0;
 	}
 
 	@Override

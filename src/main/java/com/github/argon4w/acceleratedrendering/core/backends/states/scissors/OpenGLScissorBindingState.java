@@ -22,7 +22,7 @@ public class OpenGLScissorBindingState implements IBindingState {
 	}
 
 	@Override
-	public void record(GuiGraphics graphics) {
+	public void capture(GuiGraphics graphics) {
 		glGetIntegerv				(GL_SCISSOR_BOX, bindingScissor);
 		enabled		= glIsEnabled	(GL_SCISSOR_TEST);
 		recorded	= true;

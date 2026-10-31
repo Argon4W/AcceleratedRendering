@@ -61,7 +61,7 @@ public class GuiBatchingControllerMixin {
 	}
 
 	@Inject(
-			method	= "flushBatching(Lnet/minecraft/client/gui/GuiGraphics;)F",
+			method	= "flushBatching(Lnet/minecraft/client/gui/GuiGraphics;Z)F",
 			at		= @At(
 					value	= "INVOKE",
 					target	= "Lcom/github/argon4w/acceleratedrendering/features/items/gui/GuiBatchingController;flushBatching()V",
@@ -70,6 +70,7 @@ public class GuiBatchingControllerMixin {
 	)
 	public void flushFilteredItems(
 			GuiGraphics														graphics,
+			boolean															restoreScissor,
 			CallbackInfoReturnable<Float>									cir,
 			@Local(name = "bufferSource")	MultiBufferSource.BufferSource	bufferSource,
 			@Local(name = "itemRenderer")	ItemRenderer					itemRenderer,
@@ -99,8 +100,8 @@ public class GuiBatchingControllerMixin {
 			poseStack.popPose();
 		}
 
-		graphics	.flush			();
-		Lighting	.setupFor3DItems();
+		graphics.flush			();
+		Lighting.setupFor3DItems();
 
 		for (var context : filteredBlockItemDrawContexts) {
 			poseStack.pushPose	();
@@ -127,7 +128,7 @@ public class GuiBatchingControllerMixin {
 	}
 
 	@Inject(
-			method	= "flushBatching(Lnet/minecraft/client/gui/GuiGraphics;)F",
+			method	= "flushBatching(Lnet/minecraft/client/gui/GuiGraphics;Z)F",
 			at		= @At(
 					value	= "INVOKE",
 					target	= "Ljava/util/List;clear()V",
@@ -135,7 +136,11 @@ public class GuiBatchingControllerMixin {
 					shift	= At.Shift.BEFORE
 			)
 	)
-	public void clearFilteredItems(GuiGraphics graphics, CallbackInfoReturnable<Float> cir) {
+	public void clearFilteredItems(
+			GuiGraphics 					graphics,
+			boolean 						restoreScissor,
+			CallbackInfoReturnable<Float> 	cir
+	) {
 		filteredFlatItemDrawContexts	.clear();
 		filteredBlockItemDrawContexts	.clear();
 	}

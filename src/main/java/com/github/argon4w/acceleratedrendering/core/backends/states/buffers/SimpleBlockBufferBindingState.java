@@ -34,7 +34,7 @@ public class SimpleBlockBufferBindingState implements IBindingState {
 	}
 
 	@Override
-	public void record(GuiGraphics graphics) {
+	public void capture(GuiGraphics graphics) {
 		for (var bindingPoint = 0; bindingPoint < bindingRange; bindingPoint++) {
 			bindingCache.setup(
 					bindingPoint,
