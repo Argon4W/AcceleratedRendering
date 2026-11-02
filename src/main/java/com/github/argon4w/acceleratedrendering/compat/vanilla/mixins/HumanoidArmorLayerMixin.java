@@ -37,24 +37,13 @@ public class HumanoidArmorLayerMixin {
 			boolean				innerTexture,
 			Operation<Void>		original
 	) {
-		if (		!CoreFeature.isLoaded			()
-				||	!ModsFeature.isEnabled			()
-				||	!ModsFeature.shouldFixVanilla	()
-		) {
-			original.call(
-					instance,
-					armorMaterial,
-					poseStack,
-					bufferSource,
-					packedLight,
-					armorTrim,
-					model,
-					innerTexture
-			);
-			return;
-		}
+		var pass = CoreFeature.isLoaded			()
+				&& ModsFeature.isEnabled		()
+				&& ModsFeature.shouldFixVanilla	();
 
-		CoreFeature.forceIncrementDefaultLayer();
+		if (pass) {
+			CoreFeature.forceIncrementDefaultLayer();
+		}
 
 		original.call(
 				instance,
@@ -67,6 +56,8 @@ public class HumanoidArmorLayerMixin {
 				innerTexture
 		);
 
-		CoreFeature.resetDefaultLayer();
+		if (pass) {
+			CoreFeature.resetDefaultLayer();
+		}
 	}
 }

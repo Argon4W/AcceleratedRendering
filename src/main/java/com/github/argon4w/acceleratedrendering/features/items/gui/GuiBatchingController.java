@@ -47,21 +47,21 @@ public class GuiBatchingController {
 	public static	final	GuiBatchingController			INSTANCE	= new GuiBatchingController();
 	public static	final	float							DELTA		= 1e-6f;
 
-	private			final	IBindingState					scissorDraw;
-	private			final	IBindingState					scissorFlush;
+	private			final	IBindingState					scissor1;
+	private			final	IBindingState					scissor2;
 	private			final	List<BlitDrawContext>			blitDrawContexts;
 	private			final	List<IStringDrawContext>		stringDrawContexts;
 	private			final	List<DecoratorDrawContext>		decoratorDrawContexts;
 	private			final	List<FillDrawContext>			fillDrawContexts;
 	private			final	List<HighlightDrawContext>		highlightDrawContexts;
 	private			final	List<GradientDrawContext>		gradientDrawContexts;
-	private			final	List<ItemRenderContext>			flatItemDrawContexts;
-	private			final	List<ItemRenderContext>			blockItemDrawContexts;
+	private			final	List<ItemDrawContext>			flatItemDrawContexts;
+	private			final	List<ItemDrawContext>			blockItemDrawContexts;
 	private			final	Float2ReferenceSortedMap<Layer>	depthLayers;
 
 	private GuiBatchingController() {
-		this.scissorDraw			= CoreFeature.createScissorState	();
-		this.scissorFlush			= CoreFeature.createScissorState	();
+		this.scissor1				= CoreFeature.createScissorState	();
+		this.scissor2				= CoreFeature.createScissorState	();
 		this.blitDrawContexts		= new ReferenceArrayList		<>	();
 		this.stringDrawContexts		= new ReferenceArrayList		<>	();
 		this.decoratorDrawContexts	= new ReferenceArrayList		<>	();
@@ -82,8 +82,8 @@ public class GuiBatchingController {
 				&&	CoreFeature									.isLoaded							()
 				&&	CoreFeature									.shouldForceAccelerateTranslucent	()
 		) {
-			CoreFeature.setGuiBatching	();
-			scissorDraw.record			(graphics);
+			CoreFeature	.setGuiBatching	();
+			scissor1	.capture		(graphics);
 
 			return true;
 		}
@@ -91,8 +91,12 @@ public class GuiBatchingController {
 		return false;
 	}
 
-	@SuppressWarnings("UnstableApiUsage")
 	public float flushBatching(GuiGraphics graphics) {
+		return flushBatching(graphics, true);
+	}
+
+	@SuppressWarnings("UnstableApiUsage")
+	public float flushBatching(GuiGraphics graphics, boolean restoreScissor) {
 		if (CoreFeature.isGuiBatching()) {
 			var itemRenderer	= Minecraft.getInstance()	.getItemRenderer();
 			var bufferSource	= graphics					.bufferSource	();
@@ -126,7 +130,9 @@ public class GuiBatchingController {
 				offset = layerDepth + depth;
 			}
 
-			for (var context : blitDrawContexts) {
+			for (int index = 0, size = blitDrawContexts.size(); index < size; index ++) {
+				var context = blitDrawContexts.get(index);
+
 				var extension = graphics.bufferSource().getBuffer(GuiRenderTypes.blit(context.atlasLocation())).getAccelerated();
 
 				if (extension.isAccelerated()) {
@@ -142,7 +148,9 @@ public class GuiBatchingController {
 				}
 			}
 
-			for (var context : fillDrawContexts) {
+			for (int index = 0, size = fillDrawContexts.size(); index < size; index ++) {
+				var context = fillDrawContexts.get(index);
+
 				var extension = graphics.bufferSource().getBuffer(context.renderType()).getAccelerated();
 
 				if (extension.isAccelerated()) {
@@ -158,7 +166,9 @@ public class GuiBatchingController {
 				}
 			}
 
-			for (var context : gradientDrawContexts) {
+			for (int index = 0, size = gradientDrawContexts.size(); index < size; index ++) {
+				var context = gradientDrawContexts.get(index);
+
 				var extension = graphics.bufferSource().getBuffer(context.renderType()).getAccelerated();
 
 				if (extension.isAccelerated()) {
@@ -174,19 +184,23 @@ public class GuiBatchingController {
 				}
 			}
 
-			for (var context : stringDrawContexts) {
-				context.drawString(graphics.bufferSource());
+			for (int index = 0, size = stringDrawContexts.size(); index < size; index ++) {
+				stringDrawContexts.get(index).drawString(graphics.bufferSource());
 			}
 
-			scissorFlush.record	(graphics);
-			scissorDraw	.restore();
+			if (restoreScissor) {
+				scissor2.capture(graphics);
+				scissor1.restore();
+			}
 
 			Lighting	.setupForFlatItems					();
 			CoreFeature	.forceSetDefaultLayer				(1);
 			CoreFeature	.forceSetDefaultLayerBeforeFunction	(Lighting::setupForFlatItems);
 			CoreFeature	.forceSetDefaultLayerAfterFunction	(Lighting::setupFor3DItems);
 
-			for (var context : flatItemDrawContexts) {
+			for (int index = 0, size = flatItemDrawContexts.size(); index < size; index ++) {
+				var context = flatItemDrawContexts.get(index);
+
 				poseStack.pushPose	();
 				poseStack.setPose	(context.transform(), context.normal());
 
@@ -210,7 +224,9 @@ public class GuiBatchingController {
 			CoreFeature	.resetDefaultLayerBeforeFunction();
 			CoreFeature	.resetDefaultLayerAfterFunction	();
 
-			for (var context : blockItemDrawContexts) {
+			for (int index = 0, size = blockItemDrawContexts.size(); index < size; index ++) {
+				var context = blockItemDrawContexts.get(index);
+
 				poseStack.pushPose	();
 				poseStack.setPose	(context.transform(), context.normal());
 
@@ -232,7 +248,9 @@ public class GuiBatchingController {
 			graphics	.flush				();
 			flushBatching					();
 
-			for (var context : decoratorDrawContexts) {
+			for (int index = 0, size = decoratorDrawContexts.size(); index < size; index ++) {
+				var context = decoratorDrawContexts.get(index);
+
 				poseStack.pushPose	();
 				poseStack.setPose	(context.transform(), context.normal());
 
@@ -247,7 +265,9 @@ public class GuiBatchingController {
 				graphics.pose().popPose();
 			}
 
-			for (var context : highlightDrawContexts) {
+			for (int index = 0, size = highlightDrawContexts.size(); index < size; index ++) {
+				var context = highlightDrawContexts.get(index);
+
 				poseStack.pushPose	();
 				poseStack.setPose	(context.transform(), context.normal());
 
@@ -271,7 +291,10 @@ public class GuiBatchingController {
 			gradientDrawContexts	.clear	();
 			flatItemDrawContexts	.clear	();
 			blockItemDrawContexts	.clear	();
-			scissorFlush			.restore();
+
+			if (restoreScissor) {
+				scissor2.restore();
+			}
 
 			return offset;
 		}
@@ -367,7 +390,7 @@ public class GuiBatchingController {
 				0.0f
 		));
 
-		var context = new ItemRenderContext(
+		var context = new ItemDrawContext(
 				new Matrix4f(transform),
 				new Matrix3f(normal),
 				itemStack,
@@ -602,8 +625,8 @@ public class GuiBatchingController {
 	}
 
 	public void delete() {
-		scissorDraw	.delete();
-		scissorFlush.delete();
+		scissor1.delete();
+		scissor2.delete();
 	}
 
 	@Getter
@@ -623,7 +646,10 @@ public class GuiBatchingController {
 
 		public void add(IGuiElementContext context) {
 			layerElements.add(context);
-			layerThickness = Math.max(layerThickness, context.thickness());
+
+			if (layerThickness < context.thickness()) {
+				layerThickness = context.thickness();
+			}
 		}
 	}
 }

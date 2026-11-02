@@ -48,7 +48,7 @@ public class ClientMesh implements IMesh {
 		public IMesh build(
 				IMeshCollector	collector,
 				boolean			forceDense,
-				boolean			reloadSensitive,
+				boolean			reloadAware,
 				int				meshLayer
 		) {
 			var vertexCount = collector.getVertexCount();
@@ -57,10 +57,15 @@ public class ClientMesh implements IMesh {
 				return EmptyMesh.INSTANCE;
 			}
 
-			var builder		= collector				.getBuffer		();
-			var layout		= collector				.getLayout		();
-			var data		= collector				.getData		();
-			var mesh		= MeshDataCaches.CLIENT	.get			(layout, data);
+			var builder	= collector.getBuffer		();
+			var layout	= collector.getLayout		();
+			var data	= collector.getData			();
+
+			var mesh= MeshDataCaches.CLIENT.get(
+					reloadAware,
+					layout,
+					data
+			);
 
 			if (mesh != null) {
 				builder.close();
@@ -74,7 +79,7 @@ public class ClientMesh implements IMesh {
 				return EmptyMesh.INSTANCE;
 			}
 
-			var builders = reloadSensitive
+			var builders = reloadAware
 					? reloadBuilders
 					: normalBuilders;
 
@@ -83,6 +88,7 @@ public class ClientMesh implements IMesh {
 			mesh = new ClientMesh((int) vertexCount, result.byteBuffer());
 
 			MeshDataCaches.CLIENT.set(
+					reloadAware,
 					layout,
 					data,
 					mesh

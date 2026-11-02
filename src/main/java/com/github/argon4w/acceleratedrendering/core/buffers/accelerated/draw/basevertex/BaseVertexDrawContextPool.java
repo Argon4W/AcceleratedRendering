@@ -4,6 +4,7 @@ import com.github.argon4w.acceleratedrendering.core.backends.buffers.IServerBuff
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.AcceleratedBufferBuilder;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.draw.pools.IDrawContextPool;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.draw.pools.IElementPool.IElementSegment;
+import com.github.argon4w.acceleratedrendering.core.utils.RenderTypeUtils;
 import com.github.argon4w.acceleratedrendering.core.utils.SimpleResetPool;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.systems.RenderSystem.AutoStorageIndexBuffer;
@@ -90,8 +91,8 @@ public class BaseVertexDrawContextPool extends SimpleResetPool<BaseVertexDrawCon
 		@Override
 		public int compareTo(IDrawContext that) {
 			return Boolean.compare(
-					this.getRenderType().sortOnUpload,
-					that.getRenderType().sortOnUpload
+					RenderTypeUtils.isTranslucent(this.getRenderType()),
+					RenderTypeUtils.isTranslucent(that.getRenderType())
 			);
 		}
 

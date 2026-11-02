@@ -2,11 +2,13 @@ package com.github.argon4w.acceleratedrendering.features.text.cache;
 
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.IAcceleratedVertexConsumer;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.VertexConsumerExtension;
+import com.github.argon4w.acceleratedrendering.core.utils.MatrixCacheStack;
 import com.github.argon4w.acceleratedrendering.features.text.extensions.BakedGlyphExtension;
 import com.github.argon4w.acceleratedrendering.features.text.key.ISequenceKey;
 import com.github.argon4w.acceleratedrendering.features.text.renderers.AcceleratedSequenceEffectRenderer;
 import com.github.argon4w.acceleratedrendering.features.text.renderers.AcceleratedStyledSequenceRenderer;
 import com.mojang.blaze3d.font.GlyphInfo;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import it.unimi.dsi.fastutil.objects.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -34,8 +36,8 @@ public class ComponentMesh {
 	public static final Matrix4f SCRATCH	= new Matrix4f().identity();
 	public static final Matrix3f NORMAL		= new Matrix3f().identity();
 
-	private final List<SequenceSet>	sequenceSets;
-	private final List<Obfuscated>	obfuscatedGlyphs;
+	private final SequenceSet	[]	sequenceSets;
+	private final Obfuscated	[]	obfuscatedGlyphs;
 	private final float				advance;
 	private final boolean			shadow;
 
@@ -52,14 +54,14 @@ public class ComponentMesh {
 		var dimFactor = shadow ? 0.25f : 1.0f;
 
 		var defaultColor = FastColor.ARGB32.color(
-				FastColor.ARGB32.alpha	(color),
+						FastColor.ARGB32.alpha	(color),
 				(int) (	FastColor.ARGB32.red	(color) * dimFactor),
 				(int) (	FastColor.ARGB32.green	(color) * dimFactor),
 				(int) (	FastColor.ARGB32.blue	(color) * dimFactor)
 		);
 
-		for (int index = 0, size = obfuscatedGlyphs.size(); index < size; index ++) {
-			var obfuscated	= obfuscatedGlyphs.get(index);
+		for (int index = 0, size = obfuscatedGlyphs.length; index < size; index ++) {
+			var obfuscated	= obfuscatedGlyphs[index];
 
 			var glyphInfo	= obfuscated.glyphInfo	();
 			var style		= obfuscated.style		();
@@ -135,76 +137,102 @@ public class ComponentMesh {
 			}
 		}
 
-		for (int index1 = 0, size1 = sequenceSets.size(); index1 < size1; index1 ++) {
-			var sequenceSet	= sequenceSets	.get			(index1);
-			var renderType	= sequenceSet	.getRenderType	();
-			var effectType	= sequenceSet	.getEffectType	();
+		for (int index1 = 0, size1 = sequenceSets.length; index1 < size1; index1 ++) {
+			var sequenceSet		= sequenceSets					[index1];
+			var sequenceSize	= sequenceSet.getSequenceSize	();
+			var glyphRenderType	= sequenceSet.getGlyphRenderType();
+			var whiteRenderType	= sequenceSet.getWhiteRenderType();
 
-			var extensionRenderType = (IAcceleratedVertexConsumer) null;
-			var extensionEffectType = (IAcceleratedVertexConsumer) null;
+			try (var view = MatrixCacheStack.acquire(sequenceSize)) {
+				for (var index2 = 0; index2 < sequenceSize; index2 ++) {
+					var matrix = view.get(index2);
 
-			for (int index2 = 0, size2 = sequenceSet.getSequences().size(); index2 < size2; index2 ++) {
-				var sequence		= sequenceSet.getSequences().get			(index2);
-				var sequenceOffset	= sequence					.sequenceOffset	();
-				var sequenceKey 	= sequence					.sequenceKey	();
-				var effectKey		= sequence					.effectKey		();
-				var hasColor		= sequenceKey				.hasColor		();
-				var textColor		= sequenceKey				.getColor		();
-
-				if (hasColor) {
-					color = FastColor.ARGB32.color(
-							FastColor.ARGB32.alpha	(color),
-							(int) (	FastColor.ARGB32.red	(textColor) * dimFactor),
-							(int) (	FastColor.ARGB32.green	(textColor) * dimFactor),
-							(int) (	FastColor.ARGB32.blue	(textColor) * dimFactor)
-					);
-				} else {
-					color = defaultColor;
-				}
-
-				SCRATCH.set			(transform);
-				SCRATCH.translate	(
-						positionX + sequenceOffset,
-						positionY,
-						0.0f
-				);
-
-				if (extensionRenderType == null) {
-					extensionRenderType = bufferSource.getBuffer(renderType).getAccelerated();
-				}
-
-				if (extensionRenderType.isAccelerated()) {
-					extensionRenderType.doRender(
-							AcceleratedStyledSequenceRenderer.INSTANCE,
-							sequenceKey,
-							SCRATCH,
-							NORMAL,
-							packedLight,
-							OverlayTexture.NO_OVERLAY,
-							color
-					);
-				} else {
-					AcceleratedStyledSequenceRenderer.INSTANCE.buildSequenceMesh(
-							bufferSource.getBuffer(renderType),
-							sequenceKey,
-							SCRATCH,
-							color,
-							packedLight
+					matrix.set		(transform);
+					matrix.translate(
+							positionX + sequenceSet.getSequenceOffset(index2),
+							positionY,
+							0.0f
 					);
 				}
 
-				if (		effectKey.isUnderlined		()
-						||	effectKey.isStrikethrough	()
-				) {
-					if (extensionEffectType == null) {
-						extensionEffectType = bufferSource.getBuffer(effectType).getAccelerated();
+				var builderGlyph	= bufferSource.getBuffer		(glyphRenderType);
+				var extensionGlyph	= builderGlyph.getAccelerated	();
+
+				for (var index2 = 0; index2 < sequenceSize; index2 ++) {
+					var matrix		= view			.get			(index2);
+					var sequenceKey	= sequenceSet	.getSequenceKey	(index2);
+					var hasColor	= sequenceKey	.hasColor		();
+					var textColor	= sequenceKey	.getColor		();
+
+					if (hasColor) {
+						color = FastColor.ARGB32.color(
+										FastColor.ARGB32.alpha	(color),
+								(int) (	FastColor.ARGB32.red	(textColor) * dimFactor),
+								(int) (	FastColor.ARGB32.green	(textColor) * dimFactor),
+								(int) (	FastColor.ARGB32.blue	(textColor) * dimFactor)
+						);
+					} else {
+						color = defaultColor;
 					}
 
-					if (extensionEffectType.isAccelerated()) {
-						extensionEffectType.doRender(
+					if (extensionGlyph.isAccelerated()) {
+						extensionGlyph.doRender(
+								AcceleratedStyledSequenceRenderer.INSTANCE,
+								sequenceKey,
+								matrix,
+								NORMAL,
+								packedLight,
+								OverlayTexture.NO_OVERLAY,
+								color
+						);
+					} else {
+						AcceleratedStyledSequenceRenderer.INSTANCE.buildSequenceMesh(
+								builderGlyph,
+								sequenceKey,
+								matrix,
+								color,
+								packedLight
+						);
+					}
+				}
+
+				var builderWhite	= (VertexConsumer)				null;
+				var extensionWhite	= (IAcceleratedVertexConsumer)	null;
+
+				for (var index2 = 0; index2 < sequenceSize; index2 ++) {
+					var effectKey = sequenceSet.getEffectKey(index2);
+
+					if (		!effectKey.isUnderlined		()
+							&&	!effectKey.isStrikethrough	()
+					) {
+						continue;
+					}
+
+					var matrix		= view		.get		(index2);
+					var hasColor	= effectKey	.hasColor	();
+					var textColor	= effectKey	.getColor	();
+
+					if (hasColor) {
+						color = FastColor.ARGB32.color(
+										FastColor.ARGB32.alpha	(color),
+								(int) (	FastColor.ARGB32.red	(textColor) * dimFactor),
+								(int) (	FastColor.ARGB32.green	(textColor) * dimFactor),
+								(int) (	FastColor.ARGB32.blue	(textColor) * dimFactor)
+						);
+					} else {
+						color = defaultColor;
+					}
+
+					if (builderWhite == null) {
+						builderWhite	= bufferSource.getBuffer		(whiteRenderType);
+						extensionWhite	= builderWhite.getAccelerated	();
+					}
+
+					if (extensionWhite.isAccelerated()) {
+						extensionWhite.doRender(
 								AcceleratedSequenceEffectRenderer.INSTANCE,
 								effectKey,
-								SCRATCH,
+								matrix,
 								NORMAL,
 								packedLight,
 								OverlayTexture.NO_OVERLAY,
@@ -212,9 +240,9 @@ public class ComponentMesh {
 						);
 					} else {
 						AcceleratedSequenceEffectRenderer.INSTANCE.buildSequenceMesh(
-								bufferSource.getBuffer(effectType),
+								builderWhite,
 								effectKey,
-								SCRATCH,
+								matrix,
 								color,
 								packedLight
 						);
@@ -226,25 +254,26 @@ public class ComponentMesh {
 		return advance;
 	}
 
-	@Getter
+	@AllArgsConstructor
 	private static class SequenceSet {
 
-		private final ObjectList<Sequence>		sequences;
-		private final RenderType				renderType;
-		private final RenderType				effectType;
+		@Getter private final RenderType		glyphRenderType;
+		@Getter private final RenderType		whiteRenderType;
+		@Getter private	final int				sequenceSize;
+		private			final float			[]	sequenceOffsets;
+		private			final ISequenceKey	[]	sequenceKeys;
+		private			final ISequenceKey	[]	effectKeys;
 
-		public SequenceSet(RenderType renderType, RenderType effectType) {
-			this.sequences	= new ObjectArrayList<>();
-			this.renderType	= renderType;
-			this.effectType	= effectType;
+		public float getSequenceOffset(int index) {
+			return sequenceOffsets[index];
 		}
 
-		public record Sequence(
-				float			sequenceOffset,
-				ISequenceKey	sequenceKey,
-				ISequenceKey	effectKey
-		) {
+		public ISequenceKey getSequenceKey(int index) {
+			return sequenceKeys[index];
+		}
 
+		public ISequenceKey getEffectKey(int index) {
+			return effectKeys[index];
 		}
 	}
 
@@ -258,10 +287,10 @@ public class ComponentMesh {
 
 	public static class Builder {
 
-		private final	Map	<Key, SequenceSet>	sequenceSetsByKey;
-		private final	List<SequenceSet>		sequenceSetsByIdx;
-		private final	List<Obfuscated>		obfuscatedGlyphs;
-		private			float					advance;
+		private final	Map				<Key, BuildingSequenceSet>	sequenceSetsByKey;
+		private final	ObjectArrayList	<BuildingSequenceSet>		sequenceSetsByIdx;
+		private final	ObjectArrayList	<Obfuscated>				obfuscatedGlyphs;
+		private			float										advance;
 
 		public Builder() {
 			this.sequenceSetsByKey	= new Object2ObjectOpenHashMap	<>();
@@ -272,25 +301,28 @@ public class ComponentMesh {
 
 		public void addSequence(
 				ISequenceKey	sequenceKey,
-				RenderType		renderType,
-				RenderType		effectType,
+				RenderType		glyphRenderType,
+				RenderType		whiteRenderType,
 				float			offset
 		) {
 			var key = new Key(
-					renderType,
-					effectType
+					glyphRenderType,
+					whiteRenderType
 			);
 
 			var sequence = this.sequenceSetsByKey.get(key);
 
 			if (sequence == null) {
-				sequence = new SequenceSet(renderType, effectType);
+				sequence = new BuildingSequenceSet(
+						glyphRenderType,
+						whiteRenderType
+				);
 
 				sequenceSetsByKey.put(key,	sequence);
 				sequenceSetsByIdx.add(		sequence);
 			}
 
-			sequence.sequences.add(new SequenceSet.Sequence(
+			sequence.sequences.add(new BuildingSequenceSet.Sequence(
 					offset,
 					AcceleratedStyledSequenceRenderer.INSTANCE.getIndexKey(sequenceKey),
 					AcceleratedSequenceEffectRenderer.INSTANCE.getIndexKey(sequenceKey)
@@ -314,9 +346,42 @@ public class ComponentMesh {
 		}
 
 		public ComponentMesh build(boolean shadow) {
+			var size = sequenceSetsByIdx.size();
+
+			var sequenceSets = new SequenceSet[size];
+
+			for (var index1 = 0; index1 < size; index1 ++) {
+				var buildingSequenceSet	= sequenceSetsByIdx		.get				(index1);
+				var glyphRenderType		= buildingSequenceSet	.getGlyphRenderType	();
+				var whiteRenderType		= buildingSequenceSet	.getWhiteRenderType	();
+				var sequences			= buildingSequenceSet	.getSequences		();
+
+				var sequenceSize	= sequences.size	();
+				var sequenceOffsets	= new float			[sequenceSize];
+				var sequenceKeys	= new ISequenceKey	[sequenceSize];
+				var effectKeys		= new ISequenceKey	[sequenceSize];
+
+				for (var index2 = 0; index2 < sequenceSize; index2 ++) {
+					var sequence = sequences.get(index2);
+
+					sequenceOffsets	[index2] = sequence.sequenceOffset	();
+					sequenceKeys	[index2] = sequence.sequenceKey		();
+					effectKeys		[index2] = sequence.effectKey		();
+				}
+
+				sequenceSets[index1] = new SequenceSet(
+						glyphRenderType,
+						whiteRenderType,
+						sequenceSize,
+						sequenceOffsets,
+						sequenceKeys,
+						effectKeys
+				);
+			}
+
 			return new ComponentMesh(
-					this.sequenceSetsByIdx,
-					this.obfuscatedGlyphs,
+					sequenceSets,
+					this.obfuscatedGlyphs.toArray(Obfuscated[]::new),
 					this.advance,
 					shadow
 			);
@@ -327,6 +392,28 @@ public class ComponentMesh {
 				RenderType effect
 		) {
 
+		}
+
+		@Getter
+		private static class BuildingSequenceSet {
+
+			private final List<Sequence>	sequences;
+			private final RenderType		glyphRenderType;
+			private final RenderType		whiteRenderType;
+
+			private BuildingSequenceSet(RenderType glyphRenderType, RenderType whiteRenderType) {
+				this.sequences			= new ObjectArrayList<>();
+				this.glyphRenderType	= glyphRenderType;
+				this.whiteRenderType	= whiteRenderType;
+			}
+
+			public record Sequence(
+					float			sequenceOffset,
+					ISequenceKey	sequenceKey,
+					ISequenceKey	effectKey
+			) {
+
+			}
 		}
 	}
 }

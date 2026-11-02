@@ -5,15 +5,15 @@ import com.github.argon4w.acceleratedrendering.features.entities.AcceleratedEnti
 import com.github.argon4w.acceleratedrendering.features.filter.FilterFeature;
 import com.github.argon4w.acceleratedrendering.features.items.AcceleratedItemRenderingFeature;
 import com.github.argon4w.acceleratedrendering.features.text.AcceleratedTextRenderingFeature;
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(
 		value		= ItemRenderer.class,
@@ -21,22 +21,17 @@ import org.spongepowered.asm.mixin.injection.At;
 )
 public class ItemRendererMixin {
 
-	@WrapOperation(
-			method	= "render",
-			at		= @At(
-					value	= "INVOKE",
-					target	= "Lnet/minecraft/client/renderer/entity/ItemRenderer;renderModelLists(Lnet/minecraft/client/resources/model/BakedModel;Lnet/minecraft/world/item/ItemStack;IILcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;)V"
-			)
-	)
+	@WrapMethod(method	= "render")
 	public void filterItem(
-			ItemRenderer	instance,
-			BakedModel		bakedModel,
-			ItemStack		itemStack,
-			int				stack,
-			int				combinedLight,
-			PoseStack		combinedOverlay,
-			VertexConsumer	poseStack,
-			Operation<Void>	original
+			ItemStack			itemStack,
+			ItemDisplayContext	displayContext,
+			boolean				leftHand,
+			PoseStack			poseStack,
+			MultiBufferSource	bufferSource,
+			int					packedLight,
+			int					packedOverlay,
+			BakedModel			bakedModel,
+			Operation<Void>		original
 	) {
 		var pass =	!	CoreFeature		.isLoaded			()
 				||	!	FilterFeature	.isEnabled			()
@@ -50,13 +45,14 @@ public class ItemRendererMixin {
 		}
 
 		original.call(
-				instance,
-				bakedModel,
 				itemStack,
-				stack,
-				combinedLight,
-				combinedOverlay,
-				poseStack
+				displayContext,
+				leftHand,
+				poseStack,
+				bufferSource,
+				packedLight,
+				packedOverlay,
+				bakedModel
 		);
 
 		if (!pass) {

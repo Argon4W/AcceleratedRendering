@@ -19,7 +19,7 @@ public class MojangViewportBindingState implements IBindingState {
 	}
 
 	@Override
-	public void record(GuiGraphics graphics) {
+	public void capture(GuiGraphics graphics) {
 		viewportX		= GlStateManager.Viewport.x		();
 		viewportY		= GlStateManager.Viewport.y		();
 		viewportWidth	= GlStateManager.Viewport.width	();

@@ -6,7 +6,7 @@ import com.github.argon4w.acceleratedrendering.features.entities.AcceleratedEnti
 import com.github.argon4w.acceleratedrendering.features.filter.FilterFeature;
 import com.github.argon4w.acceleratedrendering.features.items.AcceleratedItemRenderingFeature;
 import com.github.argon4w.acceleratedrendering.features.items.gui.GuiBatchingController;
-import com.github.argon4w.acceleratedrendering.features.items.gui.contexts.ItemRenderContext;
+import com.github.argon4w.acceleratedrendering.features.items.gui.contexts.ItemDrawContext;
 import com.github.argon4w.acceleratedrendering.features.text.AcceleratedTextRenderingFeature;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -30,8 +30,8 @@ import java.util.List;
 @Mixin			(GuiBatchingController	.class)
 public class GuiBatchingControllerMixin {
 
-	@Unique private final List<ItemRenderContext> filteredFlatItemDrawContexts	= new ReferenceArrayList<>();
-	@Unique private final List<ItemRenderContext> filteredBlockItemDrawContexts	= new ReferenceArrayList<>();
+	@Unique private final List<ItemDrawContext> filteredFlatItemDrawContexts	= new ReferenceArrayList<>();
+	@Unique private final List<ItemDrawContext> filteredBlockItemDrawContexts	= new ReferenceArrayList<>();
 
 	@WrapOperation(
 			method	= "submitItem",
@@ -50,7 +50,7 @@ public class GuiBatchingControllerMixin {
 		var pass =	!	CoreFeature		.isLoaded			()
 				||	!	FilterFeature	.isEnabled			()
 				||	!	FilterFeature	.shouldFilterItems	()
-				||		FilterFeature	.testItem			(((ItemRenderContext) itemRenderContext).itemStack());
+				||		FilterFeature	.testItem			(((ItemDrawContext) itemRenderContext).itemStack());
 
 		if (!pass) {
 			drawContexts = blockLight
@@ -62,7 +62,7 @@ public class GuiBatchingControllerMixin {
 	}
 
 	@Inject(
-			method	= "flushBatching(Lnet/minecraft/client/gui/GuiGraphics;)F",
+			method	= "flushBatching(Lnet/minecraft/client/gui/GuiGraphics;Z)F",
 			at		= @At(
 					value	= "INVOKE",
 					target	= "Lcom/github/argon4w/acceleratedrendering/features/items/gui/GuiBatchingController;flushBatching()V",
@@ -72,6 +72,7 @@ public class GuiBatchingControllerMixin {
 	)
 	public void flushFilteredItems(
 			GuiGraphics														graphics,
+			boolean															restoreScissor,
 			CallbackInfoReturnable<Float>									cir,
 			@Local(name = "bufferSource")	MultiBufferSource.BufferSource	bufferSource,
 			@Local(name = "itemRenderer")	ItemRenderer					itemRenderer,
@@ -101,8 +102,8 @@ public class GuiBatchingControllerMixin {
 			poseStack.popPose();
 		}
 
-		graphics	.flush			();
-		Lighting	.setupFor3DItems();
+		graphics.flush			();
+		Lighting.setupFor3DItems();
 
 		for (var context : filteredBlockItemDrawContexts) {
 			poseStack.pushPose	();
@@ -129,7 +130,7 @@ public class GuiBatchingControllerMixin {
 	}
 
 	@Inject(
-			method	= "flushBatching(Lnet/minecraft/client/gui/GuiGraphics;)F",
+			method	= "flushBatching(Lnet/minecraft/client/gui/GuiGraphics;Z)F",
 			at		= @At(
 					value	= "INVOKE",
 					target	= "Ljava/util/List;clear()V",
@@ -138,7 +139,11 @@ public class GuiBatchingControllerMixin {
 			),
 			remap	= false
 	)
-	public void clearFilteredItems(GuiGraphics graphics, CallbackInfoReturnable<Float> cir) {
+	public void clearFilteredItems(
+			GuiGraphics 					graphics,
+			boolean 						restoreScissor,
+			CallbackInfoReturnable<Float> 	cir
+	) {
 		filteredFlatItemDrawContexts	.clear();
 		filteredBlockItemDrawContexts	.clear();
 	}

@@ -66,7 +66,7 @@ public class RenderTypeUtilsMixin {
 			argsOnly	= true,
 			remap		= false
 	)
-	private static RenderType unwrapIrisRenderType5(RenderType renderType) {
+	private static RenderType unwrapIrisRenderType6(RenderType renderType) {
 		return renderType instanceof WrappableRenderType wrapped ? wrapped.unwrap() : renderType;
 	}
 

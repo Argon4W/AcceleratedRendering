@@ -60,27 +60,13 @@ public class LivingEntityRendererMixin {
 			Operation<Void>				original,
 			@Share("layer") LocalIntRef	layer
 	) {
-		if (		!CoreFeature.isLoaded			()
-				||	!ModsFeature.isEnabled			()
-				||	!ModsFeature.shouldFixVanilla	()
-		) {
-			original.call(
-					instance,
-					poseStack,
-					bufferSource,
-					packedLight,
-					entity,
-					limbSwing,
-					limbSwingAmount,
-					partialTick,
-					ageInTicks,
-					netHeadYaw,
-					headPitch
-			);
-			return;
-		}
+		var pass =	CoreFeature.isLoaded		()
+				&&	ModsFeature.isEnabled		()
+				&&	ModsFeature.shouldFixVanilla();
 
-		CoreFeature.forceSetDefaultLayer(layer.get());
+		if (pass) {
+			CoreFeature.forceSetDefaultLayer(layer.get());
+		}
 
 		original.call(
 				instance,
@@ -96,7 +82,9 @@ public class LivingEntityRendererMixin {
 				headPitch
 		);
 
-		CoreFeature.resetDefaultLayer();
+		if (pass) {
+			CoreFeature.resetDefaultLayer();
+		}
 
 		layer.set(layer.get() + 1);
 	}

@@ -23,7 +23,6 @@ import com.github.argon4w.acceleratedrendering.core.programs.ComputeShaderProgra
 import com.github.argon4w.acceleratedrendering.core.utils.AvailabilityUtils;
 import com.github.argon4w.acceleratedrendering.core.utils.PackedVector2i;
 import com.google.common.util.concurrent.Runnables;
-import net.minecraft.client.Minecraft;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -212,6 +211,10 @@ public class CoreFeature {
 		DEFAULT_LAYER_CONTROLLER_STACK.push(getDefaultLayer() + 1);
 	}
 
+	public static void forceAddDefaultLayer(int layer) {
+		DEFAULT_LAYER_CONTROLLER_STACK.push(getDefaultLayer() + layer);
+	}
+
 	public static void forceSetDefaultLayerBeforeFunction(Runnable runnable) {
 		DEFAULT_LAYER_BEFORE_FUNCTION_CONTROLLER_STACK.push(runnable);
 	}
@@ -292,6 +295,14 @@ public class CoreFeature {
 		RENDERING_GUI = false;
 	}
 
+	public static void setGuiBatching() {
+		GUI_BATCHING = true;
+	}
+
+	public static void resetGuiBatching() {
+		GUI_BATCHING = false;
+	}
+
 	public static boolean isRenderingLevel() {
 		return RENDERING_LEVEL;
 	}
@@ -302,14 +313,6 @@ public class CoreFeature {
 
 	public static boolean isRenderingGui() {
 		return RENDERING_GUI;
-	}
-
-	public static void setGuiBatching() {
-		GUI_BATCHING = true;
-	}
-
-	public static void resetGuiBatching() {
-		GUI_BATCHING = false;
 	}
 
 	public static boolean isGuiBatching() {
