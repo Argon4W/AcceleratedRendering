@@ -20,11 +20,11 @@ import java.util.function.Supplier;
 @Mixin(BufferBuilder.class)
 public class BufferBuilderMixin implements IAccelerationHolder, IAcceleratedVertexConsumer {
 
-	@Unique private IAcceleratedBufferSource	bufferSources = EmptyAcceleratedBufferSources.INSTANCE;
-	@Unique private RenderType					renderType;
-	@Unique private AcceleratedBufferBuilder	acceleration;
-	@Unique private boolean						init	= false;
-	@Unique private int							layer	= Integer.MIN_VALUE;
+	@Unique private IAcceleratedBufferSource	bufferSources 	= EmptyAcceleratedBufferSources.INSTANCE;
+	@Unique private RenderType					renderType		= null;
+	@Unique private AcceleratedBufferBuilder	acceleration	= null;
+	@Unique private boolean						init			= false;
+	@Unique private int							layer			= Integer.MIN_VALUE;
 
 	@Unique
 	@Override
