@@ -5,6 +5,8 @@ import com.github.argon4w.acceleratedrendering.features.mods.ModsFeature;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
+import com.llamalad7.mixinextras.sugar.Share;
+import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.datafixers.util.Pair;
@@ -36,16 +38,19 @@ public class BannerRendererMixin {
 			)
 	)
 	private static void wrapPatternLayer1(
-			ModelPart		instance,
-			PoseStack		poseStack,
-			VertexConsumer	vertexConsumer,
-			int				packedLight,
-			int				packedOverlay,
-			Operation<Void>	original
+			ModelPart					instance,
+			PoseStack					poseStack,
+			VertexConsumer				vertexConsumer,
+			int							packedLight,
+			int							packedOverlay,
+			Operation<Void>				original,
+			@Share("layer") LocalIntRef	layer
 	) {
 		var pass = CoreFeature.isLoaded			()
 				&& ModsFeature.isEnabled		()
 				&& ModsFeature.shouldFixVanilla	();
+
+		layer.set(1);
 
 		if (pass) {
 			CoreFeature.forceIncrementDefaultLayer();
@@ -72,17 +77,17 @@ public class BannerRendererMixin {
 			)
 	)
 	private static void wrapPatternLayer2(
-			Optional<?>				instance,
-			Consumer<?>				action,
-			Operation<Void>			original,
-			@Local(name = "i") int	index
+			Optional<?>					instance,
+			Consumer<?>					action,
+			Operation<Void>				original,
+			@Share("layer") LocalIntRef	layer
 	) {
 		var pass = CoreFeature.isLoaded			()
 				&& ModsFeature.isEnabled		()
 				&& ModsFeature.shouldFixVanilla	();
 
 		if (pass) {
-			CoreFeature.forceAddDefaultLayer(index + 1);
+			CoreFeature.forceAddDefaultLayer(layer.get() + 1);
 		}
 
 		original.call(instance, action);
@@ -90,5 +95,7 @@ public class BannerRendererMixin {
 		if (pass) {
 			CoreFeature.resetDefaultLayer();
 		}
+
+		layer.set(layer.get() + 1);
 	}
 }
