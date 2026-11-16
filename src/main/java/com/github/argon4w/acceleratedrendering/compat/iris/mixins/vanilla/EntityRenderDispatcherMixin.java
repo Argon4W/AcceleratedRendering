@@ -4,6 +4,8 @@ import com.github.argon4w.acceleratedrendering.compat.iris.buffers.IrisEntityAcc
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.irisshaders.batchedentityrendering.impl.Groupable;
+import net.irisshaders.iris.shaderpack.materialmap.WorldRenderingSettings;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.world.entity.Entity;
@@ -48,6 +50,14 @@ public class EntityRenderDispatcherMixin {
 			argsOnly	= true
 	)
 	public MultiBufferSource wrapIrisBufferSource(MultiBufferSource bufferSource, @Share("original") LocalRef<MultiBufferSource> original) {
+		if (!(bufferSource instanceof Groupable)) {
+			return bufferSource;
+		}
+
+		if (WorldRenderingSettings.INSTANCE.getEntityIds() == null) {
+			return bufferSource;
+		}
+
 		return new IrisEntityAcceleratableBufferSource(bufferSource, original.get());
 	}
 }
