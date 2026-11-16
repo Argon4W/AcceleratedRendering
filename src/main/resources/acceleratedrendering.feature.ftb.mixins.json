@@ -4,7 +4,7 @@
   "package": "com.github.argon4w.acceleratedrendering.features.ftb.mixins",
   "compatibilityLevel": "JAVA_21",
   "client": [
-    "BaseScreenMixin"
+    "PanelMixin"
   ],
   "injectors": {
     "defaultRequire": 1

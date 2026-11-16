@@ -4,7 +4,7 @@ import net.minecraft.client.gui.GuiGraphics;
 
 public interface IBindingState {
 
-	void record	(GuiGraphics graphics);
+	void capture(GuiGraphics graphics);
 	void restore();
 	void delete	();
 }

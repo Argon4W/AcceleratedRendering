@@ -67,7 +67,7 @@ public record ServerMesh(
 		public IMesh build(
 				IMeshCollector	collector,
 				boolean			forceDense,
-				boolean			reloadSensitive,
+				boolean			reloadAware,
 				int				meshLayer
 		) {
 			var vertexCount	= collector.getVertexCount();
@@ -76,10 +76,15 @@ public record ServerMesh(
 				return EmptyMesh.INSTANCE;
 			}
 
-			var builder	= collector				.getBuffer	();
-			var layout	= collector				.getLayout	();
-			var data	= collector				.getData	();
-			var mesh	= MeshDataCaches.SERVER	.get		(layout, data);
+			var builder	= collector.getBuffer	();
+			var layout	= collector.getLayout	();
+			var data	= collector.getData		();
+
+			var mesh = MeshDataCaches.SERVER.get(
+					reloadAware,
+					layout,
+					data
+			);
 
 			if (mesh != null) {
 				builder.discard	();
@@ -97,7 +102,7 @@ public record ServerMesh(
 				return EmptyMesh.INSTANCE;
 			}
 
-			var buffers = reloadSensitive
+			var buffers = reloadAware
 					? RELOAD_BUFFERS
 					: NORMAL_BUFFERS;
 
@@ -138,6 +143,7 @@ public record ServerMesh(
 			);
 
 			MeshDataCaches.SERVER.set(
+					reloadAware,
 					layout,
 					data,
 					mesh

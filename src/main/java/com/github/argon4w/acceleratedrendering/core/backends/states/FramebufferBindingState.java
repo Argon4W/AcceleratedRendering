@@ -17,7 +17,7 @@ public class FramebufferBindingState implements IBindingState {
 	}
 
 	@Override
-	public void record(GuiGraphics graphics) {
+	public void capture(GuiGraphics graphics) {
 		bindingFramebuffer = glGetInteger(GL_FRAMEBUFFER_BINDING);
 
 		if (bindingFramebuffer == 0) {

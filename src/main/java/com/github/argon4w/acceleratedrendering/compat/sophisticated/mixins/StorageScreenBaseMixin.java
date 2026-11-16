@@ -55,16 +55,20 @@ public class StorageScreenBaseMixin {
 			float							partialTick,
 			CallbackInfo					ci,
 			@Share("depth")	LocalFloatRef	depth,
-			@Share("batch")	LocalBooleanRef	batch
+			@Share("batch")	LocalBooleanRef	batch,
+			@Share("merge") LocalBooleanRef merge
 	) {
-		if (		ModsFeature						.isEnabled						()
-				&&	ModsFeature						.shouldAccelerateSophisticated	()
-				&& !AcceleratedItemRenderingFeature	.shouldMergeGuiItemBatches		()
-				&&	batch							.get							()
+		merge.set(AcceleratedItemRenderingFeature.shouldMergeGuiItemBatches());
+
+		if (	!	merge.get()
+				&&	batch.get()
 		) {
 			depth.set(depth.get() + GuiBatchingController.INSTANCE.flushBatching(guiGraphics));
 
-			var pose = guiGraphics.pose().last().pose();
+			var pose = guiGraphics
+					.pose()
+					.last()
+					.pose();
 
 			var previousDepth = GuiBatchingController.getGlobalDepth(
 					pose.m22(),
@@ -101,13 +105,11 @@ public class StorageScreenBaseMixin {
 			int								mouseY,
 			float							partialTick,
 			CallbackInfo					ci,
-			@Share("depth")	LocalFloatRef	depth,
-			@Share("batch")	LocalBooleanRef	batch
+			@Share("batch")	LocalBooleanRef	batch,
+			@Share("merge") LocalBooleanRef merge
 	) {
-		if (		ModsFeature						.isEnabled						()
-				&&	ModsFeature						.shouldAccelerateSophisticated	()
-				&& !AcceleratedItemRenderingFeature	.shouldMergeGuiItemBatches		()
-				&&	batch							.get							()
+		if (	!	merge.get()
+				&&	batch.get()
 		) {
 			GuiBatchingController.INSTANCE.startBatching(guiGraphics);
 		}
@@ -131,13 +133,13 @@ public class StorageScreenBaseMixin {
 			@Share("depth")	LocalFloatRef	depth,
 			@Share("batch")	LocalBooleanRef	batch
 	) {
-		if (		ModsFeature	.isEnabled						()
-				&&	ModsFeature	.shouldAccelerateSophisticated	()
-				&&	batch		.get							()
-		) {
+		if (batch.get()) {
 			depth.set(depth.get() + GuiBatchingController.INSTANCE.flushBatching(guiGraphics));
 
-			var pose = guiGraphics.pose().last().pose();
+			var pose = guiGraphics
+					.pose()
+					.last()
+					.pose();
 
 			var previousDepth = GuiBatchingController.getGlobalDepth(
 					pose.m22(),
@@ -170,11 +172,11 @@ public class StorageScreenBaseMixin {
 			@Share("depth")		LocalFloatRef	depth,
 			@Share("batch")		LocalBooleanRef	batch
 	) {
-		if (		ModsFeature	.isEnabled						()
-				&&	ModsFeature	.shouldAccelerateSophisticated	()
-				&&	batch		.get							()
-		) {
-			var pose = guiGraphics.pose().last().pose();
+		if (batch.get()) {
+			var pose = guiGraphics
+					.pose()
+					.last()
+					.pose();
 
 			var previousDepth = GuiBatchingController.getGlobalDepth(
 					pose.m22(),

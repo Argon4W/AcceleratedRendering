@@ -158,8 +158,12 @@ dependencies {
     compileOnly "maven.modrinth:geckolib:QEqpUJ1G"
     compileOnly "maven.modrinth:immediatelyfast:1.6.8+1.21.1-neoforge"
     compileOnly "maven.modrinth:curios:9.5.1+1.21.1"
-    compileOnly "curse.maven:ftb-library-forge-404465:7746959"
     compileOnly "org.projectlombok:lombok:1.18.38"
+
+    implementation "curse.maven:architectury-api-419699:8492726"
+    implementation "curse.maven:ftb-library-forge-404465:9350706"
+    implementation "curse.maven:ftb-teams-forge-404468:8724782"
+    implementation "curse.maven:ftb-quests-forge-289412:9298629"
 
     annotationProcessor "org.projectlombok:lombok:1.18.38"
 }

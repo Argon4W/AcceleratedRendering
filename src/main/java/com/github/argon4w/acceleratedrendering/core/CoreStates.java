@@ -9,8 +9,8 @@ public class CoreStates {
 
 	public static void recordBuffers() {
 		if (CoreFeature.shouldRestoreBlockBuffers()) {
-			SHADER_STORAGE_BUFFER_STATE.record(null);
-			ATOMIC_COUNTER_BUFFER_STATE.record(null);
+			SHADER_STORAGE_BUFFER_STATE.capture(null);
+			ATOMIC_COUNTER_BUFFER_STATE.capture(null);
 		}
 	}
 

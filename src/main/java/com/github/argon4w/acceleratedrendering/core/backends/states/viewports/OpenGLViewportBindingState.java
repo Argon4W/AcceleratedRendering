@@ -17,7 +17,7 @@ public class OpenGLViewportBindingState implements IBindingState {
 	}
 
 	@Override
-	public void record(GuiGraphics graphics) {
+	public void capture(GuiGraphics graphics) {
 		glGetIntegerv(GL_VIEWPORT, bindingViewport);
 	}
 

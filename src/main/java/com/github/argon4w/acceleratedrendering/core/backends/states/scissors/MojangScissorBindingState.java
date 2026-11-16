@@ -24,7 +24,7 @@ public class MojangScissorBindingState implements IBindingState {
 	}
 
 	@Override
-	public void record(GuiGraphics graphics) {
+	public void capture(GuiGraphics graphics) {
 		var rect = graphics.scissorStack.stack.peekLast();
 
 		if (rect != null) {

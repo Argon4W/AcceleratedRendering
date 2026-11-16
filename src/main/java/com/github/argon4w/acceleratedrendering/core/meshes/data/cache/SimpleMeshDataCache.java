@@ -7,51 +7,62 @@ import it.unimi.dsi.fastutil.objects.*;
 
 public class SimpleMeshDataCache implements IMeshDataCache {
 
-	private final Object2ReferenceMap<VertexLayout, Object2ReferenceMap	<MeshData, IMesh>>	meshes;
-	private final Object2ReferenceMap<VertexLayout, Object2IntMap		<MeshData>>			counts;
+	private final Object2ReferenceMap<VertexLayout, VertexLayoutCache> persistentVertexLayoutCaches;
+	private final Object2ReferenceMap<VertexLayout, VertexLayoutCache> reloadAwareVertexLayoutCaches;
 
 	public SimpleMeshDataCache() {
-		this.meshes = new Object2ReferenceOpenHashMap<>();
-		this.counts = new Object2ReferenceOpenHashMap<>();
-
-		this.meshes.defaultReturnValue(Object2ReferenceMaps	.emptyMap());
-		this.counts.defaultReturnValue(Object2IntMaps		.emptyMap());
+		this.persistentVertexLayoutCaches	= new Object2ReferenceOpenHashMap<>();
+		this.reloadAwareVertexLayoutCaches	= new Object2ReferenceOpenHashMap<>();
 	}
 
 	@Override
 	public void set(
+			boolean			reloadAware,
 			VertexLayout	layout,
 			MeshData		data,
 			IMesh			mesh
 	) {
-		var meshCache	= meshes.getOrDefault(layout, null);
-		var countCache	= counts.getOrDefault(layout, null);
+		var vertexLayoutCaches = reloadAware
+				? this.reloadAwareVertexLayoutCaches
+				: this.persistentVertexLayoutCaches;
 
-		if (meshCache == null) {
-			meshCache	= new Object2ReferenceOpenHashMap	<>();
-			countCache	= new Object2IntOpenHashMap			<>();
+		var vertexLayoutCache = vertexLayoutCaches.get(layout);
 
-			meshes.put(layout, meshCache);
-			counts.put(layout, countCache);
+		if (vertexLayoutCache == null) {
+			vertexLayoutCache = new VertexLayoutCache(layout, reloadAware);
 		}
 
-		meshCache	.putIfAbsent(data, mesh);
-		countCache	.put		(data, countCache.getInt(data) + 1);
+		vertexLayoutCache.meshes.put(data, mesh);
 	}
 
 	@Override
-	public IMesh get(VertexLayout layout, MeshData meshData) {
-		return meshes.get(layout).get(meshData);
-	}
+	public IMesh get(
+			boolean 		reloadAware,
+			VertexLayout 	layout,
+			MeshData 		data
+	) {
+		var cache = (reloadAware
+				? this.reloadAwareVertexLayoutCaches
+				: this.persistentVertexLayoutCaches).get(layout);
 
-	@Override
-	public int count(VertexLayout layout, MeshData data) {
-		return counts.get(layout).getInt(data);
+		return cache == null ? null : cache.meshes.get(data);
 	}
 
 	@Override
 	public void reload() {
-		meshes.clear();
-		counts.clear();
+		reloadAwareVertexLayoutCaches.clear();
+	}
+
+	public class VertexLayoutCache {
+
+		private final Object2ReferenceMap<MeshData, IMesh> meshes;
+
+		private VertexLayoutCache(VertexLayout vertexLayout, boolean reloadAware) {
+			this.meshes = new Object2ReferenceOpenHashMap<>();
+
+			(reloadAware
+					? SimpleMeshDataCache.this.reloadAwareVertexLayoutCaches
+					: SimpleMeshDataCache.this.persistentVertexLayoutCaches).put(vertexLayout, this);
+		}
 	}
 }
