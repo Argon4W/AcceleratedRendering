@@ -9,6 +9,8 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.ItemRenderer;
@@ -22,6 +24,8 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+
+import java.util.List;
 
 
 @Mixin(GuiGraphics.class)
@@ -367,6 +371,44 @@ public class GuiGraphicsMixin {
 				combinedOverlay,
 				bakedModel,
 				bakedModel.usesBlockLight()
+		);
+	}
+
+	@WrapMethod(method = "renderTooltipInternal")
+	public void captureInBatchTooltip(
+			Font							font,
+			List<ClientTooltipComponent>	components,
+			int								mouseX,
+			int								mouseY,
+			ClientTooltipPositioner			tooltipPositioner,
+			Operation<Void>					original
+	) {
+		if (		!AcceleratedItemRenderingFeature.isEnabled						()
+				||	!AcceleratedItemRenderingFeature.shouldUseAcceleratedPipeline	()
+				||	!AcceleratedItemRenderingFeature.shouldAccelerateInGui			()
+				||	!CoreFeature					.isLoaded						()
+				||	!CoreFeature					.isGuiBatching					()
+		) {
+			original.call(
+					font,
+					components,
+					mouseX,
+					mouseY,
+					tooltipPositioner
+			);
+			return;
+		}
+
+		var last = pose.last();
+
+		GuiBatchingController.INSTANCE.submitTooltip(
+				last.pose	(),
+				last.normal	(),
+				font,
+				components,
+				mouseX,
+				mouseY,
+				tooltipPositioner
 		);
 	}
 }

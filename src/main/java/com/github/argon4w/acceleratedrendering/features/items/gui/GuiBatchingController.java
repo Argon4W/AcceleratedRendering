@@ -25,6 +25,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.resources.ResourceLocation;
@@ -57,6 +59,7 @@ public class GuiBatchingController {
 	private			final	List<GradientDrawContext>		gradientDrawContexts;
 	private			final	List<ItemDrawContext>			flatItemDrawContexts;
 	private			final	List<ItemDrawContext>			blockItemDrawContexts;
+	private			final	List<TooltipDrawContext>		tooltipDrawContexts;
 	private			final	Float2ReferenceSortedMap<Layer>	depthLayers;
 
 	private GuiBatchingController() {
@@ -70,6 +73,7 @@ public class GuiBatchingController {
 		this.gradientDrawContexts	= new ReferenceArrayList		<>	();
 		this.flatItemDrawContexts	= new ReferenceArrayList		<>	();
 		this.blockItemDrawContexts	= new ReferenceArrayList		<>	();
+		this.tooltipDrawContexts	= new ReferenceArrayList		<>	();
 		this.depthLayers			= new Float2ReferenceAVLTreeMap	<>	();
 	}
 
@@ -282,15 +286,33 @@ public class GuiBatchingController {
 				graphics.pose().popPose();
 			}
 
-			depthLayers				.clear	();
-			blitDrawContexts		.clear	();
-			stringDrawContexts		.clear	();
-			decoratorDrawContexts	.clear	();
-			fillDrawContexts		.clear	();
-			highlightDrawContexts	.clear	();
-			gradientDrawContexts	.clear	();
-			flatItemDrawContexts	.clear	();
-			blockItemDrawContexts	.clear	();
+			for (int index = 0, size = tooltipDrawContexts.size(); index < size; index ++) {
+				var context = tooltipDrawContexts.get(index);
+
+				poseStack.pushPose	();
+				poseStack.setPose	(context.transform(), context.normal());
+
+				graphics.renderTooltipInternal(
+						context.font				(),
+						context.components			(),
+						context.mouseX				(),
+						context.mouseY				(),
+						context.tooltipPositioner	()
+				);
+
+				graphics.pose().popPose();
+			}
+
+			depthLayers				.clear();
+			blitDrawContexts		.clear();
+			stringDrawContexts		.clear();
+			decoratorDrawContexts	.clear();
+			fillDrawContexts		.clear();
+			highlightDrawContexts	.clear();
+			gradientDrawContexts	.clear();
+			flatItemDrawContexts	.clear();
+			blockItemDrawContexts	.clear();
+			tooltipDrawContexts		.clear();
 
 			if (restoreScissor) {
 				scissor2.restore();
@@ -593,6 +615,35 @@ public class GuiBatchingController {
 
 		highlightDrawContexts	.add(context);
 		layer					.add(context);
+	}
+
+	public void submitTooltip(
+			Matrix4f						transform,
+			Matrix3f						normal,
+			Font							font,
+			List<ClientTooltipComponent>	components,
+			int								mouseX,
+			int								mouseY,
+			ClientTooltipPositioner			tooltipPositioner
+	) {
+		var layer = getLayer(getGlobalDepth(
+				transform.m22(),
+				transform.m32(),
+				0.0f
+		));
+
+		var context = new TooltipDrawContext(
+				new Matrix4f(transform),
+				new Matrix3f(normal),
+				font,
+				components,
+				mouseX,
+				mouseY,
+				tooltipPositioner
+		);
+
+		tooltipDrawContexts	.add(context);
+		layer				.add(context);
 	}
 
 	public void submitString(IStringDrawContext context) {
